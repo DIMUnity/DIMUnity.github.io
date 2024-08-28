@@ -1,0 +1,243 @@
+:root {
+    --font-family: 'Roboto', sans-serif;
+    --font-size: 16px;
+    --gray-100: #efefef;
+    --gray-900: #030340;
+    --white-900: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    outline: none;
+    box-sizing: border-box;
+}
+
+a {
+    color: inherit;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    background-color: var(--gray-100);
+}
+
+/* ----------- 齒輪按鈕 ----------- */
+.settings-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* ----------- 模態視窗 ----------- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+/* ----------- 模態視窗內容 ----------- */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 15px;
+}
+
+/* ----------- 確認按鈕 ----------- */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* ----------- 輸入框和按鈕 ----------- */
+.settings-form div {
+    margin-bottom: 15px;
+}
+
+.settings-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* ----------- 輸入框 ----------- */
+.settings-form input {
+    padding: 12px;
+    font-size: 16px;
+    width: calc(100% - 24px);
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+}
+
+/* ----------- 按鈕 ----------- */
+.settings-form button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #4caf50, #81c784);
+    color: white;
+    cursor: pointer;
+}
+
+.settings-form button:hover {
+    background: linear-gradient(135deg, #45a049, #66bb6a);
+}
+
+/* ----------- Header ----------- */
+.header {
+    background-color: var(--gray-900);
+    text-align: center;
+    height: 8rem;
+}
+
+.pokemon__logo {
+    width: 300px;
+
+}
+
+/* ----------- Pokebola ----------- */
+.pokebola {
+    width: 250px;
+}
+
+.pokebola__image {
+    width: 100%;
+    cursor: pointer;
+    filter: drop-shadow(15px 15px 15px hsl(76deg 0% 0% / 0.5))
+}
+
+.pokebola__image:active {
+    animation: shake 0.1s;
+    animation-iteration-count: 200;
+
+}
+
+@keyframes shake {
+    0% {
+        margin-left: 0;
+    }
+
+    25% {
+        margin-left: 10px;
+    }
+
+    50% {
+        margin-left: 0;
+    }
+
+    75% {
+        margin-left: -10px;
+    }
+
+    100% {
+        margin-left: 0;
+    }
+}
+
+/* ----------- Pokestop ----------- */
+.pokestop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+
+    padding: 2rem 0;
+    min-height: calc(100vh - 8rem - 52px);
+
+}
+
+/* ----------- Pokemon ----------- */
+.pokemon {
+    display: none;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: linear-gradient(45deg, #ff9800, #ffde3b);
+    color: var(--white-900);
+    padding: 1rem;
+    border-radius: 10px;
+    width: 500px;
+    max-width: 100%;
+    filter: drop-shadow(15px 15px 15px hsl(76deg 0% 0% / 0.5))
+}
+
+.pokemon.show {
+    display: flex;
+}
+
+.pokemon__wrapperImage {
+    width: 250px;
+    height: 250px;
+    background-color: var(--gray-100);
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pokemon__image {
+    width: 100%;
+    filter: drop-shadow(15px 15px 15px hsl(76deg 0% 0% / 0.5))
+}
+
+.pokemon__name {
+    text-transform: uppercase;
+    text-align: center;
+	text-shadow: 0 0 50px #fff;
+	font-size:25px;
+}
+
+.pokemon__description {
+    text-transform: uppercase;
+    text-align: center;
+	text-shadow: 0 0 50px #fff;
+	font-size:18px;
+}
+
+.pokemon__abilities {
+	font-weight:bold;
+    text-transform: capitalize;
+	text-shadow: 0 0 50px #fff;
+    margin-left: 18px;
+	font-size:20px;
+}
+
+/* ----------- Footer ----------- */
+.footer {
+    background-color: var(--gray-900);
+    color: var(--white-900);
+    text-align: center;
+    padding: 1rem 0;
+    height: 52px;
+    text-transform: uppercase;
+}
