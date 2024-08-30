@@ -142,7 +142,7 @@ const getPokemon = () => {
   const imageName = getRandomLocalImage().split('/').pop().split('.').shift();
   const pokemonName = imageName;
   const pokemonDescription = getPokemonDescription(pokemonName);
-  const randomAbilityEffect = getRandomEffect();
+  const randomAbilityEffect = pokemonName + getRandomEffect();
 
   const pokemonSelected = {
     name: pokemonName,

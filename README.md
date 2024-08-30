@@ -6,7 +6,4 @@
 
 ## How to Use
 
-- Launch :
-   ```
-   https://dimunity.github.io/index.html
-   ```
+- URL : https://dimunity.github.io/index.html
