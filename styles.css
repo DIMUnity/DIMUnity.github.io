@@ -4,6 +4,8 @@
     --gray-100: #efefef;
     --gray-900: #030340;
     --white-900: #fff;
+    --pokestop-blue: #00a2ff;
+    --pokestop-purple: #bd00ff;
 }
 
 * {
@@ -32,23 +34,22 @@ body {
     border: none;
     font-size: 24px;
     cursor: pointer;
+    z-index: 10;
 }
 
 /* ----------- 模態視窗 ----------- */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 100;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
     background-color: rgba(0,0,0,0.4);
 }
 
-/* ----------- 模態視窗內容 ----------- */
 .modal-content {
     background-color: #fefefe;
     margin: 15% auto;
@@ -59,7 +60,6 @@ body {
     border-radius: 15px;
 }
 
-/* ----------- 確認按鈕 ----------- */
 .close {
     color: #aaa;
     float: right;
@@ -74,7 +74,6 @@ body {
     cursor: pointer;
 }
 
-/* ----------- 輸入框和按鈕 ----------- */
 .settings-form div {
     margin-bottom: 15px;
 }
@@ -85,7 +84,6 @@ body {
     font-weight: bold;
 }
 
-/* ----------- 輸入框 ----------- */
 .settings-form input {
     padding: 12px;
     font-size: 16px;
@@ -95,7 +93,6 @@ body {
     background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
 }
 
-/* ----------- 按鈕 ----------- */
 .settings-form button {
     padding: 10px 20px;
     font-size: 16px;
@@ -115,121 +112,155 @@ body {
     background-color: var(--gray-900);
     text-align: center;
     height: 8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
 .pokemon__logo {
     width: 300px;
-
 }
 
-/* ----------- Pokebola ----------- */
+/* ----------- PokéStop 旋轉盤外框效果 ----------- */
+.pokestop-disc-wrapper {
+    perspective: 1000px; /* 賦予 3D 透視深度空間 */
+    padding: 20px;
+    border: 8px solid var(--pokestop-blue);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 20px rgba(0, 162, 255, 0.5);
+    transition: all 0.5s ease;
+}
+
+/* 點擊後，外框若隨之變色 */
+.pokestop-disc-wrapper:has(.cooldown) {
+    border-color: var(--pokestop-purple);
+    box-shadow: 0 0 20px rgba(189, 0, 255, 0.5);
+}
+
 .pokebola {
-    width: 250px;
+    width: 230px;
+    height: 230px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .pokebola__image {
     width: 100%;
     cursor: pointer;
-    filter: drop-shadow(15px 15px 15px hsl(76deg 0% 0% / 0.5))
+    filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3));
+    transition: filter 0.5s ease, transform 0.1s ease;
 }
 
-.pokebola__image:active {
-    animation: shake 0.1s;
-    animation-iteration-count: 200;
-
+/* 正在旋轉的 3D 動畫 */
+.pokebola__image.spinning {
+    animation: spinDisc 0.4s linear infinite;
+    cursor: not-allowed;
 }
 
-@keyframes shake {
+/* 轉完後的冷卻狀態（濾鏡變紫色） */
+.pokebola__image.cooldown {
+    filter: hue-rotate(90deg) drop-shadow(5px 5px 10px rgba(0,0,0,0.3));
+    cursor: not-allowed;
+}
+
+@keyframes spinDisc {
     0% {
-        margin-left: 0;
+        transform: rotateY(0deg);
     }
-
-    25% {
-        margin-left: 10px;
-    }
-
-    50% {
-        margin-left: 0;
-    }
-
-    75% {
-        margin-left: -10px;
-    }
-
     100% {
-        margin-left: 0;
+        transform: rotateY(360deg);
     }
 }
 
-/* ----------- Pokestop ----------- */
+/* ----------- Pokestop 佈局 ----------- */
 .pokestop {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
+    gap: 4rem;
     flex-wrap: wrap;
-
     padding: 2rem 0;
     min-height: calc(100vh - 8rem - 52px);
-
 }
 
-/* ----------- Pokemon ----------- */
+/* ----------- Pokemon 卡片彈出特效 ----------- */
 .pokemon {
     display: none;
     align-items: center;
     justify-content: space-around;
     flex-wrap: wrap;
     gap: 1rem;
-    background: linear-gradient(45deg, #ff9800, #ffde3b);
+    background: linear-gradient(45deg, #1d64da, #00a2ff);
     color: var(--white-900);
-    padding: 1rem;
-    border-radius: 10px;
+    padding: 1.5rem;
+    border-radius: 20px;
     width: 500px;
     max-width: 100%;
-    filter: drop-shadow(15px 15px 15px hsl(76deg 0% 0% / 0.5))
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .pokemon.show {
     display: flex;
+    opacity: 1;
+    transform: scale(1);
 }
 
 .pokemon__wrapperImage {
-    width: 250px;
-    height: 250px;
-    background-color: var(--gray-100);
+    width: 200px;
+    height: 200px;
+    background-color: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 4px solid #fff;
 }
 
 .pokemon__image {
-    width: 100%;
-    filter: drop-shadow(15px 15px 15px hsl(76deg 0% 0% / 0.5))
+    width: 85%;
+    filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.2));
+}
+
+.pokemon__info {
+    flex: 1;
+    min-width: 200px;
 }
 
 .pokemon__name {
     text-transform: uppercase;
     text-align: center;
-	text-shadow: 0 0 50px #fff;
-	font-size:25px;
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
 }
 
 .pokemon__description {
-    text-transform: uppercase;
-    text-align: center;
-	text-shadow: 0 0 50px #fff;
-	font-size:18px;
+    text-align: left;
+    font-size: 14px;
+    background: rgba(0,0,0,0.15);
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    line-height: 1.4;
 }
 
 .pokemon__abilities {
-	font-weight:bold;
-    text-transform: capitalize;
-	text-shadow: 0 0 50px #fff;
-    margin-left: 18px;
-	font-size:20px;
+    font-weight: bold;
+    list-style-type: none;
+    font-size: 16px;
+    background: #fff;
+    color: #030340;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
 /* ----------- Footer ----------- */
@@ -239,5 +270,4 @@ body {
     text-align: center;
     padding: 1rem 0;
     height: 52px;
-    text-transform: uppercase;
 }
