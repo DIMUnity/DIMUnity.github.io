@@ -7,9 +7,10 @@
   
   <!-- 瀏覽器分頁小圖示 (Favicon) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>" />
-  <!-- 若要使用本機圖片檔案，可改用：<link rel="icon" type="image/png" href="favicon.png" /> -->
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- 引入 SortableJS 拖曳排序套件 -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
   <style>
     :root {
@@ -471,6 +472,7 @@
       border-color: #fff;
     }
 
+    /* ─── 左側店家卡片與拖曳樣式 ─── */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -493,8 +495,14 @@
       border: 1px solid var(--ig-border);
       border-radius: 12px;
       padding: 10px 12px;
-      cursor: pointer;
+      cursor: grab;
       position: relative;
+      touch-action: pan-y;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .store-card:active {
+      cursor: grabbing;
     }
 
     .store-card.is-unlocked {
@@ -502,11 +510,43 @@
       background: linear-gradient(135deg, rgba(220, 39, 67, 0.08), var(--ig-card));
     }
 
+    /* 拖曳中的影子與選取樣式 */
+    .sortable-ghost {
+      opacity: 0.25 !important;
+      border: 1.5px dashed var(--ig-blue) !important;
+      background: rgba(0, 149, 246, 0.1) !important;
+    }
+
+    .sortable-chosen {
+      background: var(--ig-card-hover) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+    }
+
     .card-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 3px;
+    }
+
+    .store-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drag-handle {
+      color: #555;
+      font-size: 12px;
+      letter-spacing: -2px;
+      cursor: grab;
+      padding: 2px 4px 2px 0;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .store-card:hover .drag-handle {
+      color: var(--ig-text-sub);
     }
 
     .store-title {
@@ -529,6 +569,7 @@
       color: var(--ig-text-sub);
       margin-bottom: 6px;
       line-height: 1.3;
+      padding-left: 14px;
     }
 
     .card-bottom {
@@ -537,6 +578,7 @@
       align-items: center;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       padding-top: 6px;
+      padding-left: 14px;
     }
 
     .tag-pill {
@@ -959,7 +1001,7 @@
     // 🛡️ 授權白名單（請填入允許登入的 Google 信箱）
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com",
+      "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
     ];
 
     const firebaseConfig = {
@@ -978,6 +1020,7 @@
     let isFirebaseReady = false;
     let currentUser = null;
     let unsubscribeFirestore = null;
+    let sortableInstance = null;
 
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
       try {
@@ -1015,7 +1058,7 @@
                 stores = snapshot.docs.map(d => ({
                   id: d.id,
                   ...d.data()
-                }));
+                })).sort((a, b) => (a.order ?? 999999) - (b.order ?? 999999));
                 refreshAll();
               }, (err) => {
                 console.error("Firestore 錯誤:", err);
@@ -1048,7 +1091,6 @@
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // ─── 4 種多元風格底圖圖層定義 ───
     const darkLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri',
       maxZoom: 16
@@ -1271,6 +1313,7 @@
             lng: result.lng,
             category: '蛋奶素',
             visited: false,
+            order: stores.length,
             createdAt: serverTimestamp ? serverTimestamp() : Date.now()
           };
 
@@ -1386,6 +1429,7 @@
       filtered.forEach((s) => {
         const card = document.createElement('div');
         card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
+        card.setAttribute('data-id', s.id);
 
         card.addEventListener('dblclick', (e) => {
           e.stopPropagation();
@@ -1400,6 +1444,7 @@
         card.innerHTML = `
           <div class="card-top">
             <div class="store-title-group">
+              <span class="drag-handle" title="按住拖曳排序">⋮⋮</span>
               <span class="store-title">${s.name}</span>
             </div>
             <span class="badge-status ${s.visited ? 'badge-unlocked' : 'badge-locked'}">
@@ -1421,6 +1466,53 @@
         `;
         card.onclick = () => focusStore(s.id);
         listEl.appendChild(card);
+      });
+
+      // 初始化 / 重置拖曳排序功能
+      if (sortableInstance) {
+        sortableInstance.destroy();
+      }
+
+      // 只有在未篩選、未搜尋的「全部」模式下才允許持久化調整總清單排序
+      const isCustomSortAllowed = currentFilter === 'all' && currentCategory === 'all' && searchKeyword === '';
+
+      sortableInstance = new Sortable(listEl, {
+        animation: 180,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        filter: '.btn-heart, .card-edit-btn, button, input',
+        preventOnFilter: false,
+        disabled: !isCustomSortAllowed,
+        onEnd: async function () {
+          const itemEls = Array.from(listEl.querySelectorAll('.store-card'));
+          const newOrderIds = itemEls.map(el => el.getAttribute('data-id'));
+
+          // 重新排列本地陣列
+          stores.sort((a, b) => {
+            const idxA = newOrderIds.indexOf(a.id);
+            const idxB = newOrderIds.indexOf(b.id);
+            if (idxA === -1 || idxB === -1) return 0;
+            return idxA - idxB;
+          });
+
+          // 寫入 Firebase 批次更新順序索引
+          if (isFirebaseReady && currentUser) {
+            try {
+              const batch = writeBatch(db);
+              stores.forEach((s, idx) => {
+                s.order = idx;
+                const storeDoc = doc(db, "vegan_stores", s.id);
+                batch.update(storeDoc, { order: idx });
+              });
+              await batch.commit();
+            } catch (err) {
+              console.error("更新排序失敗:", err);
+            }
+          }
+
+          // 連帶重繪星軌連線順序
+          renderConstellation();
+        }
       });
     }
 
@@ -1574,6 +1666,7 @@
         const storeDoc = doc(db, "vegan_stores", editId);
         await updateDoc(storeDoc, storePayload);
       } else {
+        storePayload.order = stores.length;
         storePayload.createdAt = serverTimestamp ? serverTimestamp() : Date.now();
         await addDoc(storesCollection, storePayload);
         if (visited) playSparkleSound();
@@ -1618,7 +1711,7 @@
         if (isFirebaseReady) {
           try {
             const batch = writeBatch(db);
-            imported.forEach(item => {
+            imported.forEach((item, index) => {
               const docId = item.id ? String(item.id) : doc(storesCollection).id;
               const newDocRef = doc(db, "vegan_stores", docId);
 
@@ -1631,6 +1724,7 @@
                 lng: typeof item.lng === 'number' ? item.lng : parseFloat(item.lng) || 120.975,
                 visitedUsers: Array.isArray(item.visitedUsers) ? item.visitedUsers : [],
                 creatorId: item.creatorId || currentUser.uid,
+                order: typeof item.order === 'number' ? item.order : index,
                 createdAt: Date.now()
               });
             });
