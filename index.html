@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>蔬食探索星圖</title>
   
-  <!-- 瀏覽器分頁小圖示 (Favicon) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>" />
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- 引入 SortableJS 拖曳排序套件 -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
   <style>
@@ -132,39 +129,32 @@
       transition: all 0.2s ease;
     }
 
-    /* ─── 側邊欄與抽屜基礎 ─── */
+    /* ─── 側邊欄與抽屜容器 ─── */
     #sidebar {
       background: var(--ig-bg);
       display: flex;
       flex-direction: column;
       z-index: 1000;
-      transition: all 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
       flex-shrink: 0;
+      transition: all 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
     }
 
-    /* 手機底部抽屜拉條 (手機端顯示，電腦端隱藏) */
     .sheet-handle-bar {
       display: none;
       width: 100%;
-      padding: 8px 0 4px;
+      padding: 10px 0 6px;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      user-select: none;
     }
 
     .sheet-pill-indicator {
-      width: 38px;
-      height: 4px;
+      width: 40px;
+      height: 5px;
       background: #3f3f46;
       border-radius: 999px;
-      transition: background 0.2s;
-    }
-    .sheet-handle-bar:active .sheet-pill-indicator {
-      background: #71717a;
     }
 
-    /* 電腦端側邊欄切換按鈕 */
     .sidebar-toggle-btn {
       position: absolute;
       right: -28px;
@@ -228,15 +218,8 @@
       align-items: center;
       justify-content: center;
       gap: 3px;
-      transition: all 0.2s;
     }
 
-    .btn-icon:hover {
-      background: var(--ig-card-hover);
-      border-color: #555;
-    }
-
-    /* ─── IG Stories 限動分類 ─── */
     .stories-bar {
       display: flex;
       gap: 12px;
@@ -297,7 +280,6 @@
       font-weight: 700;
     }
 
-    /* ─── 快捷新增區塊 ─── */
     .quick-add-box {
       margin: 8px 14px 0;
       padding: 10px 12px;
@@ -345,7 +327,6 @@
       white-space: nowrap;
     }
 
-    /* ─── IG Profile 探索者檔案卡 ─── */
     .profile-card {
       margin: 8px 14px 0;
       padding: 10px 12px;
@@ -490,7 +471,6 @@
       border-color: #fff;
     }
 
-    /* ─── 店家卡片與拖曳樣式 ─── */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -789,14 +769,13 @@
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 6px; font-size: 12px; }
 
     /* ═════════════════════════════════════════════
-       💻 電腦端專屬佈局 (> 768px)
+       💻 電腦端佈局 (> 768px)
        ═════════════════════════════════════════════ */
     @media (min-width: 769px) {
       #sidebar {
         width: var(--sidebar-width);
         height: 100%;
         border-right: 1px solid var(--ig-border);
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.9);
         position: relative;
       }
 
@@ -814,7 +793,7 @@
     }
 
     /* ═════════════════════════════════════════════
-       📱 手機端專屬底部抽屜佈局 (<= 768px)
+       📱 手機端超清爽抽屜佈局 (<= 768px)
        ═════════════════════════════════════════════ */
     @media (max-width: 768px) {
       body {
@@ -843,40 +822,48 @@
         right: 0;
         bottom: 0;
         width: 100vw;
-        background: rgba(18, 18, 18, 0.95);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-top: 1px solid var(--ig-border-light);
+        background: rgba(18, 18, 18, 0.96);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid #333;
         border-radius: 20px 20px 0 0;
-        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.95);
         z-index: 1000;
         overflow: hidden;
       }
 
-      /* 手機三段式抽屜高度狀態 */
+      /* 手機三段式抽屜狀態 */
       #sidebar.sheet-collapsed {
-        height: 72px;
+        height: 64px;
       }
 
       #sidebar.sheet-half {
-        height: 48vh;
+        height: 46vh;
       }
 
       #sidebar.sheet-full {
         height: 88vh;
       }
 
+      /* 手機端隱藏佔版面的次要卡片，保持抽屜乾淨 */
+      #sidebar.sheet-collapsed .quick-add-box,
+      #sidebar.sheet-collapsed .controls-section,
+      #sidebar.sheet-collapsed .stories-bar,
+      #sidebar.sheet-collapsed .list-container {
+        display: none !important;
+      }
+
       .sidebar-header {
-        padding: 8px 14px;
+        padding: 6px 14px 10px;
+      }
+
+      .profile-card {
+        margin: 4px 12px 0;
+        padding: 6px 10px;
       }
 
       .stories-bar {
         padding: 6px 12px;
-      }
-
-      .profile-card {
-        margin: 6px 12px 0;
-        padding: 8px 10px;
       }
 
       .quick-add-box {
@@ -918,13 +905,13 @@
   </div>
 
   <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
-  <div id="sidebar" class="sheet-half">
-    <!-- 手機端拉桿 Handle -->
+  <div id="sidebar" class="sheet-collapsed">
+    <!-- 手機拉桿 Handle -->
     <div class="sheet-handle-bar" id="sheet-handle" onclick="cycleMobileSheet()">
       <div class="sheet-pill-indicator"></div>
     </div>
 
-    <!-- 電腦端收合展開箭頭 -->
+    <!-- 電腦收合箭頭 -->
     <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="toggleDesktopSidebar()" title="收合/展開側邊欄">◀</button>
 
     <div class="sidebar-header">
@@ -944,6 +931,36 @@
           <button class="btn-icon" onclick="exportData()" title="備份名單">匯出</button>
           <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">清空</button>
         </div>
+      </div>
+    </div>
+
+    <!-- IG Profile 探索者檔案卡 -->
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="story-ring">
+          <div class="story-avatar-inner" id="user-avatar">🌱</div>
+        </div>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <span class="stat-num" id="stat-total">0</span>
+            <span class="stat-label">收錄名單</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="stat-visited" style="color:#ff3040;">0</span>
+            <span class="stat-label">已打卡</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="stat-pct">0%</span>
+            <span class="stat-label">點亮進度</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-bio">
+        <span class="rank-name" id="rank-name">🌱 蔬食初探者</span>
+        <span id="stat-ratio-text" style="font-size:11px; color:var(--ig-text-sub);">0 / 0</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar"></div>
       </div>
     </div>
 
@@ -981,36 +998,6 @@
       <div class="quick-input-row">
         <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
         <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
-      </div>
-    </div>
-
-    <!-- IG Profile 探索者檔案卡 -->
-    <div class="profile-card">
-      <div class="profile-top">
-        <div class="story-ring">
-          <div class="story-avatar-inner" id="user-avatar">🌱</div>
-        </div>
-        <div class="profile-stats">
-          <div class="stat-item">
-            <span class="stat-num" id="stat-total">0</span>
-            <span class="stat-label">收錄名單</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num" id="stat-visited" style="color:#ff3040;">0</span>
-            <span class="stat-label">已打卡</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num" id="stat-pct">0%</span>
-            <span class="stat-label">點亮進度</span>
-          </div>
-        </div>
-      </div>
-      <div class="profile-bio">
-        <span class="rank-name" id="rank-name">🌱 蔬食初探者</span>
-        <span id="stat-ratio-text" style="font-size:11px; color:var(--ig-text-sub);">0 / 0</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-bar"></div>
       </div>
     </div>
 
@@ -1095,7 +1082,7 @@
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     // ──────────────────────────────────────────
-    // 🛡️ 授權白名單（請填入允許登入的 Google 信箱）
+    // 🛡️ 授權白名單
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
       "tp6u4jo6@gmail.com",
@@ -1223,8 +1210,8 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    /* ─── 📱 手機底部抽屜狀態控制 ─── */
-    let mobileSheetState = 'half'; // 'collapsed', 'half', 'full'
+    /* ─── 📱 手機抽屜狀態控制 ─── */
+    let mobileSheetState = 'collapsed';
 
     window.setMobileSheetState = function(state) {
       const sidebar = document.getElementById('sidebar');
@@ -1240,28 +1227,14 @@
       else setMobileSheetState('collapsed');
     };
 
-    // 手機端拉桿滑動支援 (Swipe gesture)
-    let touchStartY = 0;
-    const handleEl = document.getElementById('sheet-handle');
-    handleEl.addEventListener('touchstart', (e) => {
-      touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    handleEl.addEventListener('touchend', (e) => {
-      const touchEndY = e.changedTouches[0].clientY;
-      const deltaY = touchEndY - touchStartY;
-      if (deltaY < -35) {
-        // 向上滑動
-        if (mobileSheetState === 'collapsed') setMobileSheetState('half');
-        else if (mobileSheetState === 'half') setMobileSheetState('full');
-      } else if (deltaY > 35) {
-        // 向下滑動
-        if (mobileSheetState === 'full') setMobileSheetState('half');
-        else if (mobileSheetState === 'half') setMobileSheetState('collapsed');
+    // 點擊地圖背景時，自動收合手機底部抽屜
+    map.on('click', () => {
+      if (window.innerWidth <= 768 && mobileSheetState !== 'collapsed') {
+        setMobileSheetState('collapsed');
       }
-    }, { passive: true });
+    });
 
-    /* ─── 💻 電腦端側邊欄切換 ─── */
+    /* ─── 💻 電腦側邊欄切換 ─── */
     window.toggleDesktopSidebar = function() {
       const sidebar = document.getElementById('sidebar');
       const toggleBtn = document.getElementById('sidebar-toggle');
@@ -1596,14 +1569,13 @@
         listEl.appendChild(card);
       });
 
-      // 初始化拖曳排序 (電腦端與手機端手柄觸控優化)
       if (sortableInstance) sortableInstance.destroy();
 
       const isCustomSortAllowed = currentFilter === 'all' && currentCategory === 'all' && searchKeyword === '';
 
       sortableInstance = new Sortable(listEl, {
         animation: 180,
-        handle: '.drag-handle', // 限制只能透過手柄拖曳，保障手機正常滑動滾動
+        handle: '.drag-handle',
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         filter: '.btn-heart, .card-edit-btn, button, input',
@@ -1648,7 +1620,6 @@
         const marker = markersRef[id];
         if (marker) setTimeout(() => marker.openPopup(), 300);
 
-        // 手機端點擊卡片時，自動縮至半開模式以露出地圖視野
         if (window.innerWidth <= 768) {
           setMobileSheetState('half');
         }
