@@ -193,21 +193,28 @@
     .btn-action-group {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .btn-icon {
       background: var(--ig-panel);
       border: 1px solid var(--ig-border);
-      color: var(--ig-text-sub);
-      padding: 6px 8px;
+      color: var(--ig-text-main);
+      padding: 5px 8px;
       border-radius: 8px;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 3px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: var(--ig-card-hover);
+      border-color: #555;
     }
 
     /* ─── IG Stories ─── */
@@ -703,7 +710,7 @@
     .btn-secondary { background: #27272a; color: #fff; padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; }
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 6px; font-size: 12px; }
 
-    /* ─── 📱 手機專屬響應式設計 (Mobile RWD) ─── */
+    /* ─── 📱 手機專屬響應式設計 ─── */
     @media (max-width: 768px) {
       :root {
         --sidebar-width: 86vw;
@@ -767,39 +774,11 @@
           蔬食星圖
         </h1>
         <div class="btn-action-group">
-          <button class="btn-icon" onclick="handleAuth()" title="登出帳號">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-          </button>
-
-          <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            匯入
-          </button>
+          <button class="btn-icon" onclick="handleAuth()" title="登出帳號">登出</button>
+          <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">匯入</button>
           <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
-
-          <button class="btn-icon" onclick="exportData()" title="備份名單">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            匯出
-          </button>
-
-          <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-          </button>
+          <button class="btn-icon" onclick="exportData()" title="備份名單">匯出</button>
+          <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">清空</button>
         </div>
       </div>
     </div>
@@ -1044,9 +1023,10 @@
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OSM contributors &copy; CARTO',
-      maxZoom: 18
+    // 換用 OpenStreetMap 官方完全免費無浮水印底圖
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
     }).addTo(map);
 
     const constellationLayer = L.layerGroup().addTo(map);
