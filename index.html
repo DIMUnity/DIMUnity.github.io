@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>蔬食探索星圖</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>我的專屬蔬食探索星圖 - IG Edition</title>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -22,7 +22,7 @@
       --ig-heart: #ff3040;
       --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
       --ig-gradient-glow: rgba(220, 39, 67, 0.45);
-      --sidebar-width: 420px;
+      --sidebar-width: 400px;
     }
 
     * {
@@ -30,11 +30,13 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       display: flex;
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
       overflow: hidden;
       background: var(--ig-bg);
@@ -59,9 +61,9 @@
     .lock-card {
       background: var(--ig-panel);
       border: 1px solid var(--ig-border);
-      padding: 40px 32px;
+      padding: 36px 24px;
       border-radius: 20px;
-      max-width: 380px;
+      max-width: 360px;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -71,8 +73,8 @@
     }
 
     .lock-logo-ring {
-      width: 72px;
-      height: 72px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       background: var(--ig-gradient);
       display: flex;
@@ -90,11 +92,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
+      font-size: 28px;
     }
 
     .lock-title {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
       background: var(--ig-gradient);
       -webkit-background-clip: text;
@@ -125,60 +127,48 @@
       transition: all 0.2s ease;
     }
 
-    .btn-google-login:hover {
-      background: #f0f0f0;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
-    }
-
     /* ─── 側邊欄 ─── */
     #sidebar {
       width: var(--sidebar-width);
+      height: 100%;
       background: var(--ig-bg);
       border-right: 1px solid var(--ig-border);
       display: flex;
       flex-direction: column;
       z-index: 1000;
       box-shadow: 4px 0 24px rgba(0, 0, 0, 0.9);
-      transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       flex-shrink: 0;
-      margin-left: 0;
     }
 
     #sidebar.collapsed {
-      margin-left: calc(-1 * var(--sidebar-width));
+      transform: translateX(-100%);
     }
 
     .sidebar-toggle-btn {
       position: absolute;
-      right: -24px;
+      right: -28px;
       top: 50%;
       transform: translateY(-50%);
-      width: 24px;
-      height: 54px;
+      width: 28px;
+      height: 60px;
       background: var(--ig-panel);
       border: 1px solid var(--ig-border);
       border-left: none;
-      border-radius: 0 10px 10px 0;
+      border-radius: 0 12px 12px 0;
       color: var(--ig-text-sub);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 13px;
       box-shadow: 4px 2px 14px rgba(0, 0, 0, 0.7);
       z-index: 1001;
-      transition: all 0.2s;
-    }
-
-    .sidebar-toggle-btn:hover {
-      background: var(--ig-card);
-      color: #fff;
     }
 
     .sidebar-header {
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: var(--ig-bg);
       border-bottom: 1px solid var(--ig-border);
     }
@@ -190,20 +180,14 @@
     }
 
     .brand-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 800;
-      letter-spacing: -0.4px;
       background: var(--ig-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       display: flex;
       align-items: center;
-      gap: 7px;
-    }
-
-    .brand-title svg {
-      stroke: #dc2743;
-      flex-shrink: 0;
+      gap: 6px;
     }
 
     .btn-action-group {
@@ -216,34 +200,21 @@
       background: var(--ig-panel);
       border: 1px solid var(--ig-border);
       color: var(--ig-text-sub);
-      padding: 5px 9px;
+      padding: 6px 8px;
       border-radius: 8px;
       font-size: 11px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
       display: inline-flex;
       align-items: center;
       gap: 4px;
     }
 
-    .btn-icon svg {
-      stroke: currentColor;
-      display: block;
-      flex-shrink: 0;
-    }
-
-    .btn-icon:hover {
-      color: #fff;
-      border-color: var(--ig-border-light);
-      background: var(--ig-card);
-    }
-
-    /* ─── IG Stories 限時動態分類列 ─── */
+    /* ─── IG Stories ─── */
     .stories-bar {
       display: flex;
       gap: 12px;
-      padding: 12px 16px;
+      padding: 10px 14px;
       overflow-x: auto;
       border-bottom: 1px solid var(--ig-border);
       background: var(--ig-bg);
@@ -255,25 +226,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       cursor: pointer;
       flex-shrink: 0;
       user-select: none;
     }
 
     .story-ring-sm {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: var(--ig-border-light);
       padding: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.25s ease;
     }
 
-    .story-item:hover .story-ring-sm,
     .story-item.active .story-ring-sm {
       background: var(--ig-gradient);
       box-shadow: 0 0 10px var(--ig-gradient-glow);
@@ -288,14 +257,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     .story-title {
       font-size: 10px;
       color: var(--ig-text-sub);
       font-weight: 500;
-      letter-spacing: -0.2px;
     }
     .story-item.active .story-title {
       color: #fff;
@@ -304,7 +272,7 @@
 
     /* ─── 快捷新增區塊 ─── */
     .quick-add-box {
-      margin: 10px 16px 0;
+      margin: 8px 14px 0;
       padding: 10px 12px;
       background: var(--ig-panel);
       border-radius: 12px;
@@ -335,9 +303,7 @@
       color: #fff;
       font-size: 12px;
       outline: none;
-      transition: border-color 0.2s;
     }
-    .quick-input:focus { border-color: var(--ig-blue); }
 
     .btn-quick-add {
       background: var(--ig-blue);
@@ -348,15 +314,13 @@
       padding: 7px 14px;
       font-size: 12px;
       cursor: pointer;
-      transition: background 0.2s;
       white-space: nowrap;
     }
-    .btn-quick-add:hover { background: var(--ig-blue-hover); }
 
-    /* ─── IG Profile 探索者檔案卡 ─── */
+    /* ─── IG Profile 檔案卡 ─── */
     .profile-card {
-      margin: 10px 16px 0;
-      padding: 12px 14px;
+      margin: 8px 14px 0;
+      padding: 10px 12px;
       background: var(--ig-panel);
       border-radius: 12px;
       border: 1px solid var(--ig-border);
@@ -365,12 +329,12 @@
     .profile-top {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
     .story-ring {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: var(--ig-gradient);
       display: flex;
@@ -378,7 +342,6 @@
       justify-content: center;
       padding: 2px;
       flex-shrink: 0;
-      box-shadow: 0 0 10px var(--ig-gradient-glow);
     }
 
     .story-avatar-inner {
@@ -390,7 +353,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 19px;
+      font-size: 17px;
       overflow: hidden;
     }
 
@@ -413,7 +376,7 @@
     }
 
     .stat-num {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #fff;
     }
@@ -421,12 +384,11 @@
     .stat-label {
       font-size: 10px;
       color: var(--ig-text-sub);
-      margin-top: 1px;
     }
 
     .profile-bio {
-      margin-top: 8px;
-      padding-top: 8px;
+      margin-top: 6px;
+      padding-top: 6px;
       border-top: 1px solid var(--ig-border);
       display: flex;
       justify-content: space-between;
@@ -453,15 +415,13 @@
       height: 100%;
       width: 0%;
       transition: width 0.4s ease;
-      box-shadow: 0 0 8px var(--ig-gradient-glow);
     }
 
-    /* 搜尋與篩選 */
     .controls-section {
-      padding: 10px 16px 4px;
+      padding: 8px 14px 4px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .search-input {
@@ -474,7 +434,6 @@
       font-size: 12px;
       outline: none;
     }
-    .search-input:focus { border-color: var(--ig-border-light); }
 
     .filter-pills {
       display: flex;
@@ -492,29 +451,27 @@
       border-radius: 16px;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s;
     }
 
-    .pill:hover, .pill.active {
+    .pill.active {
       background: #fff;
       color: #000;
       font-weight: 700;
       border-color: #fff;
     }
 
-    /* ─── 左側店家卡片 ─── */
     .list-container {
       flex: 1;
       overflow-y: auto;
-      padding: 4px 16px 20px;
+      padding: 4px 14px 20px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .empty-placeholder {
       text-align: center;
-      padding: 40px 10px;
+      padding: 30px 10px;
       color: var(--ig-text-sub);
       font-size: 13px;
       line-height: 1.6;
@@ -523,18 +480,10 @@
     .store-card {
       background: var(--ig-card);
       border: 1px solid var(--ig-border);
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: 12px;
+      padding: 10px 12px;
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s, border-color 0.2s;
       position: relative;
-      user-select: none;
-    }
-
-    .store-card:hover {
-      background: var(--ig-card-hover);
-      border-color: #444;
-      transform: translateY(-1px);
     }
 
     .store-card.is-unlocked {
@@ -546,39 +495,29 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .store-title-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      margin-bottom: 3px;
     }
 
     .store-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #fff;
     }
 
     .badge-status {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 12px;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 10px;
       font-weight: 700;
     }
-
     .badge-locked { background: #2c2c2e; color: #8e8e93; }
     .badge-unlocked { background: var(--ig-gradient); color: #fff; }
 
     .store-address {
       font-size: 11px;
       color: var(--ig-text-sub);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       line-height: 1.3;
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
 
     .card-bottom {
@@ -586,27 +525,21 @@
       justify-content: space-between;
       align-items: center;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
-      padding-top: 8px;
-      margin-top: 4px;
-    }
-
-    .tag-row {
-      display: flex;
-      gap: 5px;
+      padding-top: 6px;
     }
 
     .tag-pill {
       background: #000;
       color: #a1a1aa;
-      font-size: 10px;
-      padding: 2px 7px;
+      font-size: 9px;
+      padding: 2px 6px;
       border-radius: 6px;
       border: 1px solid #2a2a2e;
     }
 
     .card-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
     }
 
@@ -614,30 +547,22 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      font-size: 16px;
-      transition: transform 0.15s ease;
+      font-size: 15px;
       display: flex;
       align-items: center;
+      padding: 4px;
     }
-    .btn-heart:hover { transform: scale(1.2); }
-    .btn-heart:active { transform: scale(0.9); }
 
     .card-edit-btn {
       background: transparent;
       border: 1px solid var(--ig-border);
       color: var(--ig-text-sub);
-      font-size: 11px;
-      padding: 3px 8px;
+      font-size: 10px;
+      padding: 3px 6px;
       border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s;
-    }
-    .card-edit-btn:hover {
-      color: #fff;
-      border-color: #666;
     }
 
-    /* ─── 雙擊愛心彈出動效 ─── */
     .heart-burst {
       position: absolute;
       top: 50%;
@@ -650,7 +575,7 @@
 
     @keyframes igHeartBurst {
       0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      45% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; filter: drop-shadow(0 0 14px rgba(255, 48, 64, 0.9)); }
+      45% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
       100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
     }
 
@@ -667,13 +592,11 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      transition: all 0.3s;
     }
 
     .marker-unlocked {
       background: var(--ig-gradient);
-      box-shadow: 0 0 14px var(--ig-gradient-glow);
-      animation: ig-pulse 2.2s infinite;
+      box-shadow: 0 0 12px var(--ig-gradient-glow);
       padding: 2px;
     }
 
@@ -690,13 +613,7 @@
     .marker-locked {
       background: #27272a;
       border: 1.5px solid #3f3f46;
-      opacity: 0.8;
-    }
-
-    @keyframes ig-pulse {
-      0% { box-shadow: 0 0 0 0 rgba(220, 39, 67, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(220, 39, 67, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(220, 39, 67, 0); }
+      opacity: 0.85;
     }
 
     .leaflet-popup-content-wrapper {
@@ -704,7 +621,6 @@
       color: var(--ig-text-main) !important;
       border: 1px solid var(--ig-border);
       border-radius: 12px;
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.8) !important;
     }
     .leaflet-popup-tip { background: var(--ig-card) !important; }
 
@@ -712,23 +628,23 @@
       padding: 4px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
-      max-width: 230px;
+      gap: 4px;
+      max-width: 220px;
     }
-    .popup-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .popup-title { font-size: 13px; font-weight: 700; color: #fff; }
     .popup-address { font-size: 11px; color: var(--ig-text-sub); line-height: 1.3; }
     .popup-coords { font-size: 10px; color: #71717a; }
-    .popup-meta { font-size: 11px; color: var(--ig-text-sub); }
+    .popup-meta { font-size: 10px; color: var(--ig-text-sub); }
     
     .popup-btn-row {
       display: flex;
-      gap: 6px;
-      margin-top: 6px;
+      gap: 4px;
+      margin-top: 4px;
     }
     .btn-toggle {
       flex: 1;
-      padding: 6px 10px;
-      font-size: 11px;
+      padding: 5px 8px;
+      font-size: 10px;
       font-weight: 700;
       border-radius: 6px;
       border: none;
@@ -736,8 +652,8 @@
     }
     .btn-toggle.unlock { background: var(--ig-gradient); color: #fff; }
     .btn-toggle.relock { background: #27272a; color: #e4e4e7; }
-    .btn-edit { background: #27272a; color: #fff; border: 1px solid var(--ig-border); border-radius: 6px; padding: 5px 8px; font-size: 11px; cursor: pointer; }
-    .btn-delete { background: #3f1d24; color: #ff453a; border: 1px solid #5c202a; border-radius: 6px; padding: 5px 8px; font-size: 11px; cursor: pointer; }
+    .btn-edit { background: #27272a; color: #fff; border: 1px solid var(--ig-border); border-radius: 6px; padding: 4px 6px; font-size: 10px; }
+    .btn-delete { background: #3f1d24; color: #ff453a; border: 1px solid #5c202a; border-radius: 6px; padding: 4px 6px; font-size: 10px; }
 
     /* Modal */
     .modal-overlay {
@@ -749,43 +665,68 @@
       align-items: center;
       justify-content: center;
       z-index: 2000;
+      padding: 16px;
     }
     .modal-overlay.active { display: flex; }
 
     .modal-content {
       background: var(--ig-panel);
       border: 1px solid var(--ig-border);
-      padding: 22px;
+      padding: 20px;
       border-radius: 16px;
-      width: 420px;
-      max-width: 90%;
+      width: 100%;
+      max-width: 400px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+      gap: 12px;
     }
 
-    .form-group { display: flex; flex-direction: column; gap: 5px; }
-    .form-group label { font-size: 12px; color: var(--ig-text-sub); font-weight: 600; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 11px; color: var(--ig-text-sub); font-weight: 600; }
     .form-control {
       background: #000;
       border: 1px solid var(--ig-border);
-      padding: 8px 12px;
+      padding: 8px 10px;
       border-radius: 8px;
       color: #fff;
-      font-size: 13px;
+      font-size: 12px;
     }
     .coords-info {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--ig-text-sub);
       background: #000;
-      padding: 8px 10px;
+      padding: 6px 8px;
       border-radius: 8px;
       border: 1px solid var(--ig-border);
     }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
-    .btn-secondary { background: #27272a; color: #fff; padding: 7px 14px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
-    .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 7px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    .btn-secondary { background: #27272a; color: #fff; padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; }
+    .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 6px; font-size: 12px; }
+
+    /* ─── 📱 手機專屬響應式設計 (Mobile RWD) ─── */
+    @media (max-width: 768px) {
+      :root {
+        --sidebar-width: 86vw;
+      }
+
+      #sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        max-width: 380px;
+        box-shadow: 8px 0 28px rgba(0, 0, 0, 0.95);
+      }
+
+      .sidebar-toggle-btn {
+        right: -32px;
+        width: 32px;
+        height: 64px;
+        font-size: 14px;
+        background: #18181b;
+        border-color: #3f3f46;
+      }
+    }
   </style>
 </head>
 <body>
@@ -818,7 +759,7 @@
     <div class="sidebar-header">
       <div class="title-row">
         <h1 class="brand-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
@@ -826,18 +767,16 @@
           新竹蔬食星圖
         </h1>
         <div class="btn-action-group">
-          <!-- 登出按鈕 -->
           <button class="btn-icon" onclick="handleAuth()" title="登出帳號">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
           </button>
 
-          <!-- 匯入按鈕 -->
           <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -846,9 +785,8 @@
           </button>
           <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
 
-          <!-- 匯出按鈕 -->
           <button class="btn-icon" onclick="exportData()" title="備份名單">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -856,9 +794,8 @@
             匯出
           </button>
 
-          <!-- 清空按鈕 -->
           <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
@@ -951,7 +888,7 @@
   <!-- 新增 / 編輯彈窗 Modal -->
   <div class="modal-overlay" id="modal">
     <div class="modal-content">
-      <div id="modal-title" style="font-size: 16px; font-weight: 800; color: #fff;">📍 新增蔬食店家</div>
+      <div id="modal-title" style="font-size: 15px; font-weight: 800; color: #fff;">📍 新增蔬食店家</div>
       <input type="hidden" id="form-id" />
       <input type="hidden" id="form-lat" />
       <input type="hidden" id="form-lng" />
@@ -1104,7 +1041,9 @@
 
     let stores = [];
 
-    const map = L.map('map', { center: [24.805, 120.975], zoom: 13 });
+    const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OSM contributors &copy; CARTO',
       maxZoom: 18
@@ -1114,25 +1053,11 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    /* ─── 登入 / 登出操作 ─── */
-    window.handleAuth = async function() {
-      if (!isFirebaseReady) {
-        alert('請先在 index.html 填入正確的 firebaseConfig！');
-        return;
-      }
-      if (currentUser) {
-        if (confirm(`目前登入：${currentUser.displayName || currentUser.email}\n確定要登出並鎖定星圖嗎？`)) {
-          await signOut(auth);
-        }
-      } else {
-        try {
-          await signInWithPopup(auth, googleProvider);
-        } catch (err) {
-          console.error("登入失敗:", err);
-          alert(`登入失敗：${err.message}\n請確認已將 GitHub 網域加入 Firebase Authorized domains。`);
-        }
-      }
-    };
+    // 手機版載入時預設收合側邊欄
+    if (window.innerWidth <= 768) {
+      document.getElementById('sidebar').classList.add('collapsed');
+      document.getElementById('sidebar-toggle').innerText = '▶';
+    }
 
     /* ─── 側邊欄收合切換 ─── */
     window.toggleSidebar = function() {
@@ -1150,6 +1075,26 @@
         }
       }
       requestAnimationFrame(resizeLoop);
+    };
+
+    /* ─── 登入 / 登出 ─── */
+    window.handleAuth = async function() {
+      if (!isFirebaseReady) {
+        alert('請先填入正確的 firebaseConfig！');
+        return;
+      }
+      if (currentUser) {
+        if (confirm(`確定要登出【${currentUser.displayName || currentUser.email}】嗎？`)) {
+          await signOut(auth);
+        }
+      } else {
+        try {
+          await signInWithPopup(auth, googleProvider);
+        } catch (err) {
+          console.error("登入失敗:", err);
+          alert(`登入失敗：${err.message}`);
+        }
+      }
     };
 
     /* ─── 音效 ─── */
@@ -1172,7 +1117,6 @@
       } catch (e) {}
     }
 
-    /* ─── 階級計算邏輯 ─── */
     function calculateRank(visitedCount, total) {
       if (total === 0 || visitedCount === 0) return '🌱 風城蔬食初探者';
       const pct = Math.round((visitedCount / total) * 100);
@@ -1185,7 +1129,6 @@
       return '🌱 風城蔬食初探者';
     }
 
-    /* ─── 檢查重複店家 ─── */
     function checkDuplicateStore(name, lat, lng, excludeId = null) {
       const cleanName = name.trim().toLowerCase();
       const DISTANCE_THRESHOLD = 0.0001;
@@ -1198,7 +1141,6 @@
       });
     }
 
-    /* ─── 經緯度反查中文地址 ─── */
     async function reverseGeocode(lat, lng) {
       const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
       try {
@@ -1216,7 +1158,6 @@
       return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     }
 
-    /* ─── 解析輸入內容 ─── */
     async function parseLocationInput(input) {
       if (!input) return null;
       const str = input.trim();
@@ -1267,7 +1208,6 @@
       return null;
     }
 
-    /* ─── 快捷新增 ─── */
     window.handleQuickAdd = async function() {
       if (!currentUser) return alert('請先登入！');
 
@@ -1317,33 +1257,31 @@
       }
     };
 
-    /* ─── IG 落日粉紅漸層星軌 ─── */
     function renderConstellation() {
       constellationLayer.clearLayers();
       const visitedStores = stores.filter(s => s.visited);
 
       if (visitedStores.length >= 2) {
         const latlngs = visitedStores.map(s => [s.lat, s.lng]);
-        L.polyline(latlngs, { color: '#dc2743', weight: 6, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
-        L.polyline(latlngs, { color: '#f09433', weight: 2.5, dashArray: '6, 6', opacity: 0.9 }).addTo(constellationLayer);
+        L.polyline(latlngs, { color: '#dc2743', weight: 5, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
+        L.polyline(latlngs, { color: '#f09433', weight: 2, dashArray: '6, 6', opacity: 0.9 }).addTo(constellationLayer);
       }
     }
 
-    /* ─── IG 限動圈地標 Markers ─── */
     function renderMarkers() {
       markersLayer.clearLayers();
 
       stores.forEach(s => {
         const iconHtml = `
           <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
-               style="width:${s.visited ? '28px' : '20px'}; height:${s.visited ? '28px' : '20px'}; font-size:11px;">
+               style="width:${s.visited ? '26px' : '18px'}; height:${s.visited ? '26px' : '18px'}; font-size:10px;">
             <div class="${s.visited ? 'marker-unlocked-inner' : ''}">
               ${s.visited ? '❤️' : '🌱'}
             </div>
           </div>
         `;
 
-        const customIcon = L.divIcon({ html: iconHtml, className: '', iconSize: [28, 28], iconAnchor: [14, 14] });
+        const customIcon = L.divIcon({ html: iconHtml, className: '', iconSize: [26, 26], iconAnchor: [13, 13] });
         const marker = L.marker([s.lat, s.lng], { icon: customIcon }).addTo(markersLayer);
         markersRef[s.id] = marker;
 
@@ -1355,7 +1293,7 @@
             <div class="popup-meta">${s.category || '蔬食'} ｜ ${s.visited ? '❤️ 已打卡' : '🔖 待造訪'}</div>
             <div class="popup-btn-row">
               <button class="btn-toggle ${s.visited ? 'relock' : 'unlock'}" onclick="toggleVisited('${s.id}')">
-                ${s.visited ? '取消打卡' : '❤️ 打卡點亮'}
+                ${s.visited ? '取消打卡' : '❤️ 打卡'}
               </button>
               <button class="btn-edit" onclick="openEditModal('${s.id}')">✏️ 編輯</button>
               <button class="btn-delete" onclick="deleteStore('${s.id}')">刪除</button>
@@ -1423,11 +1361,12 @@
         const card = document.createElement('div');
         card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
 
-        card.addEventListener('dblclick', () => {
+        card.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
           if (!s.visited) toggleVisited(s.id);
           const burst = document.createElement('div');
           burst.className = 'heart-burst';
-          burst.innerHTML = `<span style="font-size: 52px;">❤️</span>`;
+          burst.innerHTML = `<span style="font-size: 46px;">❤️</span>`;
           card.appendChild(burst);
           setTimeout(() => burst.remove(), 750);
         });
@@ -1465,6 +1404,14 @@
         map.flyTo([store.lat, store.lng], 17, { duration: 0.6 });
         const marker = markersRef[id];
         if (marker) setTimeout(() => marker.openPopup(), 300);
+
+        // 📱 手機點選卡片時自動收合側邊欄，讓使用者看地圖
+        if (window.innerWidth <= 768) {
+          const sidebar = document.getElementById('sidebar');
+          if (!sidebar.classList.contains('collapsed')) {
+            toggleSidebar();
+          }
+        }
       }
     };
 
@@ -1518,7 +1465,6 @@
       updateSidebar();
     }
 
-    // 點擊地圖新增
     map.on('click', async (e) => {
       if (!currentUser) return alert('請先登入！');
       document.getElementById('modal-title').innerText = '📍 新增打卡店家';
@@ -1536,7 +1482,6 @@
       document.getElementById('form-address').value = addr;
     });
 
-    // 編輯 Modal
     window.openEditModal = function(id) {
       if (!currentUser) return alert('請先登入！');
       const store = stores.find(s => s.id === id);
@@ -1560,7 +1505,6 @@
       document.getElementById('modal').classList.remove('active');
     };
 
-    // 儲存表單
     window.saveFormStore = async function() {
       if (!currentUser) return alert('請先登入！');
 
@@ -1616,7 +1560,6 @@
       }
     };
 
-    /* ─── 匯入與匯出備份 ─── */
     window.exportData = function() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stores, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -1634,44 +1577,49 @@
 
       const reader = new FileReader();
       reader.onload = async function(e) {
+        let imported = [];
         try {
-          const imported = JSON.parse(e.target.result);
-          if (!Array.isArray(imported)) {
-            alert('匯入失敗：JSON 格式必須是陣列清單！');
-            return;
-          }
+          imported = JSON.parse(e.target.result);
+        } catch (parseErr) {
+          alert(`❌ JSON 格式解析失敗：\n${parseErr.message}`);
+          return;
+        }
 
-          if (isFirebaseReady) {
+        if (!Array.isArray(imported)) {
+          alert('❌ 匯入失敗：JSON 檔案最外層必須是 [ ] 陣列清單！');
+          return;
+        }
+
+        if (isFirebaseReady) {
+          try {
             const batch = writeBatch(db);
             imported.forEach(item => {
-              const newDocRef = doc(storesCollection);
+              const docId = item.id ? String(item.id) : doc(storesCollection).id;
+              const newDocRef = doc(db, "vegan_stores", docId);
+
               batch.set(newDocRef, {
                 name: item.name || '未命名',
                 address: item.address || '',
                 category: item.category || '蛋奶素',
-                visited: typeof item.visited === 'boolean' ? item.visited : false,
-                lat: typeof item.lat === 'number' ? item.lat : 24.805,
-                lng: typeof item.lng === 'number' ? item.lng : 120.975,
-                visitedUsers: item.visitedUsers || [],
+                visited: Boolean(item.visited),
+                lat: typeof item.lat === 'number' ? item.lat : parseFloat(item.lat) || 24.805,
+                lng: typeof item.lng === 'number' ? item.lng : parseFloat(item.lng) || 120.975,
+                visitedUsers: Array.isArray(item.visitedUsers) ? item.visitedUsers : [],
                 creatorId: item.creatorId || currentUser.uid,
                 createdAt: Date.now()
               });
             });
+
             await batch.commit();
-          } else {
-            stores = imported;
-            persistLocal();
-            refreshAll();
+            alert(`✅ 成功匯入 ${imported.length} 筆店家到雲端資料庫！`);
+          } catch (dbErr) {
+            console.error("Firestore 寫入錯誤：", dbErr);
+            alert(`❌ Firestore 寫入失敗！\n代碼：${dbErr.code || '未知'}\n原因：${dbErr.message}`);
           }
-          alert(`✅ 成功匯入 ${imported.length} 筆店家名單！`);
-        } catch (err) {
-          console.error(err);
-          alert('匯入失敗：JSON 解析錯誤或 Firestore 批次寫入失敗。');
-        } finally {
-          event.target.value = ''; // 重置 input 狀態
         }
+        event.target.value = '';
       };
-      reader.readAsText(file);
+      reader.readAsText(file, 'UTF-8');
     };
 
     refreshAll();
