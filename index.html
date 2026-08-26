@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>蔬食探索星圖</title>
+  <title>我的專屬蔬食探索星圖 - IG Edition</title>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -407,7 +407,7 @@
       border-color: #fff;
     }
 
-    /* ─── 左側店家卡片（完全保留原始框型與樣式） ─── */
+    /* ─── 左側店家卡片 ─── */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -451,16 +451,6 @@
       background: linear-gradient(135deg, rgba(220, 39, 67, 0.08), var(--ig-card));
     }
 
-    .store-card.dragging {
-      opacity: 0.35;
-      border: 1px dashed #dc2743;
-      transform: scale(0.98);
-    }
-
-    .store-card.drag-over {
-      border-top: 2px solid var(--ig-blue);
-    }
-
     .card-top {
       display: flex;
       justify-content: space-between;
@@ -472,12 +462,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .drag-handle {
-      color: #555;
-      font-size: 12px;
-      cursor: grab;
     }
 
     .store-title {
@@ -721,7 +705,6 @@
     <div class="sidebar-header">
       <div class="title-row">
         <h1 class="brand-title">
-          <!-- IG 風格相機圖示 -->
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
@@ -730,14 +713,12 @@
           新竹蔬食星圖
         </h1>
         <div class="btn-action-group">
-          <!-- 垃圾桶圖示 -->
           <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
           </button>
-          <!-- 匯出/分享圖示 -->
           <button class="btn-icon" onclick="exportData()" title="備份名單">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -746,7 +727,6 @@
             </svg>
             匯出
           </button>
-          <!-- 匯入/上傳圖示 -->
           <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -760,7 +740,7 @@
       </div>
     </div>
 
-    <!-- ─── IG Stories 限時動態分類列 ─── -->
+    <!-- IG Stories 限時動態分類列 -->
     <div class="stories-bar">
       <div class="story-item active" onclick="setCategoryFilter('all', this)">
         <div class="story-ring-sm"><div class="story-avatar-sm">✨</div></div>
@@ -885,11 +865,55 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script>
-    let stores = JSON.parse(localStorage.getItem('hsinchu_custom_veg')) || [];
+  <!-- Firebase 與核心邏輯模組 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      onSnapshot, 
+      addDoc, 
+      updateDoc, 
+      deleteDoc, 
+      doc, 
+      writeBatch,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    function persist() {
-      localStorage.setItem('hsinchu_custom_veg', JSON.stringify(stores));
+    // ──────────────────────────────────────────
+    // ⚙️ 請在此處替換為你的 Firebase 配置物件
+    // ──────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
+      authDomain: "hsinchu-veg-map.firebaseapp.com",
+      projectId: "hsinchu-veg-map",
+      storageBucket: "hsinchu-veg-map.firebasestorage.app",
+      messagingSenderId: "229294662793",
+      appId: "1:229294662793:web:d467459c29f46eb0aed258"
+    };
+
+    let db = null;
+    let storesCollection = null;
+    let isFirebaseReady = false;
+
+    // 若尚未填寫正確設定，自動降級使用 localStorage 保障正常運作
+    if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+      try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        storesCollection = collection(db, "vegan_stores");
+        isFirebaseReady = true;
+      } catch (err) {
+        console.warn("Firebase 初始化異常，已自動切換回 LocalStorage 模式", err);
+      }
+    }
+
+    let stores = isFirebaseReady ? [] : (JSON.parse(localStorage.getItem('hsinchu_custom_veg')) || []);
+
+    function persistLocal() {
+      if (!isFirebaseReady) {
+        localStorage.setItem('hsinchu_custom_veg', JSON.stringify(stores));
+      }
     }
 
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13 });
@@ -902,8 +926,21 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
+    // 監聽 Firebase Firestore 即時資料流
+    if (isFirebaseReady) {
+      onSnapshot(storesCollection, (snapshot) => {
+        stores = snapshot.docs.map(d => ({
+          id: d.id,
+          ...d.data()
+        }));
+        refreshAll();
+      }, (err) => {
+        console.error("Firestore 連線錯誤:", err);
+      });
+    }
+
     /* ─── 側邊欄收合切換 ─── */
-    function toggleSidebar() {
+    window.toggleSidebar = function() {
       const sidebar = document.getElementById('sidebar');
       const toggleBtn = document.getElementById('sidebar-toggle');
       sidebar.classList.toggle('collapsed');
@@ -918,7 +955,7 @@
         }
       }
       requestAnimationFrame(resizeLoop);
-    }
+    };
 
     /* ─── 音效 ─── */
     function playSparkleSound() {
@@ -1036,7 +1073,7 @@
     }
 
     /* ─── 快捷新增 ─── */
-    async function handleQuickAdd() {
+    window.handleQuickAdd = async function() {
       const input = document.getElementById('gmaps-input').value.trim();
       if (!input) return;
 
@@ -1064,25 +1101,33 @@
             return;
           }
 
-          const newStore = {
-            id: Date.now().toString(),
+          const newStoreData = {
             name: finalName,
             address: result.address,
             lat: result.lat,
             lng: result.lng,
             category: '蛋奶素',
-            visited: false
+            visited: false,
+            createdAt: serverTimestamp ? serverTimestamp() : Date.now()
           };
-          stores.push(newStore);
-          persist();
-          refreshAll();
-          document.getElementById('gmaps-input').value = '';
-          focusStore(newStore.id);
+
+          if (isFirebaseReady) {
+            const docRef = await addDoc(storesCollection, newStoreData);
+            document.getElementById('gmaps-input').value = '';
+            focusStore(docRef.id);
+          } else {
+            const newStore = { id: Date.now().toString(), ...newStoreData };
+            stores.push(newStore);
+            persistLocal();
+            refreshAll();
+            document.getElementById('gmaps-input').value = '';
+            focusStore(newStore.id);
+          }
         }
       } else {
         alert('無法辨識此位置或座標，請確認輸入內容！');
       }
-    }
+    };
 
     /* ─── IG 落日粉紅漸層星軌 ─── */
     function renderConstellation() {
@@ -1137,12 +1182,12 @@
     let currentCategory = 'all';
     let searchKeyword = '';
 
-    function setCategoryFilter(cat, el) {
+    window.setCategoryFilter = function(cat, el) {
       currentCategory = cat;
       document.querySelectorAll('.story-item').forEach(item => item.classList.remove('active'));
       if (el) el.classList.add('active');
       updateSidebar();
-    }
+    };
 
     function updateSidebar() {
       const listEl = document.getElementById('restaurant-list');
@@ -1186,11 +1231,9 @@
         return;
       }
 
-      // 卡片保留原始框型與按鈕配置
       filtered.forEach((s) => {
         const card = document.createElement('div');
         card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
-        card.draggable = true;
 
         // 雙擊彈出 IG 愛心動效
         card.addEventListener('dblclick', () => {
@@ -1202,48 +1245,9 @@
           setTimeout(() => burst.remove(), 750);
         });
 
-        // 拖曳事件
-        card.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('text/plain', s.id);
-          card.classList.add('dragging');
-        });
-
-        card.addEventListener('dragend', () => {
-          card.classList.remove('dragging');
-          document.querySelectorAll('.store-card').forEach(el => el.classList.remove('drag-over'));
-        });
-
-        card.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          card.classList.add('drag-over');
-        });
-
-        card.addEventListener('dragleave', () => {
-          card.classList.remove('drag-over');
-        });
-
-        card.addEventListener('drop', (e) => {
-          e.preventDefault();
-          card.classList.remove('drag-over');
-          const draggedId = e.dataTransfer.getData('text/plain');
-          if (draggedId === s.id) return;
-
-          const fromIndex = stores.findIndex(item => item.id === draggedId);
-          const toIndex = stores.findIndex(item => item.id === s.id);
-
-          if (fromIndex !== -1 && toIndex !== -1) {
-            const [movedStore] = stores.splice(fromIndex, 1);
-            stores.splice(toIndex, 0, movedStore);
-
-            persist();
-            refreshAll();
-          }
-        });
-
         card.innerHTML = `
           <div class="card-top">
             <div class="store-title-group">
-              <span class="drag-handle" title="按住拖曳排序">⠿</span>
               <span class="store-title">${s.name}</span>
             </div>
             <span class="badge-status ${s.visited ? 'badge-unlocked' : 'badge-locked'}">
@@ -1268,53 +1272,74 @@
       });
     }
 
-    function focusStore(id) {
+    window.focusStore = function(id) {
       const store = stores.find(s => s.id === id);
       if (store) {
         map.flyTo([store.lat, store.lng], 17, { duration: 0.6 });
         const marker = markersRef[id];
         if (marker) setTimeout(() => marker.openPopup(), 300);
       }
-    }
+    };
 
-    function toggleVisited(id) {
+    window.toggleVisited = async function(id) {
       const target = stores.find(s => s.id === id);
       if (target) {
-        target.visited = !target.visited;
-        if (target.visited) playSparkleSound();
-        persist();
-        refreshAll();
+        const nextState = !target.visited;
+        if (nextState) playSparkleSound();
+
+        if (isFirebaseReady) {
+          const storeDoc = doc(db, "vegan_stores", id);
+          await updateDoc(storeDoc, { visited: nextState });
+        } else {
+          target.visited = nextState;
+          persistLocal();
+          refreshAll();
+        }
         map.closePopup();
       }
-    }
+    };
 
-    function deleteStore(id) {
+    window.deleteStore = async function(id) {
       if (confirm('確定要刪除這間店家貼文嗎？')) {
-        stores = stores.filter(s => s.id !== id);
-        persist();
-        refreshAll();
+        if (isFirebaseReady) {
+          const storeDoc = doc(db, "vegan_stores", id);
+          await deleteDoc(storeDoc);
+        } else {
+          stores = stores.filter(s => s.id !== id);
+          persistLocal();
+          refreshAll();
+        }
       }
-    }
+    };
 
-    function clearAllStores() {
+    window.clearAllStores = async function() {
       if (confirm('⚠️ 確定要清空所有店家名單嗎？')) {
-        stores = [];
-        persist();
-        refreshAll();
+        if (isFirebaseReady) {
+          const batch = writeBatch(db);
+          stores.forEach(s => {
+            const storeDoc = doc(db, "vegan_stores", s.id);
+            batch.delete(storeDoc);
+          });
+          await batch.commit();
+        } else {
+          stores = [];
+          persistLocal();
+          refreshAll();
+        }
       }
-    }
+    };
 
-    function setFilter(filter, el) {
+    window.setFilter = function(filter, el) {
       currentFilter = filter;
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
       el.classList.add('active');
       updateSidebar();
-    }
+    };
 
-    function handleSearch(val) {
+    window.handleSearch = function(val) {
       searchKeyword = val.trim().toLowerCase();
       updateSidebar();
-    }
+    };
 
     function refreshAll() {
       renderConstellation();
@@ -1340,7 +1365,7 @@
     });
 
     // 編輯 Modal
-    function openEditModal(id) {
+    window.openEditModal = function(id) {
       const store = stores.find(s => s.id === id);
       if (!store) return;
 
@@ -1356,14 +1381,14 @@
       
       map.closePopup();
       document.getElementById('modal').classList.add('active');
-    }
+    };
 
-    function closeModal() {
+    window.closeModal = function() {
       document.getElementById('modal').classList.remove('active');
-    }
+    };
 
     // 儲存表單
-    async function saveFormStore() {
+    window.saveFormStore = async function() {
       const editId = document.getElementById('form-id').value;
       const name = document.getElementById('form-name').value.trim();
       let address = document.getElementById('form-address').value.trim();
@@ -1392,42 +1417,44 @@
         return;
       }
 
-      if (editId) {
-        const store = stores.find(s => s.id === editId);
-        if (store) {
-          store.name = name;
-          store.address = address || store.address;
-          store.category = category;
-          store.lat = lat;
-          store.lng = lng;
-          store.visited = visited;
+      const storePayload = {
+        name,
+        address: address || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        category,
+        visited,
+        lat,
+        lng
+      };
+
+      if (isFirebaseReady) {
+        if (editId) {
+          const storeDoc = doc(db, "vegan_stores", editId);
+          await updateDoc(storeDoc, storePayload);
+        } else {
+          storePayload.createdAt = serverTimestamp ? serverTimestamp() : Date.now();
+          const docRef = await addDoc(storesCollection, storePayload);
+          if (visited) playSparkleSound();
         }
       } else {
-        const newStore = {
-          id: Date.now().toString(),
-          name: name,
-          address: address || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
-          lat: lat,
-          lng: lng,
-          category: category,
-          visited: visited
-        };
-        stores.push(newStore);
-        if (visited) playSparkleSound();
+        if (editId) {
+          const store = stores.find(s => s.id === editId);
+          if (store) Object.assign(store, storePayload);
+        } else {
+          const newStore = { id: Date.now().toString(), ...storePayload };
+          stores.push(newStore);
+          if (visited) playSparkleSound();
+        }
+        persistLocal();
+        refreshAll();
       }
 
-      persist();
-      refreshAll();
       closeModal();
-
       if (editId) {
         focusStore(editId);
-      } else {
-        focusStore(stores[stores.length - 1].id);
       }
-    }
+    };
 
-    function exportData() {
+    window.exportData = function() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stores, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
@@ -1435,19 +1462,36 @@
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-    }
+    };
 
-    function importData(event) {
+    window.importData = async function(event) {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const imported = JSON.parse(e.target.result);
           if (Array.isArray(imported)) {
-            stores = imported;
-            persist();
-            refreshAll();
+            if (isFirebaseReady) {
+              const batch = writeBatch(db);
+              imported.forEach(item => {
+                const newDocRef = doc(storesCollection);
+                batch.set(newDocRef, {
+                  name: item.name || '未命名',
+                  address: item.address || '',
+                  category: item.category || '蛋奶素',
+                  visited: !!item.visited,
+                  lat: item.lat || 24.805,
+                  lng: item.lng || 120.975,
+                  createdAt: Date.now()
+                });
+              });
+              await batch.commit();
+            } else {
+              stores = imported;
+              persistLocal();
+              refreshAll();
+            }
             alert('名單匯入成功！');
           }
         } catch (err) {
@@ -1455,7 +1499,7 @@
         }
       };
       reader.readAsText(file);
-    }
+    };
 
     refreshAll();
   </script>
