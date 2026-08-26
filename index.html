@@ -12,18 +12,17 @@
   <style>
     :root {
       --ig-bg: #000000;
-      --ig-panel: #18181b;
-      --ig-card: #27272a;
-      --ig-card-hover: #323238;
-      --ig-border: #333338;
-      --ig-border-light: #44444c;
-      --ig-text-main: #f4f4f5;
-      --ig-text-sub: #a1a1aa;
+      --ig-surface: #121212;
+      --ig-card: #1c1c1e;
+      --ig-card-hover: #26262a;
+      --ig-border: #262626;
+      --ig-border-light: #363636;
+      --ig-text-main: #f5f5f5;
+      --ig-text-sub: #a8a8a8;
       --ig-blue: #0095f6;
-      --ig-blue-hover: #1877f2;
       --ig-heart: #ff3040;
       --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-      --ig-gradient-glow: rgba(220, 39, 67, 0.45);
+      --ig-gradient-glow: rgba(220, 39, 67, 0.35);
       --sidebar-width: 390px;
     }
 
@@ -31,7 +30,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -61,11 +60,11 @@
     }
 
     .lock-card {
-      background: var(--ig-panel);
+      background: var(--ig-surface);
       border: 1px solid var(--ig-border);
       padding: 36px 24px;
-      border-radius: 24px;
-      max-width: 360px;
+      border-radius: 20px;
+      max-width: 350px;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -75,15 +74,15 @@
     }
 
     .lock-logo-ring {
-      width: 68px;
-      height: 68px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
       background: var(--ig-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 3px;
-      box-shadow: 0 0 20px var(--ig-gradient-glow);
+      box-shadow: 0 0 24px var(--ig-gradient-glow);
     }
 
     .lock-logo-inner {
@@ -94,7 +93,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 30px;
     }
 
     .lock-title {
@@ -103,6 +102,7 @@
       background: var(--ig-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
 
     .btn-google-login {
@@ -114,17 +114,80 @@
       font-size: 14px;
       font-weight: 700;
       border: none;
-      border-radius: 14px;
+      border-radius: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      transition: transform 0.2s;
+      transition: opacity 0.2s;
     }
-    .btn-google-login:active { transform: scale(0.98); }
+    .btn-google-login:active { opacity: 0.85; }
 
-    /* ─── 搜尋與分類模組 ─── */
+    /* ─── IG Stories 限動分類列 ─── */
+    .ig-stories-container {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 2px 2px;
+    }
+    .ig-stories-container::-webkit-scrollbar { display: none; }
+
+    .story-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .story-ring {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #2c2c2e;
+      padding: 2.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .story-item:active .story-ring { transform: scale(0.92); }
+
+    .story-item.active .story-ring {
+      background: var(--ig-gradient);
+      box-shadow: 0 0 12px var(--ig-gradient-glow);
+    }
+
+    .story-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #000;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .story-label {
+      font-size: 11px;
+      color: var(--ig-text-sub);
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+    .story-item.active .story-label {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* ─── 搜尋列 ─── */
     .search-filter-module {
       display: flex;
       flex-direction: column;
@@ -136,16 +199,16 @@
 
     .search-pill-box {
       pointer-events: auto;
-      background: rgba(24, 24, 27, 0.94);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: rgba(18, 18, 18, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--ig-border);
       border-radius: 28px;
       padding: 6px 8px 6px 14px;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.75);
     }
 
     .search-input-field {
@@ -176,7 +239,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: #18181b;
+      background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -185,14 +248,14 @@
     }
     .user-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* 🔍 搜尋提示下拉選單 (Autocomplete) */
+    /* 🔍 搜尋提示下拉選單 */
     .search-suggestions-dropdown {
       pointer-events: auto;
       position: absolute;
       top: 48px;
       left: 0;
       right: 0;
-      background: rgba(24, 24, 27, 0.98);
+      background: rgba(18, 18, 18, 0.98);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--ig-border);
@@ -216,74 +279,56 @@
       gap: 8px;
     }
     .suggestion-item:last-child { border-bottom: none; }
-    .suggestion-item:active, .suggestion-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .suggestion-item:active, .suggestion-item:hover { background: rgba(255, 255, 255, 0.08); }
     .suggestion-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
     .suggestion-name { font-size: 13.5px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .suggestion-sub { font-size: 11px; color: var(--ig-text-sub); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .suggestion-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #000; color: #a1a1aa; border: 1px solid #333; flex-shrink: 0; }
 
-    /* 水平滑動分類膠囊 */
-    .top-chips-scroll {
+    /* ─── 💻 電腦端 IG Profile 檔案卡 ─── */
+    .ig-profile-card {
       pointer-events: auto;
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-      box-sizing: border-box;
-      -webkit-overflow-scrolling: touch;
-    }
-    .top-chips-scroll::-webkit-scrollbar { display: none; }
-
-    .chip-pill {
-      background: rgba(24, 24, 27, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: var(--ig-surface);
       border: 1px solid var(--ig-border);
-      color: var(--ig-text-sub);
-      padding: 5px 11px;
-      border-radius: 20px;
-      font-size: 11.5px;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .chip-pill.active {
-      background: #ffffff;
-      color: #000000;
-      border-color: #ffffff;
-    }
-
-    /* ─── 💻 電腦端專屬：探索成就條 ─── */
-    .desktop-achievement-card {
-      pointer-events: auto;
-      background: var(--ig-panel);
-      border: 1px solid var(--ig-border);
-      border-radius: 12px;
-      padding: 8px 12px;
+      border-radius: 14px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-top: 2px;
+      gap: 8px;
     }
-    .achievement-top {
+    .ig-stats-row {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
+      text-align: center;
+    }
+    .ig-stat-box {
+      display: flex;
+      flex-direction: column;
       align-items: center;
     }
-    .achievement-rank {
-      font-size: 11.5px;
+    .ig-stat-num {
+      font-size: 14px;
       font-weight: 800;
       color: #fff;
     }
-    .achievement-stats {
-      font-size: 11px;
+    .ig-stat-label {
+      font-size: 10.5px;
       color: var(--ig-text-sub);
-      font-weight: 600;
     }
-    .achievement-bar-bg {
+
+    .ig-progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ig-rank-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .ig-bar-bg {
       width: 100%;
       height: 4px;
       background: #000;
@@ -291,7 +336,7 @@
       overflow: hidden;
       border: 1px solid var(--ig-border);
     }
-    .achievement-bar-fill {
+    .ig-bar-fill {
       height: 100%;
       width: 0%;
       background: var(--ig-gradient);
@@ -306,7 +351,7 @@
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: rgba(24, 24, 27, 0.9);
+      background: rgba(18, 18, 18, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--ig-border);
@@ -326,7 +371,7 @@
       position: absolute;
       top: 68px;
       right: 16px;
-      background: rgba(24, 24, 27, 0.96);
+      background: rgba(18, 18, 18, 0.96);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--ig-border);
@@ -354,7 +399,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.15s;
     }
     .layer-option-btn.active, .layer-option-btn:hover {
       background: rgba(255, 255, 255, 0.1);
@@ -380,7 +424,6 @@
       position: relative;
     }
 
-    /* 電腦端頂部標題與右側 IG 操作按鈕列 */
     .sidebar-desktop-header {
       padding: 12px 14px;
       display: flex;
@@ -390,7 +433,7 @@
       flex-shrink: 0;
     }
     .desktop-brand {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 800;
       background: var(--ig-gradient);
       -webkit-background-clip: text;
@@ -405,7 +448,7 @@
       gap: 5px;
     }
     .btn-icon {
-      background: var(--ig-panel);
+      background: var(--ig-surface);
       border: 1px solid var(--ig-border);
       color: var(--ig-text-main);
       padding: 5px 8px;
@@ -416,11 +459,8 @@
       display: inline-flex;
       align-items: center;
       gap: 3px;
-      transition: background 0.15s;
     }
-    .btn-icon:hover {
-      background: var(--ig-card-hover);
-    }
+    .btn-icon:hover { background: var(--ig-card-hover); }
 
     .sheet-header-touch-zone {
       width: 100%;
@@ -434,7 +474,7 @@
       user-select: none;
       flex-shrink: 0;
       box-sizing: border-box;
-      background: rgba(24, 24, 27, 0.98);
+      background: rgba(18, 18, 18, 0.98);
     }
 
     .sheet-handle-pill {
@@ -474,7 +514,7 @@
       flex-shrink: 0;
     }
     .btn-action-pill {
-      background: var(--ig-panel);
+      background: var(--ig-surface);
       border: 1px solid var(--ig-border);
       color: var(--ig-text-main);
       padding: 5px 10px;
@@ -491,7 +531,7 @@
     .quick-add-box {
       margin: 8px 14px 4px;
       padding: 6px 10px;
-      background: var(--ig-panel);
+      background: var(--ig-surface);
       border-radius: 12px;
       border: 1px solid var(--ig-border);
       display: flex;
@@ -530,6 +570,7 @@
       min-height: 0;
     }
 
+    /* ─── IG 貼文卡片風格 ─── */
     .store-card {
       background: var(--ig-card);
       border: 1px solid var(--ig-border);
@@ -540,12 +581,28 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .store-card.is-unlocked {
-      border: 1px solid rgba(220, 39, 67, 0.4);
-      background: linear-gradient(135deg, rgba(220, 39, 67, 0.1), var(--ig-card));
+      border: 1px solid rgba(220, 39, 67, 0.45);
+      background: linear-gradient(135deg, rgba(220, 39, 67, 0.12), var(--ig-card));
     }
     .store-card.highlight-card {
       border: 1.5px solid var(--ig-blue) !important;
-      background: rgba(0, 149, 246, 0.12) !important;
+      background: rgba(0, 149, 246, 0.15) !important;
+    }
+
+    /* 雙擊卡片跳出 IG 爆心動畫 */
+    .heart-burst {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      pointer-events: none;
+      z-index: 10;
+      animation: igHeartBurst 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes igHeartBurst {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      45% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
     }
 
     .card-top {
@@ -612,7 +669,10 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      padding: 2px;
     }
     .card-edit-btn {
       background: transparent;
@@ -695,7 +755,7 @@
     }
     .modal-overlay.active { display: flex; }
     .modal-content {
-      background: var(--ig-panel);
+      background: var(--ig-surface);
       border: 1px solid var(--ig-border);
       padding: 20px;
       border-radius: 20px;
@@ -720,7 +780,7 @@
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; }
 
     /* ═════════════════════════════════════════════
-       💻 電腦端佈局 (> 768px)：標準雙欄，搜尋與成就條在側欄
+       💻 電腦端佈局 (> 768px)：標準 IG 側欄風格
        ═════════════════════════════════════════════ */
     @media (min-width: 769px) {
       body { flex-direction: row; }
@@ -734,7 +794,7 @@
 
       .sheet-header-touch-zone,
       .actions-bar {
-        display: none !important; /* 電腦端已整合至頂部標題右側 */
+        display: none !important;
       }
 
       .search-filter-module {
@@ -745,9 +805,9 @@
         z-index: 1200;
       }
 
-      /* 電腦端高度墊高：搜尋(38px) + 膠囊(28px) + 成就條(44px) + 間距 */
+      /* 電腦端空間墊高：搜尋 + 限動Stories + Profile卡 */
       .sidebar-search-spacer {
-        height: 130px;
+        height: 200px;
         flex-shrink: 0;
       }
 
@@ -758,7 +818,7 @@
     }
 
     /* ═════════════════════════════════════════════
-       📱 手機端 Google Maps 抽屜佈局 (<= 768px，保持原樣)
+       📱 手機端 Google Maps 抽屜佈局 (<= 768px)
        ═════════════════════════════════════════════ */
     @media (max-width: 768px) {
       body { flex-direction: column; }
@@ -772,7 +832,7 @@
 
       .sidebar-desktop-header,
       .sidebar-search-spacer,
-      .desktop-achievement-card {
+      .ig-profile-card {
         display: none !important;
       }
 
@@ -785,11 +845,11 @@
       }
 
       .fab-layer-btn {
-        top: 108px;
+        top: 156px;
         right: 14px;
       }
       .layer-picker-menu {
-        top: 160px;
+        top: 208px;
         right: 14px;
       }
 
@@ -799,7 +859,7 @@
         right: 0;
         bottom: 0;
         width: 100vw;
-        background: rgba(24, 24, 27, 0.96);
+        background: rgba(18, 18, 18, 0.96);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border-top: 1px solid #3f3f46;
@@ -841,7 +901,7 @@
     </div>
   </div>
 
-  <!-- 搜尋與分類模組 -->
+  <!-- 搜尋與 IG 限動模組 -->
   <div class="search-filter-module">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
@@ -854,26 +914,62 @@
     <!-- 🔍 搜尋提示下拉選單 (Autocomplete) -->
     <div class="search-suggestions-dropdown" id="search-suggestions"></div>
 
-    <!-- 標籤分類水平滾動 -->
-    <div class="top-chips-scroll">
-      <span class="chip-pill active" onclick="setCategoryFilter('all', this)">✨ 全部</span>
-      <span class="chip-pill" onclick="setCategoryFilter('純素', this)">🌱 純素</span>
-      <span class="chip-pill" onclick="setCategoryFilter('蛋奶素', this)">🍳 蛋奶素</span>
-      <span class="chip-pill" onclick="setCategoryFilter('早午餐', this)">🥪 早午餐</span>
-      <span class="chip-pill" onclick="setCategoryFilter('甜點', this)">🍰 甜點</span>
-      <span class="chip-pill" onclick="setCategoryFilter('異國', this)">🍕 異國料理</span>
-      <span class="chip-pill" onclick="toggleStatusFilter(this)">❤️ 只看已打卡</span>
-      <div style="min-width: 8px; height: 1px; flex-shrink: 0;"></div>
+    <!-- 🌈 IG Stories 限動風格分類圈 -->
+    <div class="ig-stories-container">
+      <div class="story-item active" onclick="setCategoryFilter('all', this)">
+        <div class="story-ring"><div class="story-avatar">✨</div></div>
+        <span class="story-label">全部</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('純素', this)">
+        <div class="story-ring"><div class="story-avatar">🌱</div></div>
+        <span class="story-label">純素</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('蛋奶素', this)">
+        <div class="story-ring"><div class="story-avatar">🍳</div></div>
+        <span class="story-label">蛋奶素</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('早午餐', this)">
+        <div class="story-ring"><div class="story-avatar">🥪</div></div>
+        <span class="story-label">早午餐</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('甜點', this)">
+        <div class="story-ring"><div class="story-avatar">🍰</div></div>
+        <span class="story-label">甜點</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('異國', this)">
+        <div class="story-ring"><div class="story-avatar">🍕</div></div>
+        <span class="story-label">異國</span>
+      </div>
+      <div class="story-item" onclick="toggleStatusFilter(this)">
+        <div class="story-ring" style="background:#2c2c2e;"><div class="story-avatar">❤️</div></div>
+        <span class="story-label">已打卡</span>
+      </div>
     </div>
 
-    <!-- 💻 電腦端專屬成就條 -->
-    <div class="desktop-achievement-card">
-      <div class="achievement-top">
-        <span class="achievement-rank" id="desktop-rank-name">🌱 蔬食初探者</span>
-        <span class="achievement-stats" id="desktop-stat-text">已打卡 0 / 0 (0%)</span>
+    <!-- 💻 電腦端 IG Profile 個人檔案卡 -->
+    <div class="ig-profile-card">
+      <div class="ig-stats-row">
+        <div class="ig-stat-box">
+          <span class="ig-stat-num" id="desktop-stat-total">0</span>
+          <span class="ig-stat-label">貼文 (收錄)</span>
+        </div>
+        <div class="ig-stat-box">
+          <span class="ig-stat-num" id="desktop-stat-visited" style="color:#ff3040;">0</span>
+          <span class="ig-stat-label">打卡 (粉絲)</span>
+        </div>
+        <div class="ig-stat-box">
+          <span class="ig-stat-num" id="desktop-stat-pct">0%</span>
+          <span class="ig-stat-label">點亮進度</span>
+        </div>
       </div>
-      <div class="achievement-bar-bg">
-        <div class="achievement-bar-fill" id="desktop-progress-bar"></div>
+      <div class="ig-progress-wrapper">
+        <div class="ig-rank-line">
+          <span id="desktop-rank-name">🌱 蔬食初探者</span>
+          <span id="desktop-stat-ratio" style="color:var(--ig-text-sub); font-size:10.5px;">0 / 0</span>
+        </div>
+        <div class="ig-bar-bg">
+          <div class="ig-bar-fill" id="desktop-progress-bar"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -881,7 +977,7 @@
   <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
   <div id="sidebar" class="sheet-collapsed">
     
-    <!-- 💻 電腦端專屬頂部標題列與 IG 按鈕 -->
+    <!-- 💻 電腦端頂部標題列與 IG 按鈕 -->
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="desktop-action-group">
@@ -891,7 +987,7 @@
       </div>
     </div>
 
-    <!-- 💻 電腦端墊高間距（避開搜尋、膠囊與成就條） -->
+    <!-- 💻 電腦端墊高間距 -->
     <div class="sidebar-search-spacer"></div>
 
     <!-- 📱 手機端頂部拉桿區 (64px) -->
@@ -1137,7 +1233,7 @@
     /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
-        const topBarHeight = 115;
+        const topBarHeight = 160;
         const bottomSheetHeight = window.innerHeight * 0.35;
         const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomSheetHeight) / 2;
         const screenCenterY = window.innerHeight / 2;
@@ -1313,9 +1409,7 @@
 
     window.setCategoryFilter = function(cat, el) {
       currentCategory = cat;
-      document.querySelectorAll('.chip-pill').forEach(p => {
-        if (p !== el && !p.innerText.includes('只看已打卡')) p.classList.remove('active');
-      });
+      document.querySelectorAll('.story-item').forEach(p => p.classList.remove('active'));
       if (el) el.classList.add('active');
       updateSidebar();
       if (window.innerWidth <= 768 && sheetState === 'collapsed') setMobileSheetState('half');
@@ -1416,7 +1510,7 @@
           </div>
         `, {
           autoPan: true,
-          autoPanPaddingTopLeft: [20, 120],
+          autoPanPaddingTopLeft: [20, 160],
           autoPanPaddingBottomRight: [20, window.innerHeight * 0.36]
         });
       });
@@ -1430,17 +1524,24 @@
       const visitedCount = stores.filter(s => s.visited).length;
       const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
 
-      // 📱 更新手機端拉桿摘要統計
+      // 📱 更新手機端拉桿摘要
       document.getElementById('peek-stats-text').innerText = `已收錄 ${total} ｜ 打卡 ${visitedCount}`;
 
-      // 💻 更新電腦端成就條資訊
+      // 💻 更新電腦端 IG Profile 數據
+      const desktopTotal = document.getElementById('desktop-stat-total');
+      const desktopVisited = document.getElementById('desktop-stat-visited');
+      const desktopPct = document.getElementById('desktop-stat-pct');
       const desktopRank = document.getElementById('desktop-rank-name');
-      const desktopStatText = document.getElementById('desktop-stat-text');
-      const desktopProgress = document.getElementById('desktop-progress-bar');
-      if (desktopRank && desktopStatText && desktopProgress) {
+      const desktopRatio = document.getElementById('desktop-stat-ratio');
+      const desktopBar = document.getElementById('desktop-progress-bar');
+
+      if (desktopTotal && desktopVisited && desktopPct) {
+        desktopTotal.innerText = total;
+        desktopVisited.innerText = visitedCount;
+        desktopPct.innerText = `${pct}%`;
         desktopRank.innerText = calculateRank(visitedCount, total);
-        desktopStatText.innerText = `已打卡 ${visitedCount} / ${total} (${pct}%)`;
-        desktopProgress.style.width = `${pct}%`;
+        desktopRatio.innerText = `${visitedCount} / ${total}`;
+        desktopBar.style.width = `${pct}%`;
       }
 
       const filtered = stores.filter(s => {
@@ -1461,6 +1562,17 @@
         card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
         card.setAttribute('data-id', s.id);
 
+        // IG 經典雙擊點讚動畫 (Double-tap to like)
+        card.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          if (!s.visited) toggleVisited(s.id);
+          const burst = document.createElement('div');
+          burst.className = 'heart-burst';
+          burst.innerHTML = `<span style="font-size: 46px;">❤️</span>`;
+          card.appendChild(burst);
+          setTimeout(() => burst.remove(), 750);
+        });
+
         card.innerHTML = `
           <div class="card-top">
             <div class="store-title-group">
@@ -1475,7 +1587,7 @@
           <div class="card-bottom">
             <span class="tag-pill">${s.category || '蔬食'}</span>
             <div class="card-actions">
-              <button class="btn-heart" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
+              <button class="btn-heart" title="${s.visited ? '取消打卡' : '點亮愛心'}" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
                 ${s.visited ? '❤️' : '🤍'}
               </button>
               <button class="card-edit-btn" onclick="event.stopPropagation(); openEditModal('${s.id}')">✏️ 編輯</button>
