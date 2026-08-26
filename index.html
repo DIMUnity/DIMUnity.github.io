@@ -670,19 +670,17 @@
         border-top: 1px solid #3f3f46;
         border-radius: 24px 24px 0 0;
         box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.95);
-        /* 🛡️ 確保抽屜層級高於頂部搜尋列 (1200) 與圖層按鈕 (1100)，完全擋住 */
         z-index: 2000;
         transition: height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
       }
 
-      /* 拖曳中即時跟手 */
       #sidebar.is-dragging {
         transition: none !important;
       }
 
-      /* 三段高度 */
+      /* 📱 優化後的三段高度：半開降至 35vh 保持視野寬闊 */
       #sidebar.sheet-collapsed { height: 72px; }
-      #sidebar.sheet-half { height: 48vh; }
+      #sidebar.sheet-half { height: 35vh; }
       #sidebar.sheet-full { height: 96vh; }
     }
   </style>
@@ -750,7 +748,7 @@
 
   <!-- 底部抽屜 (手機) / 側邊欄 (電腦) -->
   <div id="sidebar" class="sheet-collapsed">
-    <!-- 手機端頂部拉桿區 (按住可任意上下拖曳) -->
+    <!-- 手機端頂部拉桿區 (可任意上下拖曳) -->
     <div class="sheet-header-touch-zone" id="sheet-header-zone">
       <div class="sheet-handle-pill"></div>
       <div class="sheet-peek-summary">
@@ -761,7 +759,7 @@
       </div>
     </div>
 
-    <!-- 工具按鈕列 (拉動時即時顯現) -->
+    <!-- 工具按鈕列 -->
     <div class="actions-bar">
       <button class="btn-action-pill" onclick="document.getElementById('import-file').click()">📥 匯入 JSON</button>
       <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
@@ -769,13 +767,13 @@
       <button class="btn-action-pill" onclick="clearAllStores()">🗑️ 清空名單</button>
     </div>
 
-    <!-- 快捷新增區塊 (拉動時即時顯現) -->
+    <!-- 快捷新增區塊 -->
     <div class="quick-add-box">
       <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
       <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
     </div>
 
-    <!-- 店家清單列表 (拉動時即時顯現) -->
+    <!-- 店家清單列表 -->
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
@@ -845,7 +843,7 @@
     // 🛡️ 授權白名單
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com",
+      "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
     ];
 
     const firebaseConfig = {
@@ -963,6 +961,25 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
+    /* ─── 🎯 視圖精確居中計算 (避開頂部搜尋列與底部抽屜) ─── */
+    window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
+      if (window.innerWidth <= 768) {
+        const topBarHeight = 115; // 頂部搜尋列與膠囊高度
+        const bottomSheetHeight = window.innerHeight * 0.35; // 35vh 半開高度
+        // 算出可用純地圖區間的垂直中心
+        const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomSheetHeight) / 2;
+        const screenCenterY = window.innerHeight / 2;
+        const offsetY = visibleCenterY - screenCenterY;
+
+        const targetPoint = map.project([lat, lng], zoom);
+        const offsetPoint = L.point(targetPoint.x, targetPoint.y - offsetY);
+        const targetLatLng = map.unproject(offsetPoint, zoom);
+        map.flyTo(targetLatLng, zoom, { duration: 0.6 });
+      } else {
+        map.flyTo([lat, lng], zoom, { duration: 0.6 });
+      }
+    };
+
     /* ─── 📱 手機端流暢跟手拖曳抽屜引擎 ─── */
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
@@ -981,7 +998,6 @@
       setTimeout(() => map.invalidateSize(), 300);
     };
 
-    // 觸控開始
     headerTouchZone.addEventListener('touchstart', (e) => {
       if (window.innerWidth > 768) return;
       isDragging = true;
@@ -991,7 +1007,6 @@
       sidebar.classList.add('is-dragging');
     }, { passive: true });
 
-    // 觸控中 (即時更新高度，內容隨之露出)
     window.addEventListener('touchmove', (e) => {
       if (!isDragging || window.innerWidth > 768) return;
       const currentY = e.touches[0].clientY;
@@ -1003,14 +1018,12 @@
       sidebar.style.height = `${targetH}px`;
     }, { passive: true });
 
-    // 觸控結束 (自動吸附)
     window.addEventListener('touchend', () => {
       if (!isDragging || window.innerWidth > 768) return;
       isDragging = false;
       sidebar.classList.remove('is-dragging');
 
       if (!hasMoved) {
-        // 單純點擊
         if (sheetState === 'collapsed') setMobileSheetState('half');
         else if (sheetState === 'half') setMobileSheetState('full');
         else setMobileSheetState('collapsed');
@@ -1020,16 +1033,15 @@
       const finalH = sidebar.getBoundingClientRect().height;
       const winH = window.innerHeight;
 
-      if (finalH < winH * 0.28) {
+      if (finalH < winH * 0.22) {
         setMobileSheetState('collapsed');
-      } else if (finalH < winH * 0.72) {
+      } else if (finalH < winH * 0.60) {
         setMobileSheetState('half');
       } else {
         setMobileSheetState('full');
       }
     });
 
-    // 點擊地圖背景收合
     map.on('click', () => {
       document.getElementById('layer-picker-menu').classList.remove('active');
       document.getElementById('search-suggestions').classList.remove('active');
@@ -1098,13 +1110,14 @@
       suggestionsDropdown.classList.remove('active');
       searchBox.blur();
 
-      map.flyTo([store.lat, store.lng], 17, { duration: 0.8 });
-      const marker = markersRef[id];
-      if (marker) setTimeout(() => marker.openPopup(), 400);
-
       if (window.innerWidth <= 768) {
         setMobileSheetState('half');
       }
+
+      // 精確居中飛向店家座標
+      flyToWithOffset(store.lat, store.lng, 16.5);
+      const marker = markersRef[id];
+      if (marker) setTimeout(() => marker.openPopup(), 400);
 
       setTimeout(() => {
         const card = document.querySelector(`.store-card[data-id="${id}"]`);
@@ -1240,7 +1253,11 @@
               <button class="card-edit-btn" style="color:#ff453a;" onclick="deleteStore('${s.id}')">🗑️</button>
             </div>
           </div>
-        `);
+        `, {
+          autoPan: true,
+          autoPanPaddingTopLeft: [20, 120],
+          autoPanPaddingBottomRight: [20, window.innerHeight * 0.36]
+        });
       });
     }
 
@@ -1324,10 +1341,10 @@
     window.focusStore = function(id) {
       const store = stores.find(s => s.id === id);
       if (store) {
-        map.flyTo([store.lat, store.lng], 16.5, { duration: 0.6 });
+        if (window.innerWidth <= 768) setMobileSheetState('half');
+        flyToWithOffset(store.lat, store.lng, 16.5);
         const marker = markersRef[id];
         if (marker) setTimeout(() => marker.openPopup(), 300);
-        if (window.innerWidth <= 768) setMobileSheetState('half');
       }
     };
 
