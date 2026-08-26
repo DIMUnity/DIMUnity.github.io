@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>蔬食探索星圖</title>
   
+  <!-- 瀏覽器分頁小圖示 (Favicon) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>" />
+  <!-- 若要使用本機圖片檔案，可改用：<link rel="icon" type="image/png" href="favicon.png" /> -->
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
@@ -594,7 +598,6 @@
       background: #09090b;
     }
 
-    /* 暗黑主題風格化圖層切換選單 */
     .leaflet-control-layers {
       background: var(--ig-panel) !important;
       color: var(--ig-text-main) !important;
@@ -1066,14 +1069,12 @@
       maxZoom: 18
     });
 
-    // 預設載入臺灣通用地圖圖層
     taiwanLayer.addTo(map);
 
-    // 右上角底圖切換控制面板
     const baseMaps = {
+      "🇹🇼 臺灣通用地圖": taiwanLayer,
       "🌑 極簡暗黑": darkLayer,
       "🗺️ 開源街景": osmLayer,
-      "🇹🇼 臺灣通用地圖": taiwanLayer,
       "🛰️ 衛星空照": satelliteLayer
     };
 
