@@ -171,9 +171,15 @@
       overflow: hidden;
       font-size: 15px;
     }
-    .user-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+    .user-avatar-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+    }
 
-    /* 🔍 搜尋提示下拉選單 */
+    /* 🔍 搜尋提示下拉選單 (Autocomplete) */
     .search-suggestions-dropdown {
       position: absolute;
       top: 46px;
@@ -260,6 +266,14 @@
       align-items: center;
       justify-content: center;
       font-size: 18px;
+      overflow: hidden;
+    }
+    .story-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
     }
 
     .story-label {
@@ -728,17 +742,17 @@
     .btn-toggle.unlock { background: var(--ig-gradient); color: #fff; }
     .btn-toggle.relock { background: #18181b; color: #e4e4e7; }
 
-    /* ─── 👤 IG 風格帳號選單 Action Sheet / Modal ─── */
+    /* ─── 👤 修復後的 IG 風格帳號選單 Action Sheet ─── */
     .ig-user-sheet {
       background: var(--ig-surface);
       border: 1px solid var(--ig-border);
       border-radius: 20px;
       width: 100%;
-      max-width: 340px;
+      max-width: 320px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.95);
       animation: igSheetPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.2);
     }
     @keyframes igSheetPop {
@@ -754,6 +768,38 @@
       gap: 12px;
       border-bottom: 1px solid var(--ig-border);
       text-align: center;
+    }
+
+    .ig-sheet-avatar-ring {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: var(--ig-gradient);
+      padding: 2.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--ig-gradient-glow);
+    }
+
+    .ig-sheet-avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #000;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 26px;
+    }
+    .ig-sheet-avatar-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
     }
 
     .ig-user-sheet-info {
@@ -772,14 +818,14 @@
       color: var(--ig-text-sub);
     }
     .ig-user-sheet-badge {
-      font-size: 10px;
-      padding: 2px 8px;
+      font-size: 10.5px;
+      padding: 3px 10px;
       border-radius: 12px;
-      background: rgba(0, 149, 246, 0.15);
+      background: rgba(0, 149, 246, 0.12);
       color: var(--ig-blue);
       font-weight: 700;
       margin-top: 2px;
-      border: 1px solid rgba(0, 149, 246, 0.3);
+      border: 1px solid rgba(0, 149, 246, 0.25);
     }
 
     .ig-user-sheet-actions {
@@ -995,12 +1041,12 @@
     </div>
   </div>
 
-  <!-- 👤 IG 風格帳號管理選單 (點頭像彈出) -->
+  <!-- 👤 修復後的 IG 風格帳號管理選單 (正統圓形光圈頭像) -->
   <div class="modal-overlay" id="user-menu-modal" onclick="closeUserMenu()">
     <div class="ig-user-sheet" onclick="event.stopPropagation()">
       <div class="ig-user-sheet-header">
-        <div class="story-ring" style="width: 58px; height: 58px;">
-          <div class="story-avatar user-avatar-sync" style="font-size: 22px;">🌱</div>
+        <div class="ig-sheet-avatar-ring">
+          <div class="ig-sheet-avatar-inner user-avatar-sync">🌱</div>
         </div>
         <div class="ig-user-sheet-info">
           <div class="ig-user-sheet-name" id="menu-user-name">蔬食探索者</div>
@@ -1010,7 +1056,12 @@
       </div>
       <div class="ig-user-sheet-actions">
         <button class="ig-user-sheet-btn danger" onclick="confirmLogout()">
-          <span style="font-size: 16px;">🚪</span> 登出 Google 帳號
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          登出 Google 帳號
         </button>
         <button class="ig-user-sheet-btn" onclick="closeUserMenu()">取消</button>
       </div>
@@ -1300,7 +1351,7 @@
             currentUser = user;
             lockScreen.style.display = 'none';
 
-            // 更新頭像與選單內資訊
+            // 更新所有圓形頭像與選單資訊
             avatarSyncEls.forEach(el => {
               if (user.photoURL) {
                 el.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
@@ -1711,10 +1762,10 @@
       const visitedCount = stores.filter(s => s.visited).length;
       const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
 
-      // 📱 更新手機端拉桿摘要
+      // 📱 手機端摘要
       document.getElementById('peek-stats-text').innerText = `已收錄 ${total} ｜ 打卡 ${visitedCount}`;
 
-      // 💻 更新電腦端 IG Profile 數據
+      // 💻 電腦端 IG Profile 數據
       const desktopTotal = document.getElementById('desktop-stat-total');
       const desktopVisited = document.getElementById('desktop-stat-visited');
       const desktopPct = document.getElementById('desktop-stat-pct');
