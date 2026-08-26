@@ -124,24 +124,15 @@
     }
     .btn-google-login:active { transform: scale(0.98); }
 
-    /* ─── Google Maps 風格頂部懸浮搜尋列 ─── */
-    .top-floating-bar {
-      position: absolute;
-      top: 14px;
-      left: 0;
-      right: 0;
-      width: 100%;
-      z-index: 1200;
+    /* ─── 頂部/側欄共用 搜尋與分類容器 ─── */
+    .search-filter-module {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      pointer-events: none;
+      position: relative;
     }
 
     .search-pill-box {
-      pointer-events: auto;
-      margin: 0 14px;
-      max-width: 480px;
       background: rgba(24, 24, 27, 0.94);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -159,14 +150,14 @@
       background: transparent;
       border: none;
       color: #fff;
-      font-size: 14px;
+      font-size: 13.5px;
       outline: none;
     }
     .search-input-field::placeholder { color: var(--ig-text-sub); }
 
     .user-avatar-btn {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       background: var(--ig-gradient);
       padding: 2px;
@@ -187,15 +178,16 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      font-size: 16px;
+      font-size: 15px;
     }
     .user-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
 
     /* 🔍 搜尋提示下拉選單 (Autocomplete) */
     .search-suggestions-dropdown {
-      pointer-events: auto;
-      margin: 0 14px;
-      max-width: 480px;
+      position: absolute;
+      top: 48px;
+      left: 0;
+      right: 0;
       background: rgba(24, 24, 27, 0.98);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -206,6 +198,7 @@
       display: none;
       flex-direction: column;
       box-shadow: 0 10px 32px rgba(0, 0, 0, 0.9);
+      z-index: 2500;
     }
     .search-suggestions-dropdown.active { display: flex; }
 
@@ -217,7 +210,6 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      transition: background 0.15s;
     }
     .suggestion-item:last-child { border-bottom: none; }
     .suggestion-item:active, .suggestion-item:hover { background: rgba(255, 255, 255, 0.1); }
@@ -226,15 +218,13 @@
     .suggestion-sub { font-size: 11px; color: var(--ig-text-sub); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .suggestion-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #000; color: #a1a1aa; border: 1px solid #333; flex-shrink: 0; }
 
-    /* 水平滑動分類膠囊 (修正：全螢幕邊緣滑動與間距) */
+    /* 水平滑動分類膠囊 */
     .top-chips-scroll {
-      pointer-events: auto;
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
-      padding: 2px 16px 6px 14px;
-      width: 100%;
+      padding-bottom: 2px;
       box-sizing: border-box;
       -webkit-overflow-scrolling: touch;
     }
@@ -246,9 +236,9 @@
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--ig-border);
       color: var(--ig-text-sub);
-      padding: 6px 12px;
+      padding: 5px 11px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
@@ -264,8 +254,8 @@
     /* ─── 右上角圓形圖層按鈕 ─── */
     .fab-layer-btn {
       position: absolute;
-      top: 105px;
-      right: 14px;
+      top: 16px;
+      right: 16px;
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -287,8 +277,8 @@
 
     .layer-picker-menu {
       position: absolute;
-      top: 156px;
-      right: 14px;
+      top: 68px;
+      right: 16px;
       background: rgba(24, 24, 27, 0.96);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -342,7 +332,24 @@
       overflow: hidden;
     }
 
-    /* 抽屜頂部觸控拖曳區 (精準固定高度 64px) */
+    .sidebar-desktop-header {
+      padding: 14px 16px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--ig-border);
+    }
+    .desktop-brand {
+      font-size: 16px;
+      font-weight: 800;
+      background: var(--ig-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .sheet-header-touch-zone {
       width: 100%;
       height: 64px;
@@ -387,7 +394,7 @@
     }
 
     .actions-bar {
-      padding: 6px 16px 8px;
+      padding: 8px 14px;
       display: flex;
       gap: 6px;
       border-bottom: 1px solid var(--ig-border);
@@ -398,8 +405,8 @@
       background: var(--ig-panel);
       border: 1px solid var(--ig-border);
       color: var(--ig-text-main);
-      padding: 6px 12px;
-      border-radius: 12px;
+      padding: 5px 10px;
+      border-radius: 10px;
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
@@ -410,8 +417,8 @@
     }
 
     .quick-add-box {
-      margin: 8px 16px 4px;
-      padding: 8px 10px;
+      margin: 8px 14px 4px;
+      padding: 6px 10px;
       background: var(--ig-panel);
       border-radius: 12px;
       border: 1px solid var(--ig-border);
@@ -641,30 +648,39 @@
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; }
 
     /* ═════════════════════════════════════════════
-       💻 電腦端佈局 (> 768px)
+       💻 電腦端佈局 (> 768px)：全整合至左側欄
        ═════════════════════════════════════════════ */
     @media (min-width: 769px) {
-      .top-floating-bar {
-        left: calc(var(--sidebar-width) + 20px);
-        right: auto;
-        width: auto;
-        max-width: 480px;
-      }
-      .search-pill-box, .search-suggestions-dropdown {
-        margin: 0;
-        width: 100%;
-      }
-      .top-chips-scroll {
-        padding: 2px 0 6px 0;
-        width: 100%;
-      }
+      body { flex-direction: row; }
+      
       #sidebar {
         width: var(--sidebar-width);
         height: 100%;
         border-right: 1px solid var(--ig-border);
         z-index: 1000;
       }
-      .sheet-handle-pill { display: none; }
+
+      .sheet-header-touch-zone { display: none; }
+      
+      .search-filter-module {
+        padding: 12px 14px 6px;
+        border-bottom: 1px solid var(--ig-border);
+      }
+
+      .search-suggestions-dropdown {
+        left: 14px;
+        right: 14px;
+        top: 54px;
+      }
+
+      .top-chips-scroll {
+        padding: 4px 0 2px;
+      }
+
+      .fab-layer-btn {
+        top: 16px;
+        right: 16px;
+      }
     }
 
     /* ═════════════════════════════════════════════
@@ -672,12 +688,48 @@
        ═════════════════════════════════════════════ */
     @media (max-width: 768px) {
       body { flex-direction: column; }
+      
       #map {
         position: fixed;
         inset: 0;
         width: 100vw;
         height: 100vh;
       }
+
+      .sidebar-desktop-header { display: none; }
+
+      /* 手機端搜尋列浮動於地圖上方 */
+      .search-filter-module {
+        position: fixed;
+        top: 14px;
+        left: 0;
+        right: 0;
+        z-index: 1500;
+        padding: 0 14px;
+        pointer-events: none;
+      }
+
+      .search-pill-box { pointer-events: auto; }
+      .top-chips-scroll { 
+        pointer-events: auto; 
+        padding: 2px 0 6px 0;
+      }
+
+      .search-suggestions-dropdown {
+        left: 14px;
+        right: 14px;
+        top: 48px;
+      }
+
+      .fab-layer-btn {
+        top: 108px;
+        right: 14px;
+      }
+      .layer-picker-menu {
+        top: 160px;
+        right: 14px;
+      }
+
       #sidebar {
         position: fixed;
         left: 0;
@@ -698,7 +750,6 @@
         transition: none !important;
       }
 
-      /* 📱 精確三段高度：收合 64px 乾淨貼合拉桿區 */
       #sidebar.sheet-collapsed { height: 64px; }
       #sidebar.sheet-half { height: 35vh; }
       #sidebar.sheet-full { height: 96vh; }
@@ -727,8 +778,8 @@
     </div>
   </div>
 
-  <!-- 頂部 Google Maps 懸浮搜尋與分類列 -->
-  <div class="top-floating-bar">
+  <!-- 搜尋與分類模組 (電腦在側欄內，手機浮動於地圖頂部) -->
+  <div class="search-filter-module">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
       <input type="text" id="search-box" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." autocomplete="off" />
@@ -740,7 +791,7 @@
     <!-- 🔍 搜尋提示下拉選單 (Autocomplete) -->
     <div class="search-suggestions-dropdown" id="search-suggestions"></div>
 
-    <!-- 標籤分類水平滾動 (支援無截斷邊緣滑動) -->
+    <!-- 標籤分類水平滾動 -->
     <div class="top-chips-scroll">
       <span class="chip-pill active" onclick="setCategoryFilter('all', this)">✨ 全部</span>
       <span class="chip-pill" onclick="setCategoryFilter('純素', this)">🌱 純素</span>
@@ -749,27 +800,19 @@
       <span class="chip-pill" onclick="setCategoryFilter('甜點', this)">🍰 甜點</span>
       <span class="chip-pill" onclick="setCategoryFilter('異國', this)">🍕 異國料理</span>
       <span class="chip-pill" onclick="toggleStatusFilter(this)">❤️ 只看已打卡</span>
-      <div style="min-width: 8px; height: 1px; flex-shrink: 0;"></div>
     </div>
   </div>
 
-  <!-- 右上角圓形圖層切換按鈕 -->
-  <button class="fab-layer-btn" onclick="toggleLayerMenu()" title="切換地圖風格">🗺️</button>
-
-  <!-- 圖層選擇浮動選單 -->
-  <div class="layer-picker-menu" id="layer-picker-menu">
-    <button class="layer-option-btn active" onclick="switchBaseLayer('dark', this)">🌑 極簡暗黑</button>
-    <button class="layer-option-btn" onclick="switchBaseLayer('osm', this)">🗺️ 開源街景</button>
-    <button class="layer-option-btn" onclick="switchBaseLayer('taiwan', this)">🇹🇼 臺灣通用</button>
-    <button class="layer-option-btn" onclick="switchBaseLayer('satellite', this)">🛰️ 衛星空照</button>
-  </div>
-
-  <!-- 地圖本體 -->
-  <div id="map"></div>
-
-  <!-- 底部抽屜 (手機) / 側邊欄 (電腦) -->
+  <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
   <div id="sidebar" class="sheet-collapsed">
-    <!-- 手機端頂部拉桿區 (精確固定高度 64px) -->
+    
+    <!-- 電腦端專屬頂部標題列 -->
+    <div class="sidebar-desktop-header">
+      <div class="desktop-brand">🌱 蔬食探索星圖</div>
+      <div style="font-size: 11px; color: var(--ig-text-sub);" id="desktop-stats-text">0 家收錄</div>
+    </div>
+
+    <!-- 手機端頂部拉桿區 (64px) -->
     <div class="sheet-header-touch-zone" id="sheet-header-zone">
       <div class="sheet-handle-pill"></div>
       <div class="sheet-peek-summary">
@@ -780,7 +823,7 @@
       </div>
     </div>
 
-    <!-- 工具按鈕列 (拉動即顯) -->
+    <!-- 工具按鈕列 -->
     <div class="actions-bar">
       <button class="btn-action-pill" onclick="document.getElementById('import-file').click()">📥 匯入 JSON</button>
       <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
@@ -788,15 +831,29 @@
       <button class="btn-action-pill" onclick="clearAllStores()">🗑️ 清空名單</button>
     </div>
 
-    <!-- 快捷新增區塊 (拉動即顯) -->
+    <!-- 快捷新增區塊 -->
     <div class="quick-add-box">
       <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
       <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
     </div>
 
-    <!-- 店家清單列表 (拉動即顯) -->
+    <!-- 店家清單列表 -->
     <div class="list-container" id="restaurant-list"></div>
   </div>
+
+  <!-- 右上角圓形圖層切換按鈕 -->
+  <button class="fab-layer-btn" onclick="toggleLayerMenu()" title="切換地圖風格">🗺️</button>
+
+  <!-- 圖層選擇浮動選單 (預設臺灣通用) -->
+  <div class="layer-picker-menu" id="layer-picker-menu">
+    <button class="layer-option-btn active" onclick="switchBaseLayer('taiwan', this)">🇹🇼 臺灣通用</button>
+    <button class="layer-option-btn" onclick="switchBaseLayer('dark', this)">🌑 極簡暗黑</button>
+    <button class="layer-option-btn" onclick="switchBaseLayer('osm', this)">🗺️ 開源街景</button>
+    <button class="layer-option-btn" onclick="switchBaseLayer('satellite', this)">🛰️ 衛星空照</button>
+  </div>
+
+  <!-- 地圖本體 -->
+  <div id="map"></div>
 
   <!-- 新增 / 編輯彈窗 Modal -->
   <div class="modal-overlay" id="modal">
@@ -864,17 +921,17 @@
     // 🛡️ 授權白名單
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
+      "tp6u4jo6@gmail.com",
     ];
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
-  authDomain: "hsinchu-veg-map.firebaseapp.com",
-  projectId: "hsinchu-veg-map",
-  storageBucket: "hsinchu-veg-map.firebasestorage.app",
-  messagingSenderId: "229294662793",
-  appId: "1:229294662793:web:d467459c29f46eb0aed258"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
+      authDomain: "hsinchu-veg-map.firebaseapp.com",
+      projectId: "hsinchu-veg-map",
+      storageBucket: "hsinchu-veg-map.firebasestorage.app",
+      messagingSenderId: "229294662793",
+      appId: "1:229294662793:web:d467459c29f46eb0aed258"
+    };
 
     let db = null;
     let auth = null;
@@ -952,14 +1009,16 @@ const firebaseConfig = {
     // 初始化地圖
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
+    // 多風格底圖定義
     const layers = {
+      taiwan: L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', { maxZoom: 19 }),
       dark: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 }),
       osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }),
-      taiwan: L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', { maxZoom: 19 }),
       satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 })
     };
 
-    let currentBaseLayer = layers.dark;
+    // 🇹🇼 預設使用臺灣通用地圖
+    let currentBaseLayer = layers.taiwan;
     currentBaseLayer.addTo(map);
 
     window.toggleLayerMenu = function() {
@@ -1000,7 +1059,7 @@ const firebaseConfig = {
       }
     };
 
-    /* ─── 📱 手機端流暢跟手拖曳抽屜引擎 ─── */
+    /* ─── 📱 手機端跟手抽屜引擎 ─── */
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
     let sheetState = 'collapsed';
@@ -1031,9 +1090,7 @@ const firebaseConfig = {
       if (!isDragging || window.innerWidth > 768) return;
       const currentY = e.touches[0].clientY;
       const deltaY = startY - currentY;
-      if (Math.abs(deltaY) > 4) {
-        hasMoved = true;
-      }
+      if (Math.abs(deltaY) > 4) hasMoved = true;
       const targetH = Math.max(64, Math.min(window.innerHeight * 0.96, startHeight + deltaY));
       sidebar.style.height = `${targetH}px`;
     }, { passive: true });
@@ -1053,13 +1110,9 @@ const firebaseConfig = {
       const finalH = sidebar.getBoundingClientRect().height;
       const winH = window.innerHeight;
 
-      if (finalH < winH * 0.20) {
-        setMobileSheetState('collapsed');
-      } else if (finalH < winH * 0.60) {
-        setMobileSheetState('half');
-      } else {
-        setMobileSheetState('full');
-      }
+      if (finalH < winH * 0.20) setMobileSheetState('collapsed');
+      else if (finalH < winH * 0.60) setMobileSheetState('half');
+      else setMobileSheetState('full');
     });
 
     map.on('click', () => {
@@ -1116,9 +1169,7 @@ const firebaseConfig = {
           s.name.toLowerCase().includes(val) || 
           (s.address && s.address.toLowerCase().includes(val))
         );
-        if (matched) {
-          selectStoreFromSearch(matched.id);
-        }
+        if (matched) selectStoreFromSearch(matched.id);
       }
     });
 
@@ -1130,9 +1181,7 @@ const firebaseConfig = {
       suggestionsDropdown.classList.remove('active');
       searchBox.blur();
 
-      if (window.innerWidth <= 768) {
-        setMobileSheetState('half');
-      }
+      if (window.innerWidth <= 768) setMobileSheetState('half');
 
       flyToWithOffset(store.lat, store.lng, 16.5);
       const marker = markersRef[id];
@@ -1287,6 +1336,8 @@ const firebaseConfig = {
       const total = stores.length;
       const visitedCount = stores.filter(s => s.visited).length;
       document.getElementById('peek-stats-text').innerText = `已收錄 ${total} ｜ 打卡 ${visitedCount}`;
+      const desktopStats = document.getElementById('desktop-stats-text');
+      if (desktopStats) desktopStats.innerText = `已收錄 ${total} ｜ 打卡 ${visitedCount}`;
 
       const filtered = stores.filter(s => {
         const matchCategory = (currentCategory === 'all') || (s.category && s.category.includes(currentCategory));
