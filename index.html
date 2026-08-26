@@ -173,7 +173,7 @@
     }
     .user-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* 🔍 搜尋提示下拉選單 (Autocomplete) */
+    /* 🔍 搜尋提示下拉選單 */
     .search-suggestions-dropdown {
       position: absolute;
       top: 46px;
@@ -728,11 +728,96 @@
     .btn-toggle.unlock { background: var(--ig-gradient); color: #fff; }
     .btn-toggle.relock { background: #18181b; color: #e4e4e7; }
 
-    /* Modal */
+    /* ─── 👤 IG 風格帳號選單 Action Sheet / Modal ─── */
+    .ig-user-sheet {
+      background: var(--ig-surface);
+      border: 1px solid var(--ig-border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9);
+      animation: igSheetPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+    }
+    @keyframes igSheetPop {
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .ig-user-sheet-header {
+      padding: 24px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--ig-border);
+      text-align: center;
+    }
+
+    .ig-user-sheet-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+    }
+    .ig-user-sheet-name {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .ig-user-sheet-email {
+      font-size: 12px;
+      color: var(--ig-text-sub);
+    }
+    .ig-user-sheet-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(0, 149, 246, 0.15);
+      color: var(--ig-blue);
+      font-weight: 700;
+      margin-top: 2px;
+      border: 1px solid rgba(0, 149, 246, 0.3);
+    }
+
+    .ig-user-sheet-actions {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ig-user-sheet-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--ig-border);
+      padding: 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .ig-user-sheet-btn:last-child {
+      border-bottom: none;
+    }
+    .ig-user-sheet-btn:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .ig-user-sheet-btn.danger {
+      color: var(--ig-heart);
+      font-weight: 700;
+    }
+
+    /* Modal Overlay */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.82);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -822,7 +907,6 @@
         display: none !important;
       }
 
-      /* 📱 手機頂部全螢幕邊緣滑動容器 (解決左右截斷) */
       #mobile-floating-top {
         position: fixed;
         top: 12px;
@@ -877,12 +961,10 @@
         transition: none !important;
       }
 
-      /* 📱 精確三段高度：半開提升至 30vh */
       #sidebar.sheet-collapsed { height: 64px; }
-      #sidebar.sheet-half { height: 30vh; }
+      #sidebar.sheet-half { height: 42vh; }
       #sidebar.sheet-full { height: 96vh; }
 
-      /* 半開與收合時隱藏次要工具列，把全部空間留給店家卡片 */
       #sidebar.sheet-collapsed .actions-bar,
       #sidebar.sheet-collapsed .quick-add-wrap,
       #sidebar.sheet-half .actions-bar {
@@ -913,12 +995,34 @@
     </div>
   </div>
 
-  <!-- 📱 手機端專屬懸浮頂部搜尋與限動 (支援無截斷邊緣滑動) -->
+  <!-- 👤 IG 風格帳號管理選單 (點頭像彈出) -->
+  <div class="modal-overlay" id="user-menu-modal" onclick="closeUserMenu()">
+    <div class="ig-user-sheet" onclick="event.stopPropagation()">
+      <div class="ig-user-sheet-header">
+        <div class="story-ring" style="width: 58px; height: 58px;">
+          <div class="story-avatar user-avatar-sync" style="font-size: 22px;">🌱</div>
+        </div>
+        <div class="ig-user-sheet-info">
+          <div class="ig-user-sheet-name" id="menu-user-name">蔬食探索者</div>
+          <div class="ig-user-sheet-email" id="menu-user-email">user@gmail.com</div>
+          <div class="ig-user-sheet-badge">🛡️ 授權探索成員</div>
+        </div>
+      </div>
+      <div class="ig-user-sheet-actions">
+        <button class="ig-user-sheet-btn danger" onclick="confirmLogout()">
+          <span style="font-size: 16px;">🚪</span> 登出 Google 帳號
+        </button>
+        <button class="ig-user-sheet-btn" onclick="closeUserMenu()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📱 手機端專屬懸浮頂部搜尋與限動 -->
   <div id="mobile-floating-top">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
       <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
-      <button class="user-avatar-btn" onclick="handleAuth()" title="點擊登出 / 切換帳號">
+      <button class="user-avatar-btn" onclick="openUserMenu()" title="查看帳號設定">
         <div class="user-avatar-img user-avatar-sync">🌱</div>
       </button>
       <div class="search-suggestions-dropdown" id="search-suggestions-mobile"></div>
@@ -975,7 +1079,7 @@
       <div class="search-pill-box">
         <span style="font-size: 15px;">🔍</span>
         <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
-        <button class="user-avatar-btn" onclick="handleAuth()" title="點擊登出 / 切換帳號">
+        <button class="user-avatar-btn" onclick="openUserMenu()" title="查看帳號設定">
           <div class="user-avatar-img user-avatar-sync">🌱</div>
         </button>
         <div class="search-suggestions-dropdown" id="search-suggestions-desktop"></div>
@@ -1196,6 +1300,7 @@
             currentUser = user;
             lockScreen.style.display = 'none';
 
+            // 更新頭像與選單內資訊
             avatarSyncEls.forEach(el => {
               if (user.photoURL) {
                 el.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
@@ -1203,6 +1308,9 @@
                 el.innerText = '👤';
               }
             });
+
+            document.getElementById('menu-user-name').innerText = user.displayName || '蔬食探索者';
+            document.getElementById('menu-user-email').innerText = user.email;
 
             if (!unsubscribeFirestore) {
               unsubscribeFirestore = onSnapshot(storesCollection, (snapshot) => {
@@ -1446,19 +1554,28 @@
       }, 300);
     };
 
-    /* ─── 登入 / 登出 ─── */
+    /* ─── 👤 帳號選單控制 ─── */
+    window.openUserMenu = function() {
+      document.getElementById('user-menu-modal').classList.add('active');
+    };
+
+    window.closeUserMenu = function() {
+      document.getElementById('user-menu-modal').classList.remove('active');
+    };
+
+    window.confirmLogout = async function() {
+      closeUserMenu();
+      if (currentUser) {
+        await signOut(auth);
+      }
+    };
+
     window.handleAuth = async function() {
       if (!isFirebaseReady) return alert('請先填入正確的 firebaseConfig！');
-      if (currentUser) {
-        if (confirm(`目前登入：${currentUser.displayName || currentUser.email}\n確定要登出嗎？`)) {
-          await signOut(auth);
-        }
-      } else {
-        try {
-          await signInWithPopup(auth, googleProvider);
-        } catch (err) {
-          alert(`登入失敗：${err.message}`);
-        }
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (err) {
+        alert(`登入失敗：${err.message}`);
       }
     };
 
