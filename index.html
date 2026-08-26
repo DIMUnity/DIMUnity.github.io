@@ -128,9 +128,9 @@
     .top-floating-bar {
       position: absolute;
       top: 14px;
-      left: 14px;
-      right: 14px;
-      max-width: 480px;
+      left: 0;
+      right: 0;
+      width: 100%;
       z-index: 1200;
       display: flex;
       flex-direction: column;
@@ -140,6 +140,8 @@
 
     .search-pill-box {
       pointer-events: auto;
+      margin: 0 14px;
+      max-width: 480px;
       background: rgba(24, 24, 27, 0.94);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -192,6 +194,8 @@
     /* 🔍 搜尋提示下拉選單 (Autocomplete) */
     .search-suggestions-dropdown {
       pointer-events: auto;
+      margin: 0 14px;
+      max-width: 480px;
       background: rgba(24, 24, 27, 0.98);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -222,14 +226,17 @@
     .suggestion-sub { font-size: 11px; color: var(--ig-text-sub); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .suggestion-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #000; color: #a1a1aa; border: 1px solid #333; flex-shrink: 0; }
 
-    /* 水平滑動分類膠囊 */
+    /* 水平滑動分類膠囊 (修正：全螢幕邊緣滑動與間距) */
     .top-chips-scroll {
       pointer-events: auto;
       display: flex;
-      gap: 6px;
+      gap: 8px;
       overflow-x: auto;
       scrollbar-width: none;
-      padding-bottom: 2px;
+      padding: 2px 16px 6px 14px;
+      width: 100%;
+      box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
     }
     .top-chips-scroll::-webkit-scrollbar { display: none; }
 
@@ -246,6 +253,7 @@
       white-space: nowrap;
       cursor: pointer;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
     .chip-pill.active {
       background: #ffffff;
@@ -334,17 +342,19 @@
       overflow: hidden;
     }
 
-    /* 抽屜頂部觸控拖曳區 */
+    /* 抽屜頂部觸控拖曳區 (精準固定高度 64px) */
     .sheet-header-touch-zone {
       width: 100%;
-      padding: 10px 16px 8px;
+      height: 64px;
+      padding: 8px 16px 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      justify-content: space-between;
       cursor: grab;
       touch-action: none;
       user-select: none;
       flex-shrink: 0;
+      box-sizing: border-box;
       background: rgba(24, 24, 27, 0.98);
     }
 
@@ -360,7 +370,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 2px;
+      margin-bottom: 2px;
     }
     .peek-title {
       font-size: 14px;
@@ -636,7 +646,17 @@
     @media (min-width: 769px) {
       .top-floating-bar {
         left: calc(var(--sidebar-width) + 20px);
-        max-width: 380px;
+        right: auto;
+        width: auto;
+        max-width: 480px;
+      }
+      .search-pill-box, .search-suggestions-dropdown {
+        margin: 0;
+        width: 100%;
+      }
+      .top-chips-scroll {
+        padding: 2px 0 6px 0;
+        width: 100%;
       }
       #sidebar {
         width: var(--sidebar-width);
@@ -678,8 +698,8 @@
         transition: none !important;
       }
 
-      /* 📱 優化後的三段高度：半開降至 35vh 保持視野寬闊 */
-      #sidebar.sheet-collapsed { height: 72px; }
+      /* 📱 精確三段高度：收合 64px 乾淨貼合拉桿區 */
+      #sidebar.sheet-collapsed { height: 64px; }
       #sidebar.sheet-half { height: 35vh; }
       #sidebar.sheet-full { height: 96vh; }
     }
@@ -720,7 +740,7 @@
     <!-- 🔍 搜尋提示下拉選單 (Autocomplete) -->
     <div class="search-suggestions-dropdown" id="search-suggestions"></div>
 
-    <!-- 標籤分類水平滾動 -->
+    <!-- 標籤分類水平滾動 (支援無截斷邊緣滑動) -->
     <div class="top-chips-scroll">
       <span class="chip-pill active" onclick="setCategoryFilter('all', this)">✨ 全部</span>
       <span class="chip-pill" onclick="setCategoryFilter('純素', this)">🌱 純素</span>
@@ -729,6 +749,7 @@
       <span class="chip-pill" onclick="setCategoryFilter('甜點', this)">🍰 甜點</span>
       <span class="chip-pill" onclick="setCategoryFilter('異國', this)">🍕 異國料理</span>
       <span class="chip-pill" onclick="toggleStatusFilter(this)">❤️ 只看已打卡</span>
+      <div style="min-width: 8px; height: 1px; flex-shrink: 0;"></div>
     </div>
   </div>
 
@@ -748,7 +769,7 @@
 
   <!-- 底部抽屜 (手機) / 側邊欄 (電腦) -->
   <div id="sidebar" class="sheet-collapsed">
-    <!-- 手機端頂部拉桿區 (可任意上下拖曳) -->
+    <!-- 手機端頂部拉桿區 (精確固定高度 64px) -->
     <div class="sheet-header-touch-zone" id="sheet-header-zone">
       <div class="sheet-handle-pill"></div>
       <div class="sheet-peek-summary">
@@ -759,7 +780,7 @@
       </div>
     </div>
 
-    <!-- 工具按鈕列 -->
+    <!-- 工具按鈕列 (拉動即顯) -->
     <div class="actions-bar">
       <button class="btn-action-pill" onclick="document.getElementById('import-file').click()">📥 匯入 JSON</button>
       <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
@@ -767,13 +788,13 @@
       <button class="btn-action-pill" onclick="clearAllStores()">🗑️ 清空名單</button>
     </div>
 
-    <!-- 快捷新增區塊 -->
+    <!-- 快捷新增區塊 (拉動即顯) -->
     <div class="quick-add-box">
       <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
       <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
     </div>
 
-    <!-- 店家清單列表 -->
+    <!-- 店家清單列表 (拉動即顯) -->
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
@@ -846,14 +867,14 @@
       "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
     ];
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
-      authDomain: "hsinchu-veg-map.firebaseapp.com",
-      projectId: "hsinchu-veg-map",
-      storageBucket: "hsinchu-veg-map.firebasestorage.app",
-      messagingSenderId: "229294662793",
-      appId: "1:229294662793:web:d467459c29f46eb0aed258"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
+  authDomain: "hsinchu-veg-map.firebaseapp.com",
+  projectId: "hsinchu-veg-map",
+  storageBucket: "hsinchu-veg-map.firebasestorage.app",
+  messagingSenderId: "229294662793",
+  appId: "1:229294662793:web:d467459c29f46eb0aed258"
+};
 
     let db = null;
     let auth = null;
@@ -961,12 +982,11 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    /* ─── 🎯 視圖精確居中計算 (避開頂部搜尋列與底部抽屜) ─── */
+    /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
-        const topBarHeight = 115; // 頂部搜尋列與膠囊高度
-        const bottomSheetHeight = window.innerHeight * 0.35; // 35vh 半開高度
-        // 算出可用純地圖區間的垂直中心
+        const topBarHeight = 115;
+        const bottomSheetHeight = window.innerHeight * 0.35;
         const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomSheetHeight) / 2;
         const screenCenterY = window.innerHeight / 2;
         const offsetY = visibleCenterY - screenCenterY;
@@ -983,7 +1003,7 @@
     /* ─── 📱 手機端流暢跟手拖曳抽屜引擎 ─── */
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
-    let sheetState = 'collapsed'; // 'collapsed', 'half', 'full'
+    let sheetState = 'collapsed';
     let isDragging = false;
     let startY = 0;
     let startHeight = 0;
@@ -1014,7 +1034,7 @@
       if (Math.abs(deltaY) > 4) {
         hasMoved = true;
       }
-      const targetH = Math.max(72, Math.min(window.innerHeight * 0.96, startHeight + deltaY));
+      const targetH = Math.max(64, Math.min(window.innerHeight * 0.96, startHeight + deltaY));
       sidebar.style.height = `${targetH}px`;
     }, { passive: true });
 
@@ -1033,7 +1053,7 @@
       const finalH = sidebar.getBoundingClientRect().height;
       const winH = window.innerHeight;
 
-      if (finalH < winH * 0.22) {
+      if (finalH < winH * 0.20) {
         setMobileSheetState('collapsed');
       } else if (finalH < winH * 0.60) {
         setMobileSheetState('half');
@@ -1114,7 +1134,6 @@
         setMobileSheetState('half');
       }
 
-      // 精確居中飛向店家座標
       flyToWithOffset(store.lat, store.lng, 16.5);
       const marker = markersRef[id];
       if (marker) setTimeout(() => marker.openPopup(), 400);
