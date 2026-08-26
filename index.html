@@ -124,7 +124,7 @@
     }
     .btn-google-login:active { transform: scale(0.98); }
 
-    /* ─── Google Maps 風格頂部懸浮搜尋列 (手機/電腦共用) ─── */
+    /* ─── Google Maps 風格頂部懸浮搜尋列 ─── */
     .top-floating-bar {
       position: absolute;
       top: 14px;
@@ -189,6 +189,39 @@
     }
     .user-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
 
+    /* 🔍 搜尋建議提示下拉選單 */
+    .search-suggestions-dropdown {
+      pointer-events: auto;
+      background: rgba(24, 24, 27, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--ig-border);
+      border-radius: 18px;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.9);
+    }
+    .search-suggestions-dropdown.active { display: flex; }
+
+    .suggestion-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:active, .suggestion-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .suggestion-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+    .suggestion-name { font-size: 13.5px; font-weight: 700; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .suggestion-sub { font-size: 11px; color: var(--ig-text-sub); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .suggestion-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #000; color: #a1a1aa; border: 1px solid #333; flex-shrink: 0; }
+
     /* 水平滑動分類膠囊 */
     .top-chips-scroll {
       pointer-events: auto;
@@ -220,7 +253,7 @@
       border-color: #ffffff;
     }
 
-    /* ─── 右上角圓形圖層按鈕 (Google Maps 風格) ─── */
+    /* ─── 右上角圓形圖層按鈕 ─── */
     .fab-layer-btn {
       position: absolute;
       top: 105px;
@@ -244,7 +277,6 @@
     }
     .fab-layer-btn:active { transform: scale(0.92); }
 
-    /* 圖層選擇彈出選單 */
     .layer-picker-menu {
       position: absolute;
       top: 156px;
@@ -279,7 +311,7 @@
       gap: 8px;
       transition: all 0.15s;
     }
-    .layer-option-btn:hover, .layer-option-btn.active {
+    .layer-option-btn.active, .layer-option-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       color: #fff;
     }
@@ -300,35 +332,33 @@
       flex-direction: column;
       z-index: 1000;
       flex-shrink: 0;
-      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1), height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
     }
 
-    /* 抽屜拉桿 */
-    .sheet-handle-zone {
+    /* 抽屜全頂部觸控區域 */
+    .sheet-header-touch-zone {
       width: 100%;
-      padding: 10px 0 6px;
+      padding: 10px 16px 8px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      gap: 6px;
       cursor: grab;
       touch-action: none;
       user-select: none;
     }
+
     .sheet-handle-pill {
-      width: 36px;
-      height: 4.5px;
+      width: 40px;
+      height: 5px;
       background: #52525b;
       border-radius: 999px;
+      margin: 0 auto;
     }
 
-    /* 抽屜收合時的精簡統計條 */
     .sheet-peek-summary {
-      padding: 4px 16px 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      cursor: pointer;
+      margin-top: 2px;
     }
     .peek-title {
       font-size: 14px;
@@ -344,13 +374,13 @@
       font-weight: 600;
     }
 
-    /* 工具按鈕列 */
     .actions-bar {
       padding: 4px 16px 8px;
       display: flex;
       gap: 6px;
       border-bottom: 1px solid var(--ig-border);
       overflow-x: auto;
+      flex-shrink: 0;
     }
     .btn-action-pill {
       background: var(--ig-panel);
@@ -367,15 +397,15 @@
       white-space: nowrap;
     }
 
-    /* 快速建立打卡點區塊 */
     .quick-add-box {
-      margin: 10px 16px 4px;
+      margin: 8px 16px 4px;
       padding: 8px 10px;
       background: var(--ig-panel);
       border-radius: 12px;
       border: 1px solid var(--ig-border);
       display: flex;
       gap: 6px;
+      flex-shrink: 0;
     }
     .quick-input {
       flex: 1;
@@ -398,11 +428,10 @@
       cursor: pointer;
     }
 
-    /* 店家列表容器 */
     .list-container {
       flex: 1;
       overflow-y: auto;
-      padding: 8px 14px 28px;
+      padding: 6px 14px 28px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -416,11 +445,15 @@
       padding: 10px 12px;
       position: relative;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, border-color 0.15s;
     }
     .store-card.is-unlocked {
       border: 1px solid rgba(220, 39, 67, 0.4);
       background: linear-gradient(135deg, rgba(220, 39, 67, 0.1), var(--ig-card));
+    }
+    .store-card.highlight-card {
+      border: 1.5px solid var(--ig-blue) !important;
+      background: rgba(0, 149, 246, 0.12) !important;
     }
 
     .card-top {
@@ -607,7 +640,7 @@
         height: 100%;
         border-right: 1px solid var(--ig-border);
       }
-      .sheet-handle-zone { display: none; }
+      .sheet-handle-pill { display: none; }
     }
 
     /* ═════════════════════════════════════════════
@@ -634,14 +667,14 @@
         border-radius: 24px 24px 0 0;
         box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.95);
         z-index: 1050;
+        touch-action: none;
       }
 
       /* 抽屜三段高度控制 */
-      #sidebar.sheet-collapsed { height: 75px; }
-      #sidebar.sheet-half { height: 48vh; }
-      #sidebar.sheet-full { height: 88vh; }
+      #sidebar.sheet-collapsed { height: 75px !important; }
+      #sidebar.sheet-half { height: 48vh !important; }
+      #sidebar.sheet-full { height: 88vh !important; }
 
-      /* 收合時隱藏次要內容 */
       #sidebar.sheet-collapsed .actions-bar,
       #sidebar.sheet-collapsed .quick-add-box,
       #sidebar.sheet-collapsed .list-container {
@@ -676,12 +709,14 @@
   <div class="top-floating-bar">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
-      <input type="text" id="search-box" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearch(this.value)" />
-      <!-- 右側使用者頭像 / 登入按鈕 -->
+      <input type="text" id="search-box" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." autocomplete="off" />
       <button class="user-avatar-btn" onclick="handleAuth()" title="點擊登出 / 切換帳號">
         <div class="user-avatar-img" id="user-avatar">🌱</div>
       </button>
     </div>
+
+    <!-- 🔍 搜尋提示下拉選單 (Autocomplete) -->
+    <div class="search-suggestions-dropdown" id="search-suggestions"></div>
 
     <!-- 標籤分類水平滾動 -->
     <div class="top-chips-scroll">
@@ -706,22 +741,20 @@
     <button class="layer-option-btn" onclick="switchBaseLayer('satellite', this)">🛰️ 衛星空照</button>
   </div>
 
-  <!-- 地圖本體 -->
+  <!-- 地圖本體 (無 Zoom 按鈕) -->
   <div id="map"></div>
 
   <!-- 底部抽屜 (手機) / 側邊欄 (電腦) -->
   <div id="sidebar" class="sheet-collapsed">
-    <!-- 手機滑動拉桿區 -->
-    <div class="sheet-handle-zone" id="sheet-drag-handle">
+    <!-- 手機端頂部拉桿區 (可任意拖動上下) -->
+    <div class="sheet-header-touch-zone" id="sheet-header-zone">
       <div class="sheet-handle-pill"></div>
-    </div>
-
-    <!-- 抽屜摘要 (點擊可展開/收合) -->
-    <div class="sheet-peek-summary" onclick="cycleMobileSheet()">
-      <div class="peek-title">
-        <span>🌱 蔬食探索星圖</span>
+      <div class="sheet-peek-summary">
+        <div class="peek-title">
+          <span>🌱 蔬食探索星圖</span>
+        </div>
+        <div class="peek-stats" id="peek-stats-text">已收錄 0 ｜ 打卡 0</div>
       </div>
-      <div class="peek-stats" id="peek-stats-text">已收錄 0 ｜ 打卡 0</div>
     </div>
 
     <!-- 工具按鈕列 -->
@@ -893,10 +926,10 @@
 
     let stores = [];
 
-    // 初始化地圖：徹底不顯示預設的 Zoom 按鈕
+    // 初始化地圖 (無 Zoom 按鈕)
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
-    // 定義多款底圖圖層
+    // 多風格底圖
     const layers = {
       dark: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 }),
       osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }),
@@ -927,56 +960,160 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    /* ─── 📱 手機端 Google Maps 底部抽屜拖曳邏輯 ─── */
+    /* ─── 📱 手機端流暢跟手拖曳抽屜 (Real-time Smooth Drag) ─── */
     const sidebar = document.getElementById('sidebar');
-    const dragHandle = document.getElementById('sheet-drag-handle');
-    let sheetState = 'collapsed'; // 'collapsed' (75px), 'half' (48vh), 'full' (88vh)
+    const headerTouchZone = document.getElementById('sheet-header-zone');
+    let sheetState = 'collapsed'; // 'collapsed', 'half', 'full'
+    let isDragging = false;
     let startY = 0;
-    let currentY = 0;
+    let initialHeight = 0;
 
     window.setMobileSheetState = function(state) {
+      sidebar.style.transition = 'height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1)';
+      sidebar.style.height = '';
       sidebar.classList.remove('sheet-collapsed', 'sheet-half', 'sheet-full');
       sidebar.classList.add(`sheet-${state}`);
       sheetState = state;
     };
 
-    window.cycleMobileSheet = function() {
+    // 觸控開始
+    headerTouchZone.addEventListener('touchstart', (e) => {
+      if (window.innerWidth > 768) return;
+      isDragging = true;
+      startY = e.touches[0].clientY;
+      initialHeight = sidebar.getBoundingClientRect().height;
+      sidebar.style.transition = 'none'; // 拖曳時關閉 transition，實現完全跟手
+    }, { passive: true });
+
+    // 觸控中 (即時更新高度)
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || window.innerWidth > 768) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = startY - currentY;
+      const newHeight = initialHeight + deltaY;
+
+      // 限制拖曳高度範圍 (60px ~ 90vh)
+      const minH = 70;
+      const maxH = window.innerHeight * 0.9;
+      if (newHeight >= minH && newHeight <= maxH) {
+        sidebar.style.height = `${newHeight}px`;
+      }
+    }, { passive: true });
+
+    // 觸控結束 (自動吸附至最近狀態)
+    window.addEventListener('touchend', (e) => {
+      if (!isDragging || window.innerWidth > 768) return;
+      isDragging = false;
+      const currentHeight = sidebar.getBoundingClientRect().height;
+      const winH = window.innerHeight;
+
+      if (currentHeight < winH * 0.26) {
+        setMobileSheetState('collapsed');
+      } else if (currentHeight < winH * 0.68) {
+        setMobileSheetState('half');
+      } else {
+        setMobileSheetState('full');
+      }
+    });
+
+    // 點擊摘要條亦可循環切換
+    headerTouchZone.addEventListener('click', () => {
+      if (window.innerWidth > 768) return;
       if (sheetState === 'collapsed') setMobileSheetState('half');
       else if (sheetState === 'half') setMobileSheetState('full');
       else setMobileSheetState('collapsed');
-    };
-
-    // 手指觸控跟手拖曳
-    dragHandle.addEventListener('touchstart', (e) => {
-      startY = e.touches[0].clientY;
-    }, { passive: true });
-
-    dragHandle.addEventListener('touchmove', (e) => {
-      currentY = e.touches[0].clientY;
-    }, { passive: true });
-
-    dragHandle.addEventListener('touchend', () => {
-      const deltaY = currentY - startY;
-      if (deltaY < -40) {
-        // 向上拉
-        if (sheetState === 'collapsed') setMobileSheetState('half');
-        else if (sheetState === 'half') setMobileSheetState('full');
-      } else if (deltaY > 40) {
-        // 向下滑
-        if (sheetState === 'full') setMobileSheetState('half');
-        else if (sheetState === 'half') setMobileSheetState('collapsed');
-      }
-      startY = 0;
-      currentY = 0;
     });
 
-    // 點擊地圖自動收合抽屜並隱藏圖層選單
+    // 點擊地圖關閉圖層選單與收合抽屜
     map.on('click', () => {
       document.getElementById('layer-picker-menu').classList.remove('active');
+      document.getElementById('search-suggestions').classList.remove('active');
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
         setMobileSheetState('collapsed');
       }
     });
+
+    /* ─── 🔍 搜尋自動補全提示 (Autocomplete) 與 Enter 事件 ─── */
+    const searchBox = document.getElementById('search-box');
+    const suggestionsDropdown = document.getElementById('search-suggestions');
+
+    searchBox.addEventListener('input', (e) => {
+      const val = e.target.value.trim().toLowerCase();
+      searchKeyword = val;
+      updateSidebar();
+
+      if (!val) {
+        suggestionsDropdown.classList.remove('active');
+        suggestionsDropdown.innerHTML = '';
+        return;
+      }
+
+      const matches = stores.filter(s => 
+        s.name.toLowerCase().includes(val) || 
+        (s.address && s.address.toLowerCase().includes(val)) ||
+        (s.category && s.category.toLowerCase().includes(val))
+      );
+
+      if (matches.length > 0) {
+        suggestionsDropdown.innerHTML = matches.slice(0, 5).map(s => `
+          <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
+            <div class="suggestion-info">
+              <span class="suggestion-name">${s.name}</span>
+              <span class="suggestion-sub">📍 ${s.address || '新竹地區'}</span>
+            </div>
+            <span class="suggestion-badge">${s.category || '蔬食'}</span>
+          </div>
+        `).join('');
+        suggestionsDropdown.classList.add('active');
+      } else {
+        suggestionsDropdown.classList.remove('active');
+        suggestionsDropdown.innerHTML = '';
+      }
+    });
+
+    // 按下 Enter 鍵直接選擇第一個匹配店家
+    searchBox.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = searchBox.value.trim().toLowerCase();
+        if (!val) return;
+        const matched = stores.find(s => 
+          s.name.toLowerCase().includes(val) || 
+          (s.address && s.address.toLowerCase().includes(val))
+        );
+        if (matched) {
+          selectStoreFromSearch(matched.id);
+        }
+      }
+    });
+
+    window.selectStoreFromSearch = function(id) {
+      const store = stores.find(s => s.id === id);
+      if (!store) return;
+
+      searchBox.value = store.name;
+      suggestionsDropdown.classList.remove('active');
+      searchBox.blur();
+
+      // 地圖飛行定位並開啟說明彈窗
+      map.flyTo([store.lat, store.lng], 17, { duration: 0.8 });
+      const marker = markersRef[id];
+      if (marker) setTimeout(() => marker.openPopup(), 400);
+
+      // 手機端抽屜自動展開到 half 並高亮卡片
+      if (window.innerWidth <= 768) {
+        setMobileSheetState('half');
+      }
+
+      // 滾動清單至該卡片
+      setTimeout(() => {
+        const card = document.querySelector(`.store-card[data-id="${id}"]`);
+        if (card) {
+          document.querySelectorAll('.store-card').forEach(c => c.classList.remove('highlight-card'));
+          card.classList.add('highlight-card');
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    };
 
     /* ─── 登入 / 登出 ─── */
     window.handleAuth = async function() {
@@ -994,7 +1131,7 @@
       }
     };
 
-    /* ─── 篩選與搜尋 ─── */
+    /* ─── 標籤篩選 ─── */
     let currentCategory = 'all';
     let filterVisitedOnly = false;
     let searchKeyword = '';
@@ -1015,15 +1152,7 @@
       updateSidebar();
     };
 
-    window.handleSearch = function(val) {
-      searchKeyword = val.trim().toLowerCase();
-      updateSidebar();
-      if (searchKeyword && window.innerWidth <= 768 && sheetState === 'collapsed') {
-        setMobileSheetState('half');
-      }
-    };
-
-    /* ─── 經緯度解析與新增 ─── */
+    /* ─── 經緯度反查與快速新增 ─── */
     async function reverseGeocode(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
@@ -1194,10 +1323,10 @@
     window.focusStore = function(id) {
       const store = stores.find(s => s.id === id);
       if (store) {
-        map.flyTo([store.lat, store.lng], 16, { duration: 0.6 });
+        map.flyTo([store.lat, store.lng], 16.5, { duration: 0.6 });
         const marker = markersRef[id];
         if (marker) setTimeout(() => marker.openPopup(), 300);
-        if (window.innerWidth <= 768) setMobileSheetState('collapsed');
+        if (window.innerWidth <= 768) setMobileSheetState('half');
       }
     };
 
@@ -1246,6 +1375,7 @@
       const store = stores.find(s => s.id === id);
       if (!store) return;
 
+      document.getElementById('modal-title').innerText = '✏️ 編輯貼文資訊';
       document.getElementById('form-id').value = store.id;
       document.getElementById('form-name').value = store.name;
       document.getElementById('form-address').value = store.address || '';
