@@ -330,11 +330,11 @@
       background: var(--ig-bg);
       display: flex;
       flex-direction: column;
-      z-index: 1000;
       flex-shrink: 0;
+      overflow: hidden;
     }
 
-    /* 抽屜頂部觸控拖曳條 */
+    /* 抽屜頂部觸控拖曳區 */
     .sheet-header-touch-zone {
       width: 100%;
       padding: 10px 16px 8px;
@@ -344,10 +344,12 @@
       cursor: grab;
       touch-action: none;
       user-select: none;
+      flex-shrink: 0;
+      background: rgba(24, 24, 27, 0.98);
     }
 
     .sheet-handle-pill {
-      width: 42px;
+      width: 44px;
       height: 5px;
       background: #52525b;
       border-radius: 999px;
@@ -375,7 +377,7 @@
     }
 
     .actions-bar {
-      padding: 4px 16px 8px;
+      padding: 6px 16px 8px;
       display: flex;
       gap: 6px;
       border-bottom: 1px solid var(--ig-border);
@@ -436,6 +438,7 @@
       flex-direction: column;
       gap: 8px;
       -webkit-overflow-scrolling: touch;
+      min-height: 0;
     }
 
     .store-card {
@@ -639,6 +642,7 @@
         width: var(--sidebar-width);
         height: 100%;
         border-right: 1px solid var(--ig-border);
+        z-index: 1000;
       }
       .sheet-handle-pill { display: none; }
     }
@@ -666,25 +670,20 @@
         border-top: 1px solid #3f3f46;
         border-radius: 24px 24px 0 0;
         box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.95);
-        z-index: 1050;
+        /* 🛡️ 確保抽屜層級高於頂部搜尋列 (1200) 與圖層按鈕 (1100)，完全擋住 */
+        z-index: 2000;
         transition: height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
       }
 
-      /* 拖曳中關閉過渡動效，實現完全貼手跟隨 */
+      /* 拖曳中即時跟手 */
       #sidebar.is-dragging {
         transition: none !important;
       }
 
-      /* 三段吸附高度設定 */
+      /* 三段高度 */
       #sidebar.sheet-collapsed { height: 72px; }
       #sidebar.sheet-half { height: 48vh; }
-      #sidebar.sheet-full { height: 88vh; }
-
-      #sidebar.sheet-collapsed .actions-bar,
-      #sidebar.sheet-collapsed .quick-add-box,
-      #sidebar.sheet-collapsed .list-container {
-        display: none !important;
-      }
+      #sidebar.sheet-full { height: 96vh; }
     }
   </style>
 </head>
@@ -746,12 +745,12 @@
     <button class="layer-option-btn" onclick="switchBaseLayer('satellite', this)">🛰️ 衛星空照</button>
   </div>
 
-  <!-- 地圖本體 (無 Zoom 按鈕) -->
+  <!-- 地圖本體 -->
   <div id="map"></div>
 
   <!-- 底部抽屜 (手機) / 側邊欄 (電腦) -->
   <div id="sidebar" class="sheet-collapsed">
-    <!-- 手機端頂部拉桿區 (可任意拖動上下) -->
+    <!-- 手機端頂部拉桿區 (按住可任意上下拖曳) -->
     <div class="sheet-header-touch-zone" id="sheet-header-zone">
       <div class="sheet-handle-pill"></div>
       <div class="sheet-peek-summary">
@@ -762,7 +761,7 @@
       </div>
     </div>
 
-    <!-- 工具按鈕列 -->
+    <!-- 工具按鈕列 (拉動時即時顯現) -->
     <div class="actions-bar">
       <button class="btn-action-pill" onclick="document.getElementById('import-file').click()">📥 匯入 JSON</button>
       <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
@@ -770,13 +769,13 @@
       <button class="btn-action-pill" onclick="clearAllStores()">🗑️ 清空名單</button>
     </div>
 
-    <!-- 快捷新增區塊 -->
+    <!-- 快捷新增區塊 (拉動時即時顯現) -->
     <div class="quick-add-box">
       <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
       <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
     </div>
 
-    <!-- 店家清單列表 -->
+    <!-- 店家清單列表 (拉動時即時顯現) -->
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
@@ -846,17 +845,17 @@
     // 🛡️ 授權白名單
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
+      "tp6u4jo6@gmail.com",
     ];
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
-  authDomain: "hsinchu-veg-map.firebaseapp.com",
-  projectId: "hsinchu-veg-map",
-  storageBucket: "hsinchu-veg-map.firebasestorage.app",
-  messagingSenderId: "229294662793",
-  appId: "1:229294662793:web:d467459c29f46eb0aed258"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
+      authDomain: "hsinchu-veg-map.firebaseapp.com",
+      projectId: "hsinchu-veg-map",
+      storageBucket: "hsinchu-veg-map.firebasestorage.app",
+      messagingSenderId: "229294662793",
+      appId: "1:229294662793:web:d467459c29f46eb0aed258"
+    };
 
     let db = null;
     let auth = null;
@@ -931,10 +930,9 @@ const firebaseConfig = {
 
     let stores = [];
 
-    // 初始化地圖 (無 Zoom 按鈕)
+    // 初始化地圖
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
-    // 多風格底圖
     const layers = {
       dark: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 }),
       osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }),
@@ -983,6 +981,7 @@ const firebaseConfig = {
       setTimeout(() => map.invalidateSize(), 300);
     };
 
+    // 觸控開始
     headerTouchZone.addEventListener('touchstart', (e) => {
       if (window.innerWidth > 768) return;
       isDragging = true;
@@ -992,6 +991,7 @@ const firebaseConfig = {
       sidebar.classList.add('is-dragging');
     }, { passive: true });
 
+    // 觸控中 (即時更新高度，內容隨之露出)
     window.addEventListener('touchmove', (e) => {
       if (!isDragging || window.innerWidth > 768) return;
       const currentY = e.touches[0].clientY;
@@ -999,17 +999,18 @@ const firebaseConfig = {
       if (Math.abs(deltaY) > 4) {
         hasMoved = true;
       }
-      const targetH = Math.max(72, Math.min(window.innerHeight * 0.9, startHeight + deltaY));
+      const targetH = Math.max(72, Math.min(window.innerHeight * 0.96, startHeight + deltaY));
       sidebar.style.height = `${targetH}px`;
     }, { passive: true });
 
+    // 觸控結束 (自動吸附)
     window.addEventListener('touchend', () => {
       if (!isDragging || window.innerWidth > 768) return;
       isDragging = false;
       sidebar.classList.remove('is-dragging');
 
       if (!hasMoved) {
-        // 單純點擊切換狀態
+        // 單純點擊
         if (sheetState === 'collapsed') setMobileSheetState('half');
         else if (sheetState === 'half') setMobileSheetState('full');
         else setMobileSheetState('collapsed');
@@ -1021,7 +1022,7 @@ const firebaseConfig = {
 
       if (finalH < winH * 0.28) {
         setMobileSheetState('collapsed');
-      } else if (finalH < winH * 0.68) {
+      } else if (finalH < winH * 0.72) {
         setMobileSheetState('half');
       } else {
         setMobileSheetState('full');
@@ -1063,7 +1064,7 @@ const firebaseConfig = {
           <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
             <div class="suggestion-info">
               <span class="suggestion-name">${s.name}</span>
-              <span class="suggestion-sub">📍 ${s.address || '新竹地區'}</span>
+              <span class="suggestion-sub">📍 ${s.address || '地區店家'}</span>
             </div>
             <span class="suggestion-badge">${s.category || '蔬食'}</span>
           </div>
