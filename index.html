@@ -594,6 +594,28 @@
       background: #09090b;
     }
 
+    /* 暗黑主題風格化圖層切換選單 */
+    .leaflet-control-layers {
+      background: var(--ig-panel) !important;
+      color: var(--ig-text-main) !important;
+      border: 1px solid var(--ig-border) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
+      padding: 8px 12px !important;
+      font-size: 12px !important;
+      font-weight: 500;
+    }
+    .leaflet-control-layers-toggle {
+      filter: invert(1);
+    }
+    .leaflet-control-layers label {
+      margin: 4px 0 !important;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
     .custom-marker {
       display: flex;
       align-items: center;
@@ -1023,11 +1045,39 @@
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // 換用 OpenStreetMap 官方完全免費無浮水印底圖
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // ─── 4 種多元風格底圖圖層定義 ───
+    const darkLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri',
+      maxZoom: 16
+    });
+
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19
-    }).addTo(map);
+    });
+
+    const taiwanLayer = L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', {
+      attribution: '&copy; 內政部國土測繪中心',
+      maxZoom: 19
+    });
+
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri',
+      maxZoom: 18
+    });
+
+    // 預設載入極簡暗黑圖層
+    darkLayer.addTo(map);
+
+    // 右上角底圖切換控制面板
+    const baseMaps = {
+      "🌑 極簡暗黑": darkLayer,
+      "🗺️ 開源街景": osmLayer,
+      "🇹🇼 臺灣通用地圖": taiwanLayer,
+      "🛰️ 衛星空照": satelliteLayer
+    };
+
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
 
     const constellationLayer = L.layerGroup().addTo(map);
     const markersLayer = L.layerGroup().addTo(map);
