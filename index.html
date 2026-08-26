@@ -24,7 +24,7 @@
       --ig-heart: #ff3040;
       --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
       --ig-gradient-glow: rgba(220, 39, 67, 0.45);
-      --sidebar-width: 400px;
+      --sidebar-width: 390px;
     }
 
     * {
@@ -124,15 +124,18 @@
     }
     .btn-google-login:active { transform: scale(0.98); }
 
-    /* ─── 頂部/側欄共用 搜尋與分類容器 ─── */
+    /* ─── 搜尋與分類模組 ─── */
     .search-filter-module {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      position: relative;
+      position: absolute;
+      box-sizing: border-box;
+      pointer-events: none;
     }
 
     .search-pill-box {
+      pointer-events: auto;
       background: rgba(24, 24, 27, 0.94);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -184,6 +187,7 @@
 
     /* 🔍 搜尋提示下拉選單 (Autocomplete) */
     .search-suggestions-dropdown {
+      pointer-events: auto;
       position: absolute;
       top: 48px;
       left: 0;
@@ -220,6 +224,7 @@
 
     /* 水平滑動分類膠囊 */
     .top-chips-scroll {
+      pointer-events: auto;
       display: flex;
       gap: 6px;
       overflow-x: auto;
@@ -330,14 +335,16 @@
       flex-direction: column;
       flex-shrink: 0;
       overflow: hidden;
+      position: relative;
     }
 
     .sidebar-desktop-header {
-      padding: 14px 16px 8px;
+      padding: 14px 16px 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--ig-border);
+      flex-shrink: 0;
     }
     .desktop-brand {
       font-size: 16px;
@@ -648,7 +655,7 @@
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; }
 
     /* ═════════════════════════════════════════════
-       💻 電腦端佈局 (> 768px)：全整合至左側欄
+       💻 電腦端佈局 (> 768px)：標準雙欄，搜尋整合至側欄
        ═════════════════════════════════════════════ */
     @media (min-width: 769px) {
       body { flex-direction: row; }
@@ -661,20 +668,20 @@
       }
 
       .sheet-header-touch-zone { display: none; }
-      
+
+      /* 電腦端將搜尋與分類精準置於側欄頂部 */
       .search-filter-module {
-        padding: 12px 14px 6px;
-        border-bottom: 1px solid var(--ig-border);
-      }
-
-      .search-suggestions-dropdown {
-        left: 14px;
-        right: 14px;
+        position: absolute;
         top: 54px;
+        left: 14px;
+        width: 362px;
+        z-index: 1200;
       }
 
-      .top-chips-scroll {
-        padding: 4px 0 2px;
+      /* 在側欄清單上方墊出等高間距，避免被搜尋與分類膠囊遮擋 */
+      .sidebar-search-spacer {
+        height: 84px;
+        flex-shrink: 0;
       }
 
       .fab-layer-btn {
@@ -696,29 +703,18 @@
         height: 100vh;
       }
 
-      .sidebar-desktop-header { display: none; }
+      .sidebar-desktop-header,
+      .sidebar-search-spacer {
+        display: none !important;
+      }
 
       /* 手機端搜尋列浮動於地圖上方 */
       .search-filter-module {
         position: fixed;
         top: 14px;
-        left: 0;
-        right: 0;
-        z-index: 1500;
-        padding: 0 14px;
-        pointer-events: none;
-      }
-
-      .search-pill-box { pointer-events: auto; }
-      .top-chips-scroll { 
-        pointer-events: auto; 
-        padding: 2px 0 6px 0;
-      }
-
-      .search-suggestions-dropdown {
         left: 14px;
         right: 14px;
-        top: 48px;
+        z-index: 1500;
       }
 
       .fab-layer-btn {
@@ -778,7 +774,7 @@
     </div>
   </div>
 
-  <!-- 搜尋與分類模組 (電腦在側欄內，手機浮動於地圖頂部) -->
+  <!-- 搜尋與分類模組 -->
   <div class="search-filter-module">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
@@ -800,6 +796,7 @@
       <span class="chip-pill" onclick="setCategoryFilter('甜點', this)">🍰 甜點</span>
       <span class="chip-pill" onclick="setCategoryFilter('異國', this)">🍕 異國料理</span>
       <span class="chip-pill" onclick="toggleStatusFilter(this)">❤️ 只看已打卡</span>
+      <div style="min-width: 8px; height: 1px; flex-shrink: 0;"></div>
     </div>
   </div>
 
@@ -811,6 +808,9 @@
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div style="font-size: 11px; color: var(--ig-text-sub);" id="desktop-stats-text">0 家收錄</div>
     </div>
+
+    <!-- 電腦端墊高間距（避開絕對定位的搜尋欄） -->
+    <div class="sidebar-search-spacer"></div>
 
     <!-- 手機端頂部拉桿區 (64px) -->
     <div class="sheet-header-touch-zone" id="sheet-header-zone">
