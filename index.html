@@ -132,25 +132,39 @@
       transition: all 0.2s ease;
     }
 
-    /* ─── 側邊欄 ─── */
+    /* ─── 側邊欄與抽屜基礎 ─── */
     #sidebar {
-      width: var(--sidebar-width);
-      height: 100%;
       background: var(--ig-bg);
-      border-right: 1px solid var(--ig-border);
       display: flex;
       flex-direction: column;
       z-index: 1000;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.9);
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
+      transition: all 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
       flex-shrink: 0;
     }
 
-    #sidebar.collapsed {
-      transform: translateX(-100%);
+    /* 手機底部抽屜拉條 (手機端顯示，電腦端隱藏) */
+    .sheet-handle-bar {
+      display: none;
+      width: 100%;
+      padding: 8px 0 4px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
     }
 
+    .sheet-pill-indicator {
+      width: 38px;
+      height: 4px;
+      background: #3f3f46;
+      border-radius: 999px;
+      transition: background 0.2s;
+    }
+    .sheet-handle-bar:active .sheet-pill-indicator {
+      background: #71717a;
+    }
+
+    /* 電腦端側邊欄切換按鈕 */
     .sidebar-toggle-btn {
       position: absolute;
       right: -28px;
@@ -222,7 +236,7 @@
       border-color: #555;
     }
 
-    /* ─── IG Stories ─── */
+    /* ─── IG Stories 限動分類 ─── */
     .stories-bar {
       display: flex;
       gap: 12px;
@@ -231,6 +245,7 @@
       border-bottom: 1px solid var(--ig-border);
       background: var(--ig-bg);
       scrollbar-width: none;
+      flex-shrink: 0;
     }
     .stories-bar::-webkit-scrollbar { display: none; }
 
@@ -292,6 +307,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      flex-shrink: 0;
     }
 
     .quick-add-title {
@@ -329,13 +345,14 @@
       white-space: nowrap;
     }
 
-    /* ─── IG Profile 檔案卡 ─── */
+    /* ─── IG Profile 探索者檔案卡 ─── */
     .profile-card {
       margin: 8px 14px 0;
       padding: 10px 12px;
       background: var(--ig-panel);
       border-radius: 12px;
       border: 1px solid var(--ig-border);
+      flex-shrink: 0;
     }
 
     .profile-top {
@@ -434,6 +451,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      flex-shrink: 0;
     }
 
     .search-input {
@@ -472,7 +490,7 @@
       border-color: #fff;
     }
 
-    /* ─── 左側店家卡片與拖曳樣式 ─── */
+    /* ─── 店家卡片與拖曳樣式 ─── */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -495,14 +513,10 @@
       border: 1px solid var(--ig-border);
       border-radius: 12px;
       padding: 10px 12px;
-      cursor: grab;
       position: relative;
       touch-action: pan-y;
       transition: background 0.15s, border-color 0.15s;
-    }
-
-    .store-card:active {
-      cursor: grabbing;
+      cursor: pointer;
     }
 
     .store-card.is-unlocked {
@@ -510,7 +524,6 @@
       background: linear-gradient(135deg, rgba(220, 39, 67, 0.08), var(--ig-card));
     }
 
-    /* 拖曳中的影子與選取樣式 */
     .sortable-ghost {
       opacity: 0.25 !important;
       border: 1.5px dashed var(--ig-blue) !important;
@@ -537,16 +550,16 @@
 
     .drag-handle {
       color: #555;
-      font-size: 12px;
+      font-size: 13px;
       letter-spacing: -2px;
       cursor: grab;
-      padding: 2px 4px 2px 0;
+      padding: 4px 6px 4px 0;
       user-select: none;
-      transition: color 0.2s;
+      touch-action: none;
     }
-
-    .store-card:hover .drag-handle {
-      color: var(--ig-text-sub);
+    .drag-handle:active {
+      cursor: grabbing;
+      color: var(--ig-blue);
     }
 
     .store-title {
@@ -650,9 +663,7 @@
       font-size: 12px !important;
       font-weight: 500;
     }
-    .leaflet-control-layers-toggle {
-      filter: invert(1);
-    }
+    .leaflet-control-layers-toggle { filter: invert(1); }
     .leaflet-control-layers label {
       margin: 4px 0 !important;
       display: flex;
@@ -777,28 +788,107 @@
     .btn-secondary { background: #27272a; color: #fff; padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; }
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 6px; font-size: 12px; }
 
-    /* ─── 📱 手機專屬響應式設計 ─── */
-    @media (max-width: 768px) {
-      :root {
-        --sidebar-width: 86vw;
+    /* ═════════════════════════════════════════════
+       💻 電腦端專屬佈局 (> 768px)
+       ═════════════════════════════════════════════ */
+    @media (min-width: 769px) {
+      #sidebar {
+        width: var(--sidebar-width);
+        height: 100%;
+        border-right: 1px solid var(--ig-border);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.9);
+        position: relative;
       }
 
-      #sidebar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        max-width: 380px;
-        box-shadow: 8px 0 28px rgba(0, 0, 0, 0.95);
+      #sidebar.collapsed {
+        margin-left: calc(-1 * var(--sidebar-width));
+      }
+
+      .sheet-handle-bar {
+        display: none !important;
       }
 
       .sidebar-toggle-btn {
-        right: -32px;
-        width: 32px;
-        height: 64px;
-        font-size: 14px;
-        background: #18181b;
-        border-color: #3f3f46;
+        display: flex;
+      }
+    }
+
+    /* ═════════════════════════════════════════════
+       📱 手機端專屬底部抽屜佈局 (<= 768px)
+       ═════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      #map {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+      }
+
+      .sidebar-toggle-btn {
+        display: none !important;
+      }
+
+      .sheet-handle-bar {
+        display: flex;
+      }
+
+      #sidebar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        background: rgba(18, 18, 18, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid var(--ig-border-light);
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        overflow: hidden;
+      }
+
+      /* 手機三段式抽屜高度狀態 */
+      #sidebar.sheet-collapsed {
+        height: 72px;
+      }
+
+      #sidebar.sheet-half {
+        height: 48vh;
+      }
+
+      #sidebar.sheet-full {
+        height: 88vh;
+      }
+
+      .sidebar-header {
+        padding: 8px 14px;
+      }
+
+      .stories-bar {
+        padding: 6px 12px;
+      }
+
+      .profile-card {
+        margin: 6px 12px 0;
+        padding: 8px 10px;
+      }
+
+      .quick-add-box {
+        margin: 6px 12px 0;
+      }
+
+      .controls-section {
+        padding: 6px 12px 4px;
+      }
+
+      .list-container {
+        padding: 4px 12px 30px;
       }
     }
   </style>
@@ -827,8 +917,15 @@
     </div>
   </div>
 
-  <div id="sidebar">
-    <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="toggleSidebar()" title="收合/展開側邊欄">◀</button>
+  <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
+  <div id="sidebar" class="sheet-half">
+    <!-- 手機端拉桿 Handle -->
+    <div class="sheet-handle-bar" id="sheet-handle" onclick="cycleMobileSheet()">
+      <div class="sheet-pill-indicator"></div>
+    </div>
+
+    <!-- 電腦端收合展開箭頭 -->
+    <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="toggleDesktopSidebar()" title="收合/展開側邊欄">◀</button>
 
     <div class="sidebar-header">
       <div class="title-row">
@@ -1001,7 +1098,7 @@
     // 🛡️ 授權白名單（請填入允許登入的 Google 信箱）
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
+      "tp6u4jo6@gmail.com",
     ];
 
     const firebaseConfig = {
@@ -1126,24 +1223,55 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    if (window.innerWidth <= 768) {
-      document.getElementById('sidebar').classList.add('collapsed');
-      document.getElementById('sidebar-toggle').innerText = '▶';
-    }
+    /* ─── 📱 手機底部抽屜狀態控制 ─── */
+    let mobileSheetState = 'half'; // 'collapsed', 'half', 'full'
 
-    window.toggleSidebar = function() {
+    window.setMobileSheetState = function(state) {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.remove('sheet-collapsed', 'sheet-half', 'sheet-full');
+      sidebar.classList.add(`sheet-${state}`);
+      mobileSheetState = state;
+      setTimeout(() => map.invalidateSize(), 300);
+    };
+
+    window.cycleMobileSheet = function() {
+      if (mobileSheetState === 'collapsed') setMobileSheetState('half');
+      else if (mobileSheetState === 'half') setMobileSheetState('full');
+      else setMobileSheetState('collapsed');
+    };
+
+    // 手機端拉桿滑動支援 (Swipe gesture)
+    let touchStartY = 0;
+    const handleEl = document.getElementById('sheet-handle');
+    handleEl.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    handleEl.addEventListener('touchend', (e) => {
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchEndY - touchStartY;
+      if (deltaY < -35) {
+        // 向上滑動
+        if (mobileSheetState === 'collapsed') setMobileSheetState('half');
+        else if (mobileSheetState === 'half') setMobileSheetState('full');
+      } else if (deltaY > 35) {
+        // 向下滑動
+        if (mobileSheetState === 'full') setMobileSheetState('half');
+        else if (mobileSheetState === 'half') setMobileSheetState('collapsed');
+      }
+    }, { passive: true });
+
+    /* ─── 💻 電腦端側邊欄切換 ─── */
+    window.toggleDesktopSidebar = function() {
       const sidebar = document.getElementById('sidebar');
       const toggleBtn = document.getElementById('sidebar-toggle');
       sidebar.classList.toggle('collapsed');
-
       toggleBtn.innerText = sidebar.classList.contains('collapsed') ? '▶' : '◀';
 
       const startTime = performance.now();
       function resizeLoop(now) {
         map.invalidateSize();
-        if (now - startTime < 380) {
-          requestAnimationFrame(resizeLoop);
-        }
+        if (now - startTime < 380) requestAnimationFrame(resizeLoop);
       }
       requestAnimationFrame(resizeLoop);
     };
@@ -1468,26 +1596,25 @@
         listEl.appendChild(card);
       });
 
-      // 初始化 / 重置拖曳排序功能
-      if (sortableInstance) {
-        sortableInstance.destroy();
-      }
+      // 初始化拖曳排序 (電腦端與手機端手柄觸控優化)
+      if (sortableInstance) sortableInstance.destroy();
 
-      // 只有在未篩選、未搜尋的「全部」模式下才允許持久化調整總清單排序
       const isCustomSortAllowed = currentFilter === 'all' && currentCategory === 'all' && searchKeyword === '';
 
       sortableInstance = new Sortable(listEl, {
         animation: 180,
+        handle: '.drag-handle', // 限制只能透過手柄拖曳，保障手機正常滑動滾動
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         filter: '.btn-heart, .card-edit-btn, button, input',
         preventOnFilter: false,
         disabled: !isCustomSortAllowed,
+        delay: 50,
+        delayOnTouchOnly: true,
         onEnd: async function () {
           const itemEls = Array.from(listEl.querySelectorAll('.store-card'));
           const newOrderIds = itemEls.map(el => el.getAttribute('data-id'));
 
-          // 重新排列本地陣列
           stores.sort((a, b) => {
             const idxA = newOrderIds.indexOf(a.id);
             const idxB = newOrderIds.indexOf(b.id);
@@ -1495,7 +1622,6 @@
             return idxA - idxB;
           });
 
-          // 寫入 Firebase 批次更新順序索引
           if (isFirebaseReady && currentUser) {
             try {
               const batch = writeBatch(db);
@@ -1510,7 +1636,6 @@
             }
           }
 
-          // 連帶重繪星軌連線順序
           renderConstellation();
         }
       });
@@ -1523,11 +1648,9 @@
         const marker = markersRef[id];
         if (marker) setTimeout(() => marker.openPopup(), 300);
 
+        // 手機端點擊卡片時，自動縮至半開模式以露出地圖視野
         if (window.innerWidth <= 768) {
-          const sidebar = document.getElementById('sidebar');
-          if (!sidebar.classList.contains('collapsed')) {
-            toggleSidebar();
-          }
+          setMobileSheetState('half');
         }
       }
     };
