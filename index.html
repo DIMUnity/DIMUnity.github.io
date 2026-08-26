@@ -1,70 +1,1463 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokestop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="scripts.js" defer></script>
-    <link rel="icon" href="assets/pokebola.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>蔬食探索星圖</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --ig-bg: #000000;
+      --ig-panel: #121212;
+      --ig-card: #1c1c1e;
+      --ig-card-hover: #26262a;
+      --ig-border: #262626;
+      --ig-border-light: #363636;
+      --ig-text-main: #f5f5f7;
+      --ig-text-sub: #a8a8a8;
+      --ig-blue: #0095f6;
+      --ig-blue-hover: #1877f2;
+      --ig-heart: #ff3040;
+      --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      --ig-gradient-glow: rgba(220, 39, 67, 0.45);
+      --sidebar-width: 420px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: var(--ig-bg);
+      color: var(--ig-text-main);
+      position: relative;
+    }
+
+    /* ─── 側邊欄（IG 風格暗黑面板） ─── */
+    #sidebar {
+      width: var(--sidebar-width);
+      background: var(--ig-bg);
+      border-right: 1px solid var(--ig-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.9);
+      transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      flex-shrink: 0;
+      margin-left: 0;
+    }
+
+    #sidebar.collapsed {
+      margin-left: calc(-1 * var(--sidebar-width));
+    }
+
+    /* 置中手柄收合按鈕 */
+    .sidebar-toggle-btn {
+      position: absolute;
+      right: -24px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 54px;
+      background: var(--ig-panel);
+      border: 1px solid var(--ig-border);
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+      color: var(--ig-text-sub);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 11px;
+      box-shadow: 4px 2px 14px rgba(0, 0, 0, 0.7);
+      z-index: 1001;
+      transition: all 0.2s;
+    }
+
+    .sidebar-toggle-btn:hover {
+      background: var(--ig-card);
+      color: #fff;
+    }
+
+    .sidebar-header {
+      padding: 14px 18px;
+      background: var(--ig-bg);
+      border-bottom: 1px solid var(--ig-border);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      background: var(--ig-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .brand-title svg {
+      stroke: #dc2743;
+      flex-shrink: 0;
+    }
+
+    .btn-action-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-icon {
+      background: var(--ig-panel);
+      border: 1px solid var(--ig-border);
+      color: var(--ig-text-sub);
+      padding: 5px 9px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-icon svg {
+      stroke: currentColor;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .btn-icon:hover {
+      color: #fff;
+      border-color: var(--ig-border-light);
+      background: var(--ig-card);
+    }
+
+    /* ─── IG Stories 限時動態分類列 ─── */
+    .stories-bar {
+      display: flex;
+      gap: 12px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--ig-border);
+      background: var(--ig-bg);
+      scrollbar-width: none;
+    }
+    .stories-bar::-webkit-scrollbar { display: none; }
+
+    .story-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .story-ring-sm {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--ig-border-light);
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+    }
+
+    .story-item:hover .story-ring-sm,
+    .story-item.active .story-ring-sm {
+      background: var(--ig-gradient);
+      box-shadow: 0 0 10px var(--ig-gradient-glow);
+    }
+
+    .story-avatar-sm {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #000;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .story-title {
+      font-size: 10px;
+      color: var(--ig-text-sub);
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+    .story-item.active .story-title {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* ─── 快捷新增區塊 ─── */
+    .quick-add-box {
+      margin: 10px 16px 0;
+      padding: 10px 12px;
+      background: var(--ig-panel);
+      border-radius: 12px;
+      border: 1px solid var(--ig-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .quick-add-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--ig-text-sub);
+      letter-spacing: 0.5px;
+    }
+
+    .quick-input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .quick-input {
+      flex: 1;
+      background: #000;
+      border: 1px solid var(--ig-border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .quick-input:focus { border-color: var(--ig-blue); }
+
+    .btn-quick-add {
+      background: var(--ig-blue);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-quick-add:hover { background: var(--ig-blue-hover); }
+
+    /* ─── IG Profile 探索者檔案卡 ─── */
+    .profile-card {
+      margin: 10px 16px 0;
+      padding: 12px 14px;
+      background: var(--ig-panel);
+      border-radius: 12px;
+      border: 1px solid var(--ig-border);
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .story-ring {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--ig-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px var(--ig-gradient-glow);
+    }
+
+    .story-avatar-inner {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      border-radius: 50%;
+      border: 2px solid var(--ig-panel);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+    }
+
+    .profile-stats {
+      flex: 1;
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-num {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--ig-text-sub);
+      margin-top: 1px;
+    }
+
+    .profile-bio {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--ig-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rank-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .progress-bar-bg {
+      background: #000;
+      height: 4px;
+      border-radius: 999px;
+      margin-top: 6px;
+      overflow: hidden;
+      border: 1px solid var(--ig-border);
+    }
+
+    .progress-bar-fill {
+      background: var(--ig-gradient);
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 8px var(--ig-gradient-glow);
+    }
+
+    /* 搜尋與篩選 */
+    .controls-section {
+      padding: 10px 16px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 7px 12px;
+      background: #000;
+      border: 1px solid var(--ig-border);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--ig-border-light); }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: var(--ig-panel);
+      color: var(--ig-text-sub);
+      border: 1px solid var(--ig-border);
+      border-radius: 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .pill:hover, .pill.active {
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      border-color: #fff;
+    }
+
+    /* ─── 左側店家卡片（完全保留原始框型與樣式） ─── */
+    .list-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .empty-placeholder {
+      text-align: center;
+      padding: 40px 10px;
+      color: var(--ig-text-sub);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .store-card {
+      background: var(--ig-card);
+      border: 1px solid var(--ig-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: grab;
+      transition: transform 0.2s, background 0.2s, border-color 0.2s, opacity 0.2s;
+      position: relative;
+      user-select: none;
+    }
+
+    .store-card:active {
+      cursor: grabbing;
+    }
+
+    .store-card:hover {
+      background: var(--ig-card-hover);
+      border-color: #444;
+      transform: translateY(-1px);
+    }
+
+    .store-card.is-unlocked {
+      border: 1px solid rgba(220, 39, 67, 0.4);
+      background: linear-gradient(135deg, rgba(220, 39, 67, 0.08), var(--ig-card));
+    }
+
+    .store-card.dragging {
+      opacity: 0.35;
+      border: 1px dashed #dc2743;
+      transform: scale(0.98);
+    }
+
+    .store-card.drag-over {
+      border-top: 2px solid var(--ig-blue);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .store-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drag-handle {
+      color: #555;
+      font-size: 12px;
+      cursor: grab;
+    }
+
+    .store-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .badge-status {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .badge-locked { background: #2c2c2e; color: #8e8e93; }
+    .badge-unlocked { background: var(--ig-gradient); color: #fff; }
+
+    .store-address {
+      font-size: 11px;
+      color: var(--ig-text-sub);
+      margin-bottom: 8px;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 5px;
+    }
+
+    .tag-pill {
+      background: #000;
+      color: #a1a1aa;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid #2a2a2e;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-heart {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.15s ease;
+      display: flex;
+      align-items: center;
+    }
+    .btn-heart:hover { transform: scale(1.2); }
+    .btn-heart:active { transform: scale(0.9); }
+
+    .card-edit-btn {
+      background: transparent;
+      border: 1px solid var(--ig-border);
+      color: var(--ig-text-sub);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .card-edit-btn:hover {
+      color: #fff;
+      border-color: #666;
+    }
+
+    /* ─── 雙擊愛心彈出動效 ─── */
+    .heart-burst {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      pointer-events: none;
+      z-index: 10;
+      animation: igHeartBurst 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes igHeartBurst {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      45% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; filter: drop-shadow(0 0 14px rgba(255, 48, 64, 0.9)); }
+      100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+    }
+
+    /* ─── 地圖 ─── */
+    #map {
+      flex: 1;
+      height: 100%;
+      width: 100%;
+      background: #09090b;
+    }
+
+    .custom-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+
+    .marker-unlocked {
+      background: var(--ig-gradient);
+      box-shadow: 0 0 14px var(--ig-gradient-glow);
+      animation: ig-pulse 2.2s infinite;
+      padding: 2px;
+    }
+
+    .marker-unlocked-inner {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .marker-locked {
+      background: #27272a;
+      border: 1.5px solid #3f3f46;
+      opacity: 0.8;
+    }
+
+    @keyframes ig-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(220, 39, 67, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(220, 39, 67, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 39, 67, 0); }
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: var(--ig-card) !important;
+      color: var(--ig-text-main) !important;
+      border: 1px solid var(--ig-border);
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.8) !important;
+    }
+    .leaflet-popup-tip { background: var(--ig-card) !important; }
+
+    .popup-container {
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-width: 230px;
+    }
+    .popup-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .popup-address { font-size: 11px; color: var(--ig-text-sub); line-height: 1.3; }
+    .popup-coords { font-size: 10px; color: #71717a; }
+    .popup-meta { font-size: 11px; color: var(--ig-text-sub); }
+    
+    .popup-btn-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .btn-toggle {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-toggle.unlock { background: var(--ig-gradient); color: #fff; }
+    .btn-toggle.relock { background: #27272a; color: #e4e4e7; }
+    .btn-edit { background: #27272a; color: #fff; border: 1px solid var(--ig-border); border-radius: 6px; padding: 5px 8px; font-size: 11px; cursor: pointer; }
+    .btn-delete { background: #3f1d24; color: #ff453a; border: 1px solid #5c202a; border-radius: 6px; padding: 5px 8px; font-size: 11px; cursor: pointer; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-content {
+      background: var(--ig-panel);
+      border: 1px solid var(--ig-border);
+      padding: 22px;
+      border-radius: 16px;
+      width: 420px;
+      max-width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 12px; color: var(--ig-text-sub); font-weight: 600; }
+    .form-control {
+      background: #000;
+      border: 1px solid var(--ig-border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+    }
+    .coords-info {
+      font-size: 11px;
+      color: var(--ig-text-sub);
+      background: #000;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--ig-border);
+    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+    .btn-secondary { background: #27272a; color: #fff; padding: 7px 14px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 7px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; }
+  </style>
 </head>
 <body>
-    <header class="header">
-        <img src="assets/pokemon_logo.png" class="pokemon__logo" alt="pokemon_logo">
-        <button class="settings-button" onclick="openModal()">⚙️</button>
-    </header>
-    <main class="main">
-        <div class="container">
-            <section class="pokestop">
-                <!-- 補給站轉盤外框 -->
-                <div class="pokestop-disc-wrapper">
-                    <div class="pokebola">
-                        <img src="assets/pokebola.png" class="pokebola__image" alt="pokebola" id="pokestopDisc">
-                    </div>
-                </div>
-                <div class="pokemon"></div>
-            </section>
-        </div>
-    </main>
 
-    <!-- Modal -->
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>獎品設定區</h2>
-            <div class="settings-form">
-                <div>
-                    <label for="input-a">餅乾數量：</label>
-                    <input type="number" id="input-a" name="input-a" value="20" min="0">
-                </div>
-                <div>
-                    <label for="input-b">飲料數量：</label>
-                    <input type="number" id="input-b" name="input-b" value="20" min="0">
-                </div>
-                <div>
-                    <label for="input-c">免費用餐券數量：</label>
-                    <input type="number" id="input-c" name="input-c" value="20" min="0">
-                </div>
-                <div>
-                    <label for="input-d">崇青資料夾數量：</label>
-                    <input type="number" id="input-d" name="input-d" value="20" min="0">
-                </div>
-                <button onclick="updateMaxCounts()">確定</button>
-            </div>
+  <div id="sidebar">
+    <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="toggleSidebar()" title="收合/展開側邊欄">◀</button>
+
+    <div class="sidebar-header">
+      <div class="title-row">
+        <h1 class="brand-title">
+          <!-- IG 風格相機圖示 -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+          新竹蔬食星圖
+        </h1>
+        <div class="btn-action-group">
+          <!-- 垃圾桶圖示 -->
+          <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+          <!-- 匯出/分享圖示 -->
+          <button class="btn-icon" onclick="exportData()" title="備份名單">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            匯出
+          </button>
+          <!-- 匯入/上傳圖示 -->
+          <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            匯入
+          </button>
+          <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
         </div>
+      </div>
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p class="footer__text">
-                主辦單位:
-                <a target="_blank" href="https://www.facebook.com/yuntechchongde">雲科大崇德青年社</a>
-            </p>
+    <!-- ─── IG Stories 限時動態分類列 ─── -->
+    <div class="stories-bar">
+      <div class="story-item active" onclick="setCategoryFilter('all', this)">
+        <div class="story-ring-sm"><div class="story-avatar-sm">✨</div></div>
+        <span class="story-title">全部探索</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('純素', this)">
+        <div class="story-ring-sm"><div class="story-avatar-sm">🌱</div></div>
+        <span class="story-title">純素/Vegan</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('蛋奶素', this)">
+        <div class="story-ring-sm"><div class="story-avatar-sm">🍳</div></div>
+        <span class="story-title">蛋奶素</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('早午餐', this)">
+        <div class="story-ring-sm"><div class="story-avatar-sm">🥪</div></div>
+        <span class="story-title">早午餐</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('甜點', this)">
+        <div class="story-ring-sm"><div class="story-avatar-sm">🍰</div></div>
+        <span class="story-title">甜點咖啡</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('異國', this)">
+        <div class="story-ring-sm"><div class="story-avatar-sm">🍕</div></div>
+        <span class="story-title">異國料理</span>
+      </div>
+    </div>
+
+    <!-- 快捷新增區塊 -->
+    <div class="quick-add-box">
+      <div class="quick-add-title">🔗 快速建立新打卡點</div>
+      <div class="quick-input-row">
+        <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
+        <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
+      </div>
+    </div>
+
+    <!-- IG Profile 探索者檔案卡 -->
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="story-ring">
+          <div class="story-avatar-inner">🌱</div>
         </div>
-    </footer>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <span class="stat-num" id="stat-total">0</span>
+            <span class="stat-label">收錄名單</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="stat-visited" style="color:#ff3040;">0</span>
+            <span class="stat-label">已打卡</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="stat-pct">0%</span>
+            <span class="stat-label">點亮進度</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-bio">
+        <span class="rank-name" id="rank-name">🌱 風城蔬食初探者</span>
+        <span id="stat-ratio-text" style="font-size:11px; color:var(--ig-text-sub);">0 / 0</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <div class="controls-section">
+      <input type="text" id="search-box" class="search-input" placeholder="🔍 搜尋店名、地址、標籤..." oninput="handleSearch(this.value)" />
+      <div class="filter-pills">
+        <span class="pill active" onclick="setFilter('all', this)">全部貼文</span>
+        <span class="pill" onclick="setFilter('unlocked', this)">❤️ 已打卡</span>
+        <span class="pill" onclick="setFilter('locked', this)">🔖 待造訪</span>
+      </div>
+    </div>
+
+    <div class="list-container" id="restaurant-list"></div>
+  </div>
+
+  <div id="map"></div>
+
+  <!-- 新增 / 編輯彈窗 Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-content">
+      <div id="modal-title" style="font-size: 16px; font-weight: 800; color: #fff;">📍 新增蔬食店家</div>
+      <input type="hidden" id="form-id" />
+      <input type="hidden" id="form-lat" />
+      <input type="hidden" id="form-lng" />
+
+      <div class="form-group">
+        <label>餐廳名稱 *</label>
+        <input type="text" id="form-name" class="form-control" placeholder="請輸入店名" />
+      </div>
+
+      <div class="form-group">
+        <label>詳細地址或位置</label>
+        <input type="text" id="form-address" class="form-control" placeholder="輸入中文地址或可留空" />
+      </div>
+
+      <div class="coords-info" id="form-coords-display">
+        🎯 鎖定座標：--
+      </div>
+
+      <div class="form-group">
+        <label>分類 / 標籤</label>
+        <input type="text" id="form-category" class="form-control" placeholder="例如：純素、蛋奶素、早午餐甜點、異國蔬食" value="蛋奶素" />
+      </div>
+
+      <div class="form-group">
+        <label>打卡狀態</label>
+        <select id="form-visited" class="form-control">
+          <option value="false">🔖 未造訪 (收藏清單)</option>
+          <option value="true">❤️ 已打卡 (點亮星圖)</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">取消</button>
+        <button class="btn-primary" id="btn-save" onclick="saveFormStore()">發布儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    let stores = JSON.parse(localStorage.getItem('hsinchu_custom_veg')) || [];
+
+    function persist() {
+      localStorage.setItem('hsinchu_custom_veg', JSON.stringify(stores));
+    }
+
+    const map = L.map('map', { center: [24.805, 120.975], zoom: 13 });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OSM contributors &copy; CARTO',
+      maxZoom: 18
+    }).addTo(map);
+
+    const constellationLayer = L.layerGroup().addTo(map);
+    const markersLayer = L.layerGroup().addTo(map);
+    const markersRef = {};
+
+    /* ─── 側邊欄收合切換 ─── */
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebar-toggle');
+      sidebar.classList.toggle('collapsed');
+
+      toggleBtn.innerText = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+
+      const startTime = performance.now();
+      function resizeLoop(now) {
+        map.invalidateSize();
+        if (now - startTime < 380) {
+          requestAnimationFrame(resizeLoop);
+        }
+      }
+      requestAnimationFrame(resizeLoop);
+    }
+
+    /* ─── 音效 ─── */
+    function playSparkleSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const t = ctx.currentTime;
+        [587.33, 739.99, 880, 1174.66].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.08);
+          gain.gain.setValueAtTime(0.15, t + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.08 + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t + idx * 0.08);
+          osc.stop(t + idx * 0.08 + 0.35);
+        });
+      } catch (e) {}
+    }
+
+    /* ─── 階級計算邏輯 ─── */
+    function calculateRank(visitedCount, total) {
+      if (total === 0 || visitedCount === 0) return '🌱 風城蔬食初探者';
+      const pct = Math.round((visitedCount / total) * 100);
+
+      if (pct === 100) return '👑 風城蔬食星域主宰';
+      if (pct >= 80 || visitedCount >= 15) return '🌟 蔬食星圖領航星';
+      if (pct >= 60 || visitedCount >= 10) return '✨ 風城綠光導航員';
+      if (pct >= 40 || visitedCount >= 6) return '🍃 植感生活達人';
+      if (pct >= 20 || visitedCount >= 3) return '🌿 巷弄綠食行者';
+      return '🌱 風城蔬食初探者';
+    }
+
+    /* ─── 檢查重複店家 ─── */
+    function checkDuplicateStore(name, lat, lng, excludeId = null) {
+      const cleanName = name.trim().toLowerCase();
+      const DISTANCE_THRESHOLD = 0.0001;
+
+      return stores.find(s => {
+        if (excludeId && s.id === excludeId) return false;
+        const sameName = s.name.trim().toLowerCase() === cleanName;
+        const sameLocation = Math.abs(s.lat - lat) < DISTANCE_THRESHOLD && Math.abs(s.lng - lng) < DISTANCE_THRESHOLD;
+        return sameName || sameLocation;
+      });
+    }
+
+    /* ─── 經緯度反查中文地址 ─── */
+    async function reverseGeocode(lat, lng) {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.address) {
+          const addr = data.address;
+          const road = addr.road || addr.pedestrian || addr.street || '';
+          const house = addr.house_number ? `${addr.house_number}號` : '';
+          const suburb = addr.suburb || addr.district || '';
+          const city = addr.city || addr.county || '新竹市';
+          return `${city}${suburb}${road}${house}` || data.display_name.split(',')[0];
+        }
+      } catch (err) {}
+      return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    }
+
+    /* ─── 解析輸入內容 ─── */
+    async function parseLocationInput(input) {
+      if (!input) return null;
+      const str = input.trim();
+
+      const coordMatch = str.match(/^(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)$/);
+      if (coordMatch) {
+        const lat = parseFloat(coordMatch[1]);
+        const lng = parseFloat(coordMatch[2]);
+        const addr = await reverseGeocode(lat, lng);
+        return { lat, lng, address: addr, isExactCoord: true };
+      }
+
+      const atMatch = str.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      const qMatch = str.match(/[?&](?:q|ll)=(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (atMatch || qMatch) {
+        const match = atMatch || qMatch;
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+        const addr = await reverseGeocode(lat, lng);
+        return { lat, lng, address: addr, isExactCoord: true };
+      }
+
+      let cleanAddr = str.replace(/^台灣省?/, '').replace(/[0-9]{3,5}/, '').replace(/[0-9]+[Ff樓].*$/, '').trim();
+      const queries = [
+        cleanAddr,
+        cleanAddr.replace(/[0-9]+號.*$/, ''),
+        cleanAddr.replace(/([0-9]+巷|[0-9]+弄|[0-9]+號).*$/, ''),
+        cleanAddr.match(/(.+?[市縣].+?[區鄉鎮市]|.+?[路街大道])/)?.[0] || ''
+      ].map(q => q ? q.trim() : '').filter(q => q && q.length >= 3);
+
+      for (const q of [...new Set(queries)]) {
+        const finalQuery = (q.includes('新竹') || q.includes('市') || q.includes('縣')) ? q : `新竹市 ${q}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finalQuery)}&limit=1&countrycodes=tw`;
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          if (data && data.length > 0) {
+            return {
+              lat: parseFloat(data[0].lat),
+              lng: parseFloat(data[0].lon),
+              address: str,
+              isExactCoord: false
+            };
+          }
+        } catch (err) {}
+        await new Promise(r => setTimeout(r, 200));
+      }
+      return null;
+    }
+
+    /* ─── 快捷新增 ─── */
+    async function handleQuickAdd() {
+      const input = document.getElementById('gmaps-input').value.trim();
+      if (!input) return;
+
+      const btn = document.getElementById('btn-quick-submit');
+      btn.innerText = '處理中...';
+      btn.disabled = true;
+
+      const result = await parseLocationInput(input);
+
+      btn.innerText = '新增';
+      btn.disabled = false;
+
+      if (result) {
+        let nameMatch = input.match(/place\/([^/@?]+)/);
+        let defaultName = nameMatch ? decodeURIComponent(nameMatch[1].replace(/\+/g, ' ')) : '新店家';
+
+        const storeName = prompt(`📍 已鎖定座標 (${result.lat.toFixed(5)}, ${result.lng.toFixed(5)})\n請確認或輸入店家名稱：`, defaultName);
+        if (storeName !== null) {
+          const finalName = storeName.trim() || defaultName;
+          
+          const dup = checkDuplicateStore(finalName, result.lat, result.lng);
+          if (dup) {
+            alert(`⚠️ 店家已存在！\n已有相同名稱或相同位置的店家：「${dup.name}」`);
+            focusStore(dup.id);
+            return;
+          }
+
+          const newStore = {
+            id: Date.now().toString(),
+            name: finalName,
+            address: result.address,
+            lat: result.lat,
+            lng: result.lng,
+            category: '蛋奶素',
+            visited: false
+          };
+          stores.push(newStore);
+          persist();
+          refreshAll();
+          document.getElementById('gmaps-input').value = '';
+          focusStore(newStore.id);
+        }
+      } else {
+        alert('無法辨識此位置或座標，請確認輸入內容！');
+      }
+    }
+
+    /* ─── IG 落日粉紅漸層星軌 ─── */
+    function renderConstellation() {
+      constellationLayer.clearLayers();
+      const visitedStores = stores.filter(s => s.visited);
+
+      if (visitedStores.length >= 2) {
+        const latlngs = visitedStores.map(s => [s.lat, s.lng]);
+        L.polyline(latlngs, { color: '#dc2743', weight: 6, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
+        L.polyline(latlngs, { color: '#f09433', weight: 2.5, dashArray: '6, 6', opacity: 0.9 }).addTo(constellationLayer);
+      }
+    }
+
+    /* ─── IG 限動圈地標 Markers ─── */
+    function renderMarkers() {
+      markersLayer.clearLayers();
+
+      stores.forEach(s => {
+        const iconHtml = `
+          <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
+               style="width:${s.visited ? '28px' : '20px'}; height:${s.visited ? '28px' : '20px'}; font-size:11px;">
+            <div class="${s.visited ? 'marker-unlocked-inner' : ''}">
+              ${s.visited ? '❤️' : '🌱'}
+            </div>
+          </div>
+        `;
+
+        const customIcon = L.divIcon({ html: iconHtml, className: '', iconSize: [28, 28], iconAnchor: [14, 14] });
+        const marker = L.marker([s.lat, s.lng], { icon: customIcon }).addTo(markersLayer);
+        markersRef[s.id] = marker;
+
+        const popupContent = `
+          <div class="popup-container">
+            <div class="popup-title">${s.name}</div>
+            <div class="popup-address">📍 ${s.address || '無地址資訊'}</div>
+            <div class="popup-coords">🎯 ${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}</div>
+            <div class="popup-meta">${s.category || '蔬食'} ｜ ${s.visited ? '❤️ 已打卡' : '🔖 待造訪'}</div>
+            <div class="popup-btn-row">
+              <button class="btn-toggle ${s.visited ? 'relock' : 'unlock'}" onclick="toggleVisited('${s.id}')">
+                ${s.visited ? '取消打卡' : '❤️ 打卡點亮'}
+              </button>
+              <button class="btn-edit" onclick="openEditModal('${s.id}')">✏️ 編輯</button>
+              <button class="btn-delete" onclick="deleteStore('${s.id}')">刪除</button>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+      });
+    }
+
+    let currentFilter = 'all';
+    let currentCategory = 'all';
+    let searchKeyword = '';
+
+    function setCategoryFilter(cat, el) {
+      currentCategory = cat;
+      document.querySelectorAll('.story-item').forEach(item => item.classList.remove('active'));
+      if (el) el.classList.add('active');
+      updateSidebar();
+    }
+
+    function updateSidebar() {
+      const listEl = document.getElementById('restaurant-list');
+      listEl.innerHTML = '';
+
+      const total = stores.length;
+      const visitedCount = stores.filter(s => s.visited).length;
+      const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-visited').innerText = visitedCount;
+      document.getElementById('stat-pct').innerText = `${pct}%`;
+      document.getElementById('stat-ratio-text').innerText = `${visitedCount} / ${total}`;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+      document.getElementById('rank-name').innerText = calculateRank(visitedCount, total);
+
+      const filtered = stores.filter(s => {
+        let matchFilter = true;
+        if (currentFilter === 'unlocked') matchFilter = s.visited;
+        else if (currentFilter === 'locked') matchFilter = !s.visited;
+
+        let matchCategory = true;
+        if (currentCategory !== 'all') {
+          matchCategory = s.category && s.category.includes(currentCategory);
+        }
+        
+        const q = searchKeyword;
+        const matchSearch = s.name.toLowerCase().includes(q) || 
+                            (s.address && s.address.toLowerCase().includes(q)) || 
+                            (s.category && s.category.toLowerCase().includes(q));
+        return matchFilter && matchCategory && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-placeholder">
+            目前還沒有符合條件的貼文。<br/>
+            💡 輸入經緯度/地址或點擊地圖即可建立第一筆打卡！
+          </div>
+        `;
+        return;
+      }
+
+      // 卡片保留原始框型與按鈕配置
+      filtered.forEach((s) => {
+        const card = document.createElement('div');
+        card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
+        card.draggable = true;
+
+        // 雙擊彈出 IG 愛心動效
+        card.addEventListener('dblclick', () => {
+          if (!s.visited) toggleVisited(s.id);
+          const burst = document.createElement('div');
+          burst.className = 'heart-burst';
+          burst.innerHTML = `<span style="font-size: 52px;">❤️</span>`;
+          card.appendChild(burst);
+          setTimeout(() => burst.remove(), 750);
+        });
+
+        // 拖曳事件
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', s.id);
+          card.classList.add('dragging');
+        });
+
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          document.querySelectorAll('.store-card').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        card.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          card.classList.add('drag-over');
+        });
+
+        card.addEventListener('dragleave', () => {
+          card.classList.remove('drag-over');
+        });
+
+        card.addEventListener('drop', (e) => {
+          e.preventDefault();
+          card.classList.remove('drag-over');
+          const draggedId = e.dataTransfer.getData('text/plain');
+          if (draggedId === s.id) return;
+
+          const fromIndex = stores.findIndex(item => item.id === draggedId);
+          const toIndex = stores.findIndex(item => item.id === s.id);
+
+          if (fromIndex !== -1 && toIndex !== -1) {
+            const [movedStore] = stores.splice(fromIndex, 1);
+            stores.splice(toIndex, 0, movedStore);
+
+            persist();
+            refreshAll();
+          }
+        });
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="store-title-group">
+              <span class="drag-handle" title="按住拖曳排序">⠿</span>
+              <span class="store-title">${s.name}</span>
+            </div>
+            <span class="badge-status ${s.visited ? 'badge-unlocked' : 'badge-locked'}">
+              ${s.visited ? '❤️ 已打卡' : '待造訪'}
+            </span>
+          </div>
+          <div class="store-address">📍 ${s.address || `${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}`}</div>
+          <div class="card-bottom">
+            <div class="tag-row">
+              <span class="tag-pill">${s.category || '蔬食'}</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn-heart" title="${s.visited ? '取消打卡' : '點亮愛心打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
+                ${s.visited ? '❤️' : '🤍'}
+              </button>
+              <button class="card-edit-btn" onclick="event.stopPropagation(); openEditModal('${s.id}')">✏️ 編輯</button>
+            </div>
+          </div>
+        `;
+        card.onclick = () => focusStore(s.id);
+        listEl.appendChild(card);
+      });
+    }
+
+    function focusStore(id) {
+      const store = stores.find(s => s.id === id);
+      if (store) {
+        map.flyTo([store.lat, store.lng], 17, { duration: 0.6 });
+        const marker = markersRef[id];
+        if (marker) setTimeout(() => marker.openPopup(), 300);
+      }
+    }
+
+    function toggleVisited(id) {
+      const target = stores.find(s => s.id === id);
+      if (target) {
+        target.visited = !target.visited;
+        if (target.visited) playSparkleSound();
+        persist();
+        refreshAll();
+        map.closePopup();
+      }
+    }
+
+    function deleteStore(id) {
+      if (confirm('確定要刪除這間店家貼文嗎？')) {
+        stores = stores.filter(s => s.id !== id);
+        persist();
+        refreshAll();
+      }
+    }
+
+    function clearAllStores() {
+      if (confirm('⚠️ 確定要清空所有店家名單嗎？')) {
+        stores = [];
+        persist();
+        refreshAll();
+      }
+    }
+
+    function setFilter(filter, el) {
+      currentFilter = filter;
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      updateSidebar();
+    }
+
+    function handleSearch(val) {
+      searchKeyword = val.trim().toLowerCase();
+      updateSidebar();
+    }
+
+    function refreshAll() {
+      renderConstellation();
+      renderMarkers();
+      updateSidebar();
+    }
+
+    // 點擊地圖新增
+    map.on('click', async (e) => {
+      document.getElementById('modal-title').innerText = '📍 新增打卡店家';
+      document.getElementById('form-id').value = '';
+      document.getElementById('form-name').value = '';
+      document.getElementById('form-category').value = '蛋奶素';
+      document.getElementById('form-lat').value = e.latlng.lat;
+      document.getElementById('form-lng').value = e.latlng.lng;
+      document.getElementById('form-coords-display').innerText = `🎯 鎖定座標：${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+      document.getElementById('form-address').value = '取得地址中...';
+      document.getElementById('form-visited').value = 'false';
+      document.getElementById('modal').classList.add('active');
+
+      const addr = await reverseGeocode(e.latlng.lat, e.latlng.lng);
+      document.getElementById('form-address').value = addr;
+    });
+
+    // 編輯 Modal
+    function openEditModal(id) {
+      const store = stores.find(s => s.id === id);
+      if (!store) return;
+
+      document.getElementById('modal-title').innerText = '✏️ 編輯貼文資訊';
+      document.getElementById('form-id').value = store.id;
+      document.getElementById('form-name').value = store.name;
+      document.getElementById('form-address').value = store.address || '';
+      document.getElementById('form-category').value = store.category || '蛋奶素';
+      document.getElementById('form-lat').value = store.lat;
+      document.getElementById('form-lng').value = store.lng;
+      document.getElementById('form-coords-display').innerText = `🎯 鎖定座標：${store.lat.toFixed(5)}, ${store.lng.toFixed(5)}`;
+      document.getElementById('form-visited').value = store.visited ? 'true' : 'false';
+      
+      map.closePopup();
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    // 儲存表單
+    async function saveFormStore() {
+      const editId = document.getElementById('form-id').value;
+      const name = document.getElementById('form-name').value.trim();
+      let address = document.getElementById('form-address').value.trim();
+      const category = document.getElementById('form-category').value.trim() || '蛋奶素';
+      const visited = document.getElementById('form-visited').value === 'true';
+      let lat = parseFloat(document.getElementById('form-lat').value);
+      let lng = parseFloat(document.getElementById('form-lng').value);
+
+      if (!name) return alert('請輸入店名！');
+
+      const coordMatch = address.match(/^(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)$/);
+      if (coordMatch) {
+        lat = parseFloat(coordMatch[1]);
+        lng = parseFloat(coordMatch[2]);
+        address = await reverseGeocode(lat, lng);
+      }
+
+      if (isNaN(lat) || isNaN(lng)) {
+        lat = 24.805;
+        lng = 120.975;
+      }
+
+      const dup = checkDuplicateStore(name, lat, lng, editId || null);
+      if (dup) {
+        alert(`⚠️ 無法儲存：已存在名稱相同或位置重複的店家「${dup.name}」！`);
+        return;
+      }
+
+      if (editId) {
+        const store = stores.find(s => s.id === editId);
+        if (store) {
+          store.name = name;
+          store.address = address || store.address;
+          store.category = category;
+          store.lat = lat;
+          store.lng = lng;
+          store.visited = visited;
+        }
+      } else {
+        const newStore = {
+          id: Date.now().toString(),
+          name: name,
+          address: address || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+          lat: lat,
+          lng: lng,
+          category: category,
+          visited: visited
+        };
+        stores.push(newStore);
+        if (visited) playSparkleSound();
+      }
+
+      persist();
+      refreshAll();
+      closeModal();
+
+      if (editId) {
+        focusStore(editId);
+      } else {
+        focusStore(stores[stores.length - 1].id);
+      }
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stores, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `my_veg_map_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            stores = imported;
+            persist();
+            refreshAll();
+            alert('名單匯入成功！');
+          }
+        } catch (err) {
+          alert('匯入失敗：檔案格式不正確');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    refreshAll();
+  </script>
 </body>
 </html>
