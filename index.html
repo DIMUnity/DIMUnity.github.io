@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>我的專屬蔬食探索星圖 - IG Edition</title>
+  <title>蔬食探索星圖</title>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -151,6 +151,11 @@
       background: var(--ig-card);
     }
 
+    .btn-auth-active {
+      border-color: rgba(220, 39, 67, 0.6);
+      color: #fff;
+    }
+
     /* ─── IG Stories 限時動態分類列 ─── */
     .stories-bar {
       display: flex;
@@ -231,6 +236,9 @@
       font-weight: 700;
       color: var(--ig-text-sub);
       letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .quick-input-row {
@@ -303,6 +311,13 @@
       align-items: center;
       justify-content: center;
       font-size: 19px;
+      overflow: hidden;
+    }
+
+    .story-avatar-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .profile-stats {
@@ -430,14 +445,10 @@
       border: 1px solid var(--ig-border);
       border-radius: 14px;
       padding: 12px 14px;
-      cursor: grab;
-      transition: transform 0.2s, background 0.2s, border-color 0.2s, opacity 0.2s;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, border-color 0.2s;
       position: relative;
       user-select: none;
-    }
-
-    .store-card:active {
-      cursor: grabbing;
     }
 
     .store-card:hover {
@@ -713,12 +724,16 @@
           新竹蔬食星圖
         </h1>
         <div class="btn-action-group">
-          <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">
+          <!-- Google 登入/狀態按鈕 -->
+          <button class="btn-icon" id="btn-auth" onclick="handleAuth()" title="Google 帳號登入">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
             </svg>
+            <span id="auth-label">登入</span>
           </button>
+
+          <!-- 匯出/備份按鈕 -->
           <button class="btn-icon" onclick="exportData()" title="備份名單">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -727,15 +742,14 @@
             </svg>
             匯出
           </button>
-          <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份">
+
+          <!-- 清空按鈕（登入後可用） -->
+          <button class="btn-icon" onclick="clearAllStores()" title="清空所有店家">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
-            匯入
           </button>
-          <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
         </div>
       </div>
     </div>
@@ -770,7 +784,10 @@
 
     <!-- 快捷新增區塊 -->
     <div class="quick-add-box">
-      <div class="quick-add-title">🔗 快速建立新打卡點</div>
+      <div class="quick-add-title">
+        <span>🔗 快速建立新打卡點</span>
+        <span id="auth-status-hint" style="font-size: 10px; color: #ff9800; font-weight: normal;">(訪客檢視中)</span>
+      </div>
       <div class="quick-input-row">
         <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
         <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
@@ -781,7 +798,7 @@
     <div class="profile-card">
       <div class="profile-top">
         <div class="story-ring">
-          <div class="story-avatar-inner">🌱</div>
+          <div class="story-avatar-inner" id="user-avatar">🌱</div>
         </div>
         <div class="profile-stats">
           <div class="stat-item">
@@ -879,10 +896,14 @@
       writeBatch,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getAuth, 
+      signInWithPopup, 
+      GoogleAuthProvider, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // ──────────────────────────────────────────
-    // ⚙️ 請在此處替換為你的 Firebase 配置物件
-    // ──────────────────────────────────────────
     const firebaseConfig = {
       apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
       authDomain: "hsinchu-veg-map.firebaseapp.com",
@@ -893,18 +914,63 @@
     };
 
     let db = null;
+    let auth = null;
+    let googleProvider = null;
     let storesCollection = null;
     let isFirebaseReady = false;
+    let currentUser = null;
 
-    // 若尚未填寫正確設定，自動降級使用 localStorage 保障正常運作
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
       try {
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
+        auth = getAuth(app);
+        googleProvider = new GoogleAuthProvider();
         storesCollection = collection(db, "vegan_stores");
         isFirebaseReady = true;
+
+        // 監聽登入狀態切換
+        onAuthStateChanged(auth, (user) => {
+          currentUser = user;
+          const authLabel = document.getElementById('auth-label');
+          const authBtn = document.getElementById('btn-auth');
+          const hint = document.getElementById('auth-status-hint');
+          const avatarEl = document.getElementById('user-avatar');
+
+          if (user) {
+            authLabel.innerText = user.displayName ? user.displayName.split(' ')[0] : '已登入';
+            authBtn.classList.add('btn-auth-active');
+            hint.innerText = '(已取得編輯權限)';
+            hint.style.color = '#0095f6';
+
+            if (user.photoURL) {
+              avatarEl.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
+            } else {
+              avatarEl.innerText = '👤';
+            }
+          } else {
+            authLabel.innerText = '登入';
+            authBtn.classList.remove('btn-auth-active');
+            hint.innerText = '(訪客檢視中)';
+            hint.style.color = '#ff9800';
+            avatarEl.innerText = '🌱';
+          }
+          refreshAll();
+        });
+
+        // 監聽 Firestore 即時資料變更
+        onSnapshot(storesCollection, (snapshot) => {
+          stores = snapshot.docs.map(d => ({
+            id: d.id,
+            ...d.data()
+          }));
+          refreshAll();
+        }, (err) => {
+          console.error("Firestore 連線異常:", err);
+        });
+
       } catch (err) {
-        console.warn("Firebase 初始化異常，已自動切換回 LocalStorage 模式", err);
+        console.warn("Firebase 初始化失敗，使用 LocalStorage 模式", err);
       }
     }
 
@@ -926,18 +992,25 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    // 監聽 Firebase Firestore 即時資料流
-    if (isFirebaseReady) {
-      onSnapshot(storesCollection, (snapshot) => {
-        stores = snapshot.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        }));
-        refreshAll();
-      }, (err) => {
-        console.error("Firestore 連線錯誤:", err);
-      });
-    }
+    /* ─── 登入 / 登出操作 ─── */
+    window.handleAuth = async function() {
+      if (!isFirebaseReady) {
+        alert('請先在程式碼中填入你的 firebaseConfig 才能啟用 Google 登入！');
+        return;
+      }
+      if (currentUser) {
+        if (confirm(`目前登入身分：${currentUser.displayName || currentUser.email}\n確定要登出嗎？`)) {
+          await signOut(auth);
+        }
+      } else {
+        try {
+          await signInWithPopup(auth, googleProvider);
+        } catch (err) {
+          console.error("登入失敗:", err);
+          alert(`登入失敗：${err.message}\n請確認已在 Firebase Authentication 啟用 Google 登入，並將此網域加入 Authorized domains。`);
+        }
+      }
+    };
 
     /* ─── 側邊欄收合切換 ─── */
     window.toggleSidebar = function() {
@@ -1074,6 +1147,11 @@
 
     /* ─── 快捷新增 ─── */
     window.handleQuickAdd = async function() {
+      if (isFirebaseReady && !currentUser) {
+        alert('請先點擊右上角「登入」Google 帳號，以取得新增與編輯權限！');
+        return;
+      }
+
       const input = document.getElementById('gmaps-input').value.trim();
       if (!input) return;
 
@@ -1282,6 +1360,10 @@
     };
 
     window.toggleVisited = async function(id) {
+      if (isFirebaseReady && !currentUser) {
+        alert('請先登入 Google 帳號以更新打卡狀態！');
+        return;
+      }
       const target = stores.find(s => s.id === id);
       if (target) {
         const nextState = !target.visited;
@@ -1300,6 +1382,10 @@
     };
 
     window.deleteStore = async function(id) {
+      if (isFirebaseReady && !currentUser) {
+        alert('請先登入 Google 帳號以刪除店家！');
+        return;
+      }
       if (confirm('確定要刪除這間店家貼文嗎？')) {
         if (isFirebaseReady) {
           const storeDoc = doc(db, "vegan_stores", id);
@@ -1313,6 +1399,10 @@
     };
 
     window.clearAllStores = async function() {
+      if (isFirebaseReady && !currentUser) {
+        alert('請先登入 Google 帳號！');
+        return;
+      }
       if (confirm('⚠️ 確定要清空所有店家名單嗎？')) {
         if (isFirebaseReady) {
           const batch = writeBatch(db);
@@ -1349,6 +1439,10 @@
 
     // 點擊地圖新增
     map.on('click', async (e) => {
+      if (isFirebaseReady && !currentUser) {
+        alert('請先登入 Google 帳號以新增店家打卡！');
+        return;
+      }
       document.getElementById('modal-title').innerText = '📍 新增打卡店家';
       document.getElementById('form-id').value = '';
       document.getElementById('form-name').value = '';
@@ -1366,6 +1460,10 @@
 
     // 編輯 Modal
     window.openEditModal = function(id) {
+      if (isFirebaseReady && !currentUser) {
+        alert('請先登入 Google 帳號以編輯店家資訊！');
+        return;
+      }
       const store = stores.find(s => s.id === id);
       if (!store) return;
 
@@ -1389,6 +1487,11 @@
 
     // 儲存表單
     window.saveFormStore = async function() {
+      if (isFirebaseReady && !currentUser) {
+        alert('請先登入 Google 帳號！');
+        return;
+      }
+
       const editId = document.getElementById('form-id').value;
       const name = document.getElementById('form-name').value.trim();
       let address = document.getElementById('form-address').value.trim();
@@ -1462,43 +1565,6 @@
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-    };
-
-    window.importData = async function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (Array.isArray(imported)) {
-            if (isFirebaseReady) {
-              const batch = writeBatch(db);
-              imported.forEach(item => {
-                const newDocRef = doc(storesCollection);
-                batch.set(newDocRef, {
-                  name: item.name || '未命名',
-                  address: item.address || '',
-                  category: item.category || '蛋奶素',
-                  visited: !!item.visited,
-                  lat: item.lat || 24.805,
-                  lng: item.lng || 120.975,
-                  createdAt: Date.now()
-                });
-              });
-              await batch.commit();
-            } else {
-              stores = imported;
-              persistLocal();
-              refreshAll();
-            }
-            alert('名單匯入成功！');
-          }
-        } catch (err) {
-          alert('匯入失敗：檔案格式不正確');
-        }
-      };
-      reader.readAsText(file);
     };
 
     refreshAll();
