@@ -22,7 +22,7 @@
       --ig-blue: #0095f6;
       --ig-heart: #ff3040;
       --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-      --ig-gradient-glow: rgba(220, 39, 67, 0.35);
+      --ig-gradient-glow: rgba(220, 39, 67, 0.4);
       --sidebar-width: 390px;
     }
 
@@ -102,7 +102,6 @@
       background: var(--ig-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
     }
 
     .btn-google-login {
@@ -124,57 +123,7 @@
     }
     .btn-google-login:active { opacity: 0.85; }
 
-    /* ─── 側邊欄頂部標題與操作按鈕 (電腦端) ─── */
-    .sidebar-desktop-header {
-      padding: 14px 14px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--ig-border);
-      flex-shrink: 0;
-    }
-    .desktop-brand {
-      font-size: 15px;
-      font-weight: 800;
-      background: var(--ig-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .desktop-action-group {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .btn-icon {
-      background: var(--ig-surface);
-      border: 1px solid var(--ig-border);
-      color: var(--ig-text-main);
-      padding: 5px 8px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      transition: background 0.15s;
-    }
-    .btn-icon:hover { background: var(--ig-card-hover); }
-
-    /* ─── 搜尋與分類模組 (標準流佈局，徹底解決重疊) ─── */
-    .search-filter-module {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 12px 14px 8px;
-      border-bottom: 1px solid var(--ig-border);
-      position: relative;
-      flex-shrink: 0;
-    }
-
+    /* ─── 搜尋輸入框組件 ─── */
     .search-pill-box {
       background: rgba(28, 28, 30, 0.95);
       border: 1px solid var(--ig-border);
@@ -183,7 +132,8 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+      position: relative;
     }
 
     .search-input-field {
@@ -226,9 +176,9 @@
     /* 🔍 搜尋提示下拉選單 (Autocomplete) */
     .search-suggestions-dropdown {
       position: absolute;
-      top: 54px;
-      left: 14px;
-      right: 14px;
+      top: 46px;
+      left: 0;
+      right: 0;
       background: rgba(24, 24, 27, 0.98);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -239,7 +189,7 @@
       display: none;
       flex-direction: column;
       box-shadow: 0 10px 32px rgba(0, 0, 0, 0.9);
-      z-index: 2500;
+      z-index: 3000;
     }
     .search-suggestions-dropdown.active { display: flex; }
 
@@ -259,7 +209,7 @@
     .suggestion-sub { font-size: 11px; color: var(--ig-text-sub); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .suggestion-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #000; color: #a1a1aa; border: 1px solid #333; flex-shrink: 0; }
 
-    /* ─── 🌈 IG Stories 限動風格分類圈 ─── */
+    /* ─── IG Stories 限動風格分類圈 ─── */
     .ig-stories-container {
       display: flex;
       gap: 12px;
@@ -267,7 +217,8 @@
       scrollbar-width: none;
       box-sizing: border-box;
       -webkit-overflow-scrolling: touch;
-      padding: 2px 0 4px;
+      padding: 4px 2px 2px;
+      flex-shrink: 0;
     }
     .ig-stories-container::-webkit-scrollbar { display: none; }
 
@@ -275,7 +226,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       cursor: pointer;
       flex-shrink: 0;
       user-select: none;
@@ -286,11 +237,11 @@
       height: 48px;
       border-radius: 50%;
       background: #2c2c2e;
-      padding: 2.5px;
+      padding: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.15s ease;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .story-item:active .story-ring { transform: scale(0.92); }
 
@@ -312,25 +263,25 @@
     }
 
     .story-label {
-      font-size: 10.5px;
+      font-size: 11px;
       color: var(--ig-text-sub);
       font-weight: 500;
-      letter-spacing: -0.2px;
     }
     .story-item.active .story-label {
       color: #fff;
       font-weight: 700;
     }
 
-    /* ─── 💻 電腦端 IG Profile 檔案卡 ─── */
+    /* ─── IG Profile 個人檔案卡 (電腦端) ─── */
     .ig-profile-card {
       background: var(--ig-surface);
       border: 1px solid var(--ig-border);
-      border-radius: 12px;
-      padding: 10px 12px;
+      border-radius: 14px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      flex-shrink: 0;
     }
     .ig-stats-row {
       display: flex;
@@ -343,7 +294,7 @@
       align-items: center;
     }
     .ig-stat-num {
-      font-size: 13.5px;
+      font-size: 14px;
       font-weight: 800;
       color: #fff;
     }
@@ -379,9 +330,191 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 快捷新增區塊 ─── */
+    /* ─── 右上角圓形圖層按鈕 ─── */
+    .fab-layer-btn {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(18, 18, 18, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--ig-border);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 1100;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+      transition: transform 0.2s;
+    }
+    .fab-layer-btn:active { transform: scale(0.92); }
+
+    .layer-picker-menu {
+      position: absolute;
+      background: rgba(18, 18, 18, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--ig-border);
+      border-radius: 16px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 1200;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+      width: 140px;
+    }
+    .layer-picker-menu.active { display: flex; }
+
+    .layer-option-btn {
+      background: transparent;
+      border: none;
+      color: var(--ig-text-sub);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .layer-option-btn.active, .layer-option-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    /* ─── 地圖 ─── */
+    #map {
+      flex: 1;
+      height: 100%;
+      width: 100%;
+      background: #09090b;
+      z-index: 1;
+    }
+
+    /* ─── 側邊欄 (電腦) / 底部抽屜 (手機) ─── */
+    #sidebar {
+      background: var(--ig-bg);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    /* 電腦端頂部 Header */
+    .sidebar-desktop-header {
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--ig-border);
+      flex-shrink: 0;
+    }
+    .desktop-brand {
+      font-size: 16px;
+      font-weight: 800;
+      background: var(--ig-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .desktop-action-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-icon {
+      background: var(--ig-surface);
+      border: 1px solid var(--ig-border);
+      color: var(--ig-text-main);
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .btn-icon:hover { background: var(--ig-card-hover); }
+
+    /* 手機端頂部拉桿區 */
+    .sheet-header-touch-zone {
+      width: 100%;
+      height: 64px;
+      padding: 8px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      background: rgba(18, 18, 18, 0.98);
+    }
+
+    .sheet-handle-pill {
+      width: 44px;
+      height: 5px;
+      background: #52525b;
+      border-radius: 999px;
+      margin: 0 auto;
+    }
+
+    .sheet-peek-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .peek-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .peek-stats {
+      font-size: 12px;
+      color: var(--ig-text-sub);
+      font-weight: 600;
+    }
+
+    /* 手機端工具按鈕列 */
+    .actions-bar {
+      padding: 8px 14px;
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--ig-border);
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+    .btn-action-pill {
+      background: var(--ig-surface);
+      border: 1px solid var(--ig-border);
+      color: var(--ig-text-main);
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    /* 快速建立打卡點 */
     .quick-add-box {
-      margin: 10px 14px 4px;
       padding: 6px 10px;
       background: var(--ig-surface);
       border-radius: 12px;
@@ -411,7 +544,7 @@
       cursor: pointer;
     }
 
-    /* ─── 店家清單容器 ─── */
+    /* 店家列表容器 */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -441,7 +574,6 @@
       background: rgba(0, 149, 246, 0.15) !important;
     }
 
-    /* 雙擊卡片跳出 IG 爆心動畫 */
     .heart-burst {
       position: absolute;
       top: 50%;
@@ -536,78 +668,7 @@
       cursor: pointer;
     }
 
-    /* ─── 右上角圓形圖層按鈕 ─── */
-    .fab-layer-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(18, 18, 18, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--ig-border);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      cursor: pointer;
-      z-index: 1100;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
-      transition: transform 0.2s;
-    }
-    .fab-layer-btn:active { transform: scale(0.92); }
-
-    .layer-picker-menu {
-      position: absolute;
-      top: 68px;
-      right: 16px;
-      background: rgba(18, 18, 18, 0.96);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--ig-border);
-      border-radius: 16px;
-      padding: 8px;
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      z-index: 1200;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.8);
-      width: 140px;
-    }
-    .layer-picker-menu.active { display: flex; }
-
-    .layer-option-btn {
-      background: transparent;
-      border: none;
-      color: var(--ig-text-sub);
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .layer-option-btn.active, .layer-option-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    /* ─── 地圖 ─── */
-    #map {
-      flex: 1;
-      height: 100%;
-      width: 100%;
-      background: #09090b;
-      z-index: 1;
-    }
-
-    /* ─── 地標 Marker ─── */
+    /* 地標 Marker */
     .custom-marker {
       display: flex;
       align-items: center;
@@ -673,7 +734,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 3000;
+      z-index: 4000;
       padding: 16px;
     }
     .modal-overlay.active { display: flex; }
@@ -703,7 +764,7 @@
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; }
 
     /* ═════════════════════════════════════════════
-       💻 電腦端佈局 (> 768px)：標準垂直 Flex 欄位
+       💻 電腦端專屬佈局 (> 768px)：標準垂直自然排列
        ═════════════════════════════════════════════ */
     @media (min-width: 769px) {
       body { flex-direction: row; }
@@ -715,13 +776,29 @@
         z-index: 1000;
       }
 
+      /* 隱藏手機版專屬組件 */
       .sheet-header-touch-zone,
-      .actions-bar {
+      .actions-bar,
+      #mobile-floating-top {
         display: none !important;
+      }
+
+      /* 電腦端側邊欄內部區塊：標準流式間距 */
+      .desktop-sidebar-content {
+        padding: 12px 14px 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex-shrink: 0;
+        border-bottom: 1px solid var(--ig-border);
       }
 
       .fab-layer-btn {
         top: 16px;
+        right: 16px;
+      }
+      .layer-picker-menu {
+        top: 68px;
         right: 16px;
       }
     }
@@ -739,28 +816,30 @@
         height: 100vh;
       }
 
+      /* 隱藏電腦版專屬組件 */
       .sidebar-desktop-header,
-      .ig-profile-card {
+      .desktop-sidebar-content {
         display: none !important;
       }
 
-      /* 手機端搜尋列浮動於地圖頂部 */
-      .search-filter-module {
+      /* 手機端懸浮頂部搜尋與限動列 */
+      #mobile-floating-top {
         position: fixed;
         top: 14px;
         left: 14px;
         right: 14px;
         z-index: 1500;
-        padding: 0;
-        border-bottom: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
       }
 
       .fab-layer-btn {
-        top: 146px;
+        top: 136px;
         right: 14px;
       }
       .layer-picker-menu {
-        top: 198px;
+        top: 188px;
         right: 14px;
       }
 
@@ -778,72 +857,6 @@
         box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.95);
         z-index: 2000;
         transition: height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-      }
-
-      .sheet-header-touch-zone {
-        width: 100%;
-        height: 64px;
-        padding: 8px 16px 8px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-        flex-shrink: 0;
-        box-sizing: border-box;
-        background: rgba(18, 18, 18, 0.98);
-      }
-
-      .sheet-handle-pill {
-        width: 44px;
-        height: 5px;
-        background: #52525b;
-        border-radius: 999px;
-        margin: 0 auto;
-      }
-
-      .sheet-peek-summary {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 2px;
-      }
-      .peek-title {
-        font-size: 14px;
-        font-weight: 800;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .peek-stats {
-        font-size: 12px;
-        color: var(--ig-text-sub);
-        font-weight: 600;
-      }
-
-      .actions-bar {
-        padding: 8px 14px;
-        display: flex;
-        gap: 6px;
-        border-bottom: 1px solid var(--ig-border);
-        overflow-x: auto;
-        flex-shrink: 0;
-      }
-      .btn-action-pill {
-        background: var(--ig-surface);
-        border: 1px solid var(--ig-border);
-        color: var(--ig-text-main);
-        padding: 5px 10px;
-        border-radius: 10px;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        white-space: nowrap;
       }
 
       #sidebar.is-dragging {
@@ -878,66 +891,107 @@
     </div>
   </div>
 
+  <!-- 📱 手機端專屬懸浮頂部搜尋與限動 (電腦端自動隱藏) -->
+  <div id="mobile-floating-top">
+    <div class="search-pill-box">
+      <span style="font-size: 15px;">🔍</span>
+      <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
+      <button class="user-avatar-btn" onclick="handleAuth()" title="點擊登出 / 切換帳號">
+        <div class="user-avatar-img user-avatar-sync">🌱</div>
+      </button>
+      <div class="search-suggestions-dropdown" id="search-suggestions-mobile"></div>
+    </div>
+
+    <div class="ig-stories-container">
+      <div class="story-item active" onclick="setCategoryFilter('all')">
+        <div class="story-ring"><div class="story-avatar">✨</div></div>
+        <span class="story-label">全部</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('純素')">
+        <div class="story-ring"><div class="story-avatar">🌱</div></div>
+        <span class="story-label">純素</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('蛋奶素')">
+        <div class="story-ring"><div class="story-avatar">🍳</div></div>
+        <span class="story-label">蛋奶素</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('早午餐')">
+        <div class="story-ring"><div class="story-avatar">🥪</div></div>
+        <span class="story-label">早午餐</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('甜點')">
+        <div class="story-ring"><div class="story-avatar">🍰</div></div>
+        <span class="story-label">甜點</span>
+      </div>
+      <div class="story-item" onclick="setCategoryFilter('異國')">
+        <div class="story-ring"><div class="story-avatar">🍕</div></div>
+        <span class="story-label">異國</span>
+      </div>
+      <div class="story-item" onclick="toggleStatusFilter()">
+        <div class="story-ring" id="mobile-status-ring"><div class="story-avatar">❤️</div></div>
+        <span class="story-label">已打卡</span>
+      </div>
+    </div>
+  </div>
+
   <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
   <div id="sidebar" class="sheet-collapsed">
     
-    <!-- 💻 電腦端頂部標題列與 IG 操作按鈕 -->
+    <!-- 💻 電腦端專屬頂部 Header 與 IG 操作按鈕 -->
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="desktop-action-group">
         <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">📥 匯入</button>
-        <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
         <button class="btn-icon" onclick="exportData()" title="備份名單">📤 匯出</button>
         <button class="btn-icon" onclick="clearAllStores()" title="清空名單">🗑️ 清空</button>
       </div>
     </div>
 
-    <!-- 🔍 搜尋、限動與個人檔案模組 (自然垂直排列，絕不重疊) -->
-    <div class="search-filter-module">
+    <!-- 💻 電腦端專屬垂直流式內容 (無重疊、標準自然排版) -->
+    <div class="desktop-sidebar-content">
+      <!-- 電腦端搜尋框 -->
       <div class="search-pill-box">
         <span style="font-size: 15px;">🔍</span>
-        <input type="text" id="search-box" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." autocomplete="off" />
+        <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
         <button class="user-avatar-btn" onclick="handleAuth()" title="點擊登出 / 切換帳號">
-          <div class="user-avatar-img" id="user-avatar">🌱</div>
+          <div class="user-avatar-img user-avatar-sync">🌱</div>
         </button>
+        <div class="search-suggestions-dropdown" id="search-suggestions-desktop"></div>
       </div>
 
-      <!-- 搜尋提示下拉選單 (Autocomplete) -->
-      <div class="search-suggestions-dropdown" id="search-suggestions"></div>
-
-      <!-- 🌈 IG Stories 限動風格分類圈 -->
+      <!-- 電腦端 IG 限動分類圈 -->
       <div class="ig-stories-container">
-        <div class="story-item active" onclick="setCategoryFilter('all', this)">
+        <div class="story-item active" onclick="setCategoryFilter('all')">
           <div class="story-ring"><div class="story-avatar">✨</div></div>
           <span class="story-label">全部</span>
         </div>
-        <div class="story-item" onclick="setCategoryFilter('純素', this)">
+        <div class="story-item" onclick="setCategoryFilter('純素')">
           <div class="story-ring"><div class="story-avatar">🌱</div></div>
           <span class="story-label">純素</span>
         </div>
-        <div class="story-item" onclick="setCategoryFilter('蛋奶素', this)">
+        <div class="story-item" onclick="setCategoryFilter('蛋奶素')">
           <div class="story-ring"><div class="story-avatar">🍳</div></div>
           <span class="story-label">蛋奶素</span>
         </div>
-        <div class="story-item" onclick="setCategoryFilter('早午餐', this)">
+        <div class="story-item" onclick="setCategoryFilter('早午餐')">
           <div class="story-ring"><div class="story-avatar">🥪</div></div>
           <span class="story-label">早午餐</span>
         </div>
-        <div class="story-item" onclick="setCategoryFilter('甜點', this)">
+        <div class="story-item" onclick="setCategoryFilter('甜點')">
           <div class="story-ring"><div class="story-avatar">🍰</div></div>
           <span class="story-label">甜點</span>
         </div>
-        <div class="story-item" onclick="setCategoryFilter('異國', this)">
+        <div class="story-item" onclick="setCategoryFilter('異國')">
           <div class="story-ring"><div class="story-avatar">🍕</div></div>
           <span class="story-label">異國</span>
         </div>
-        <div class="story-item" onclick="toggleStatusFilter(this)">
-          <div class="story-ring" style="background:#2c2c2e;"><div class="story-avatar">❤️</div></div>
+        <div class="story-item" onclick="toggleStatusFilter()">
+          <div class="story-ring" id="desktop-status-ring"><div class="story-avatar">❤️</div></div>
           <span class="story-label">已打卡</span>
         </div>
       </div>
 
-      <!-- 💻 電腦端 IG Profile 個人檔案卡 -->
+      <!-- 電腦端 IG Profile 檔案卡 -->
       <div class="ig-profile-card">
         <div class="ig-stats-row">
           <div class="ig-stat-box">
@@ -976,17 +1030,20 @@
       </div>
     </div>
 
-    <!-- 📱 手機端工具按鈕列 -->
+    <!-- 📱 手機端抽屜工具按鈕列 -->
     <div class="actions-bar">
       <button class="btn-action-pill" onclick="document.getElementById('import-file').click()">📥 匯入 JSON</button>
+      <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
       <button class="btn-action-pill" onclick="exportData()">📤 匯出備份</button>
       <button class="btn-action-pill" onclick="clearAllStores()">🗑️ 清空名單</button>
     </div>
 
-    <!-- 快捷新增區塊 -->
-    <div class="quick-add-box">
-      <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
-      <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
+    <!-- 快捷新增區塊 (電腦與手機通用) -->
+    <div style="padding: 8px 14px 2px;">
+      <div class="quick-add-box">
+        <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
+        <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
+      </div>
     </div>
 
     <!-- 店家清單列表 -->
@@ -1105,7 +1162,7 @@
 
         onAuthStateChanged(auth, async (user) => {
           const lockScreen = document.getElementById('auth-lock-screen');
-          const avatarEl = document.getElementById('user-avatar');
+          const avatarSyncEls = document.querySelectorAll('.user-avatar-sync');
 
           if (user) {
             if (!ALLOWED_EMAILS.includes(user.email)) {
@@ -1119,11 +1176,13 @@
             currentUser = user;
             lockScreen.style.display = 'none';
 
-            if (user.photoURL) {
-              avatarEl.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
-            } else {
-              avatarEl.innerText = '👤';
-            }
+            avatarSyncEls.forEach(el => {
+              if (user.photoURL) {
+                el.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
+              } else {
+                el.innerText = '👤';
+              }
+            });
 
             if (!unsubscribeFirestore) {
               unsubscribeFirestore = onSnapshot(storesCollection, (snapshot) => {
@@ -1207,7 +1266,7 @@
     /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
-        const topBarHeight = 146;
+        const topBarHeight = 140;
         const bottomSheetHeight = window.innerHeight * 0.35;
         const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomSheetHeight) / 2;
         const screenCenterY = window.innerHeight / 2;
@@ -1280,35 +1339,43 @@
 
     map.on('click', () => {
       document.getElementById('layer-picker-menu').classList.remove('active');
-      document.getElementById('search-suggestions').classList.remove('active');
+      document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
         setMobileSheetState('collapsed');
       }
     });
 
-    /* ─── 🔍 搜尋自動補全提示 (Autocomplete) 與 Enter 聚焦 ─── */
-    const searchBox = document.getElementById('search-box');
-    const suggestionsDropdown = document.getElementById('search-suggestions');
+    /* ─── 🔍 搜尋同步與自動補全提示 ─── */
+    let searchKeyword = '';
 
-    searchBox.addEventListener('input', (e) => {
-      const val = e.target.value.trim().toLowerCase();
-      searchKeyword = val;
+    window.handleSearchSync = function(val) {
+      searchKeyword = val.trim().toLowerCase();
+      
+      // 同步電腦與手機的輸入框文字
+      document.querySelectorAll('.search-input-field').forEach(input => {
+        if (input.value !== val) input.value = val;
+      });
+
       updateSidebar();
 
-      if (!val) {
-        suggestionsDropdown.classList.remove('active');
-        suggestionsDropdown.innerHTML = '';
+      const dropdowns = [
+        document.getElementById('search-suggestions-desktop'),
+        document.getElementById('search-suggestions-mobile')
+      ];
+
+      if (!searchKeyword) {
+        dropdowns.forEach(d => { if (d) { d.classList.remove('active'); d.innerHTML = ''; } });
         return;
       }
 
       const matches = stores.filter(s => 
-        s.name.toLowerCase().includes(val) || 
-        (s.address && s.address.toLowerCase().includes(val)) ||
-        (s.category && s.category.toLowerCase().includes(val))
+        s.name.toLowerCase().includes(searchKeyword) || 
+        (s.address && s.address.toLowerCase().includes(searchKeyword)) ||
+        (s.category && s.category.toLowerCase().includes(searchKeyword))
       );
 
       if (matches.length > 0) {
-        suggestionsDropdown.innerHTML = matches.slice(0, 5).map(s => `
+        const html = matches.slice(0, 5).map(s => `
           <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
             <div class="suggestion-info">
               <span class="suggestion-name">${s.name}</span>
@@ -1317,32 +1384,33 @@
             <span class="suggestion-badge">${s.category || '蔬食'}</span>
           </div>
         `).join('');
-        suggestionsDropdown.classList.add('active');
+        dropdowns.forEach(d => { if (d) { d.innerHTML = html; d.classList.add('active'); } });
       } else {
-        suggestionsDropdown.classList.remove('active');
-        suggestionsDropdown.innerHTML = '';
+        dropdowns.forEach(d => { if (d) { d.classList.remove('active'); d.innerHTML = ''; } });
       }
-    });
+    };
 
-    searchBox.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const val = searchBox.value.trim().toLowerCase();
-        if (!val) return;
-        const matched = stores.find(s => 
-          s.name.toLowerCase().includes(val) || 
-          (s.address && s.address.toLowerCase().includes(val))
-        );
-        if (matched) selectStoreFromSearch(matched.id);
-      }
+    // 按下 Enter 聚焦
+    document.querySelectorAll('.search-input-field').forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          if (!searchKeyword) return;
+          const matched = stores.find(s => 
+            s.name.toLowerCase().includes(searchKeyword) || 
+            (s.address && s.address.toLowerCase().includes(searchKeyword))
+          );
+          if (matched) selectStoreFromSearch(matched.id);
+        }
+      });
     });
 
     window.selectStoreFromSearch = function(id) {
       const store = stores.find(s => s.id === id);
       if (!store) return;
 
-      searchBox.value = store.name;
-      suggestionsDropdown.classList.remove('active');
-      searchBox.blur();
+      document.querySelectorAll('.search-input-field').forEach(input => input.value = store.name);
+      document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
+      document.querySelectorAll('.search-input-field').forEach(input => input.blur());
 
       if (window.innerWidth <= 768) setMobileSheetState('half');
 
@@ -1376,22 +1444,33 @@
       }
     };
 
-    /* ─── 標籤篩選 ─── */
+    /* ─── 標籤篩選 (同步電腦與手機 Stories 狀態) ─── */
     let currentCategory = 'all';
     let filterVisitedOnly = false;
-    let searchKeyword = '';
 
-    window.setCategoryFilter = function(cat, el) {
+    window.setCategoryFilter = function(cat) {
       currentCategory = cat;
-      document.querySelectorAll('.story-item').forEach(p => p.classList.remove('active'));
-      if (el) el.classList.add('active');
+      
+      // 同步所有相同分類的 story-item active 狀態
+      document.querySelectorAll('.story-item').forEach(item => {
+        const label = item.querySelector('.story-label')?.innerText.trim();
+        if (label === (cat === 'all' ? '全部' : cat)) {
+          item.classList.add('active');
+        } else if (label !== '已打卡') {
+          item.classList.remove('active');
+        }
+      });
+
       updateSidebar();
       if (window.innerWidth <= 768 && sheetState === 'collapsed') setMobileSheetState('half');
     };
 
-    window.toggleStatusFilter = function(el) {
+    window.toggleStatusFilter = function() {
       filterVisitedOnly = !filterVisitedOnly;
-      el.classList.toggle('active', filterVisitedOnly);
+      const rings = [document.getElementById('desktop-status-ring'), document.getElementById('mobile-status-ring')];
+      rings.forEach(ring => {
+        if (ring) ring.style.background = filterVisitedOnly ? 'var(--ig-gradient)' : '#2c2c2e';
+      });
       updateSidebar();
     };
 
@@ -1484,7 +1563,7 @@
           </div>
         `, {
           autoPan: true,
-          autoPanPaddingTopLeft: [20, 160],
+          autoPanPaddingTopLeft: [20, 140],
           autoPanPaddingBottomRight: [20, window.innerHeight * 0.36]
         });
       });
@@ -1536,7 +1615,7 @@
         card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
         card.setAttribute('data-id', s.id);
 
-        // IG 經典雙擊點讚動畫 (Double-tap to like)
+        // 雙擊點讚爆心動畫
         card.addEventListener('dblclick', (e) => {
           e.stopPropagation();
           if (!s.visited) toggleVisited(s.id);
