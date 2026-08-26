@@ -833,8 +833,18 @@
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            登出
           </button>
+
+          <!-- 匯入按鈕 -->
+          <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            匯入
+          </button>
+          <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
 
           <!-- 匯出按鈕 -->
           <button class="btn-icon" onclick="exportData()" title="備份名單">
@@ -1008,8 +1018,7 @@
     // 🛡️ 授權白名單（請填入允許登入的 Google 信箱）
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
-      // "friend@gmail.com"   // 可以加入其他受邀朋友的信箱
+      "tp6u4jo6@gmail.com",
     ];
 
     const firebaseConfig = {
@@ -1038,22 +1047,19 @@
         storesCollection = collection(db, "vegan_stores");
         isFirebaseReady = true;
 
-        // 登入狀態監聽與白名單驗證
         onAuthStateChanged(auth, async (user) => {
           const lockScreen = document.getElementById('auth-lock-screen');
           const avatarEl = document.getElementById('user-avatar');
 
           if (user) {
-            // 🛡️ 白名單驗證邏輯
             if (!ALLOWED_EMAILS.includes(user.email)) {
-              alert(`⛔ 存取被拒絕！\n\n帳號【${user.email}】不在授權白名單中。\n若需使用請聯繫管理員新增授權。`);
+              alert(`⛔ 存取被拒絕！\n\n帳號【${user.email}】不在授權白名單中。`);
               currentUser = null;
               await signOut(auth);
               lockScreen.style.display = 'flex';
               return;
             }
 
-            // 驗證通過：解鎖並載入資料
             currentUser = user;
             lockScreen.style.display = 'none';
 
@@ -1080,7 +1086,6 @@
             }, 200);
 
           } else {
-            // 未登入：鎖定畫面並清空地圖資料
             currentUser = null;
             lockScreen.style.display = 'flex';
             stores = [];
@@ -1124,7 +1129,7 @@
           await signInWithPopup(auth, googleProvider);
         } catch (err) {
           console.error("登入失敗:", err);
-          alert(`登入失敗：${err.message}\n請確認 Firebase 已啟用 Google 登入且已在 Authorized domains 填入正確網域。`);
+          alert(`登入失敗：${err.message}\n請確認已將 GitHub 網域加入 Firebase Authorized domains。`);
         }
       }
     };
@@ -1611,6 +1616,7 @@
       }
     };
 
+    /* ─── 匯入與匯出備份 ─── */
     window.exportData = function() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stores, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -1619,6 +1625,53 @@
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+    };
+
+    window.importData = async function(event) {
+      if (!currentUser) return alert('請先登入授權帳號才能執行匯入！');
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!Array.isArray(imported)) {
+            alert('匯入失敗：JSON 格式必須是陣列清單！');
+            return;
+          }
+
+          if (isFirebaseReady) {
+            const batch = writeBatch(db);
+            imported.forEach(item => {
+              const newDocRef = doc(storesCollection);
+              batch.set(newDocRef, {
+                name: item.name || '未命名',
+                address: item.address || '',
+                category: item.category || '蛋奶素',
+                visited: typeof item.visited === 'boolean' ? item.visited : false,
+                lat: typeof item.lat === 'number' ? item.lat : 24.805,
+                lng: typeof item.lng === 'number' ? item.lng : 120.975,
+                visitedUsers: item.visitedUsers || [],
+                creatorId: item.creatorId || currentUser.uid,
+                createdAt: Date.now()
+              });
+            });
+            await batch.commit();
+          } else {
+            stores = imported;
+            persistLocal();
+            refreshAll();
+          }
+          alert(`✅ 成功匯入 ${imported.length} 筆店家名單！`);
+        } catch (err) {
+          console.error(err);
+          alert('匯入失敗：JSON 解析錯誤或 Firestore 批次寫入失敗。');
+        } finally {
+          event.target.value = ''; // 重置 input 狀態
+        }
+      };
+      reader.readAsText(file);
     };
 
     refreshAll();
