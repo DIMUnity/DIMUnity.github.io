@@ -189,7 +189,7 @@
     }
     .user-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* 🔍 搜尋建議提示下拉選單 */
+    /* 🔍 搜尋提示下拉選單 (Autocomplete) */
     .search-suggestions-dropdown {
       pointer-events: auto;
       background: rgba(24, 24, 27, 0.98);
@@ -334,7 +334,7 @@
       flex-shrink: 0;
     }
 
-    /* 抽屜全頂部觸控區域 */
+    /* 抽屜頂部觸控拖曳條 */
     .sheet-header-touch-zone {
       width: 100%;
       padding: 10px 16px 8px;
@@ -347,7 +347,7 @@
     }
 
     .sheet-handle-pill {
-      width: 40px;
+      width: 42px;
       height: 5px;
       background: #52525b;
       border-radius: 999px;
@@ -667,13 +667,18 @@
         border-radius: 24px 24px 0 0;
         box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.95);
         z-index: 1050;
-        touch-action: none;
+        transition: height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
       }
 
-      /* 抽屜三段高度控制 */
-      #sidebar.sheet-collapsed { height: 75px !important; }
-      #sidebar.sheet-half { height: 48vh !important; }
-      #sidebar.sheet-full { height: 88vh !important; }
+      /* 拖曳中關閉過渡動效，實現完全貼手跟隨 */
+      #sidebar.is-dragging {
+        transition: none !important;
+      }
+
+      /* 三段吸附高度設定 */
+      #sidebar.sheet-collapsed { height: 72px; }
+      #sidebar.sheet-half { height: 48vh; }
+      #sidebar.sheet-full { height: 88vh; }
 
       #sidebar.sheet-collapsed .actions-bar,
       #sidebar.sheet-collapsed .quick-add-box,
@@ -826,7 +831,7 @@
       updateDoc, 
       deleteDoc, 
       doc, 
-      writeBatch,
+      writeBatch, 
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { 
@@ -841,17 +846,17 @@
     // 🛡️ 授權白名單
     // ──────────────────────────────────────────
     const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com",
+      "tp6u4jo6@gmail.com", // ⚠️ 請換成你的 Google 信箱
     ];
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
-      authDomain: "hsinchu-veg-map.firebaseapp.com",
-      projectId: "hsinchu-veg-map",
-      storageBucket: "hsinchu-veg-map.firebasestorage.app",
-      messagingSenderId: "229294662793",
-      appId: "1:229294662793:web:d467459c29f46eb0aed258"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
+  authDomain: "hsinchu-veg-map.firebaseapp.com",
+  projectId: "hsinchu-veg-map",
+  storageBucket: "hsinchu-veg-map.firebasestorage.app",
+  messagingSenderId: "229294662793",
+  appId: "1:229294662793:web:d467459c29f46eb0aed258"
+};
 
     let db = null;
     let auth = null;
@@ -960,71 +965,70 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    /* ─── 📱 手機端流暢跟手拖曳抽屜 (Real-time Smooth Drag) ─── */
+    /* ─── 📱 手機端流暢跟手拖曳抽屜引擎 ─── */
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
     let sheetState = 'collapsed'; // 'collapsed', 'half', 'full'
     let isDragging = false;
     let startY = 0;
-    let initialHeight = 0;
+    let startHeight = 0;
+    let hasMoved = false;
 
     window.setMobileSheetState = function(state) {
-      sidebar.style.transition = 'height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1)';
+      sidebar.classList.remove('is-dragging');
       sidebar.style.height = '';
       sidebar.classList.remove('sheet-collapsed', 'sheet-half', 'sheet-full');
       sidebar.classList.add(`sheet-${state}`);
       sheetState = state;
+      setTimeout(() => map.invalidateSize(), 300);
     };
 
-    // 觸控開始
     headerTouchZone.addEventListener('touchstart', (e) => {
       if (window.innerWidth > 768) return;
       isDragging = true;
+      hasMoved = false;
       startY = e.touches[0].clientY;
-      initialHeight = sidebar.getBoundingClientRect().height;
-      sidebar.style.transition = 'none'; // 拖曳時關閉 transition，實現完全跟手
+      startHeight = sidebar.getBoundingClientRect().height;
+      sidebar.classList.add('is-dragging');
     }, { passive: true });
 
-    // 觸控中 (即時更新高度)
     window.addEventListener('touchmove', (e) => {
       if (!isDragging || window.innerWidth > 768) return;
       const currentY = e.touches[0].clientY;
       const deltaY = startY - currentY;
-      const newHeight = initialHeight + deltaY;
-
-      // 限制拖曳高度範圍 (60px ~ 90vh)
-      const minH = 70;
-      const maxH = window.innerHeight * 0.9;
-      if (newHeight >= minH && newHeight <= maxH) {
-        sidebar.style.height = `${newHeight}px`;
+      if (Math.abs(deltaY) > 4) {
+        hasMoved = true;
       }
+      const targetH = Math.max(72, Math.min(window.innerHeight * 0.9, startHeight + deltaY));
+      sidebar.style.height = `${targetH}px`;
     }, { passive: true });
 
-    // 觸控結束 (自動吸附至最近狀態)
-    window.addEventListener('touchend', (e) => {
+    window.addEventListener('touchend', () => {
       if (!isDragging || window.innerWidth > 768) return;
       isDragging = false;
-      const currentHeight = sidebar.getBoundingClientRect().height;
+      sidebar.classList.remove('is-dragging');
+
+      if (!hasMoved) {
+        // 單純點擊切換狀態
+        if (sheetState === 'collapsed') setMobileSheetState('half');
+        else if (sheetState === 'half') setMobileSheetState('full');
+        else setMobileSheetState('collapsed');
+        return;
+      }
+
+      const finalH = sidebar.getBoundingClientRect().height;
       const winH = window.innerHeight;
 
-      if (currentHeight < winH * 0.26) {
+      if (finalH < winH * 0.28) {
         setMobileSheetState('collapsed');
-      } else if (currentHeight < winH * 0.68) {
+      } else if (finalH < winH * 0.68) {
         setMobileSheetState('half');
       } else {
         setMobileSheetState('full');
       }
     });
 
-    // 點擊摘要條亦可循環切換
-    headerTouchZone.addEventListener('click', () => {
-      if (window.innerWidth > 768) return;
-      if (sheetState === 'collapsed') setMobileSheetState('half');
-      else if (sheetState === 'half') setMobileSheetState('full');
-      else setMobileSheetState('collapsed');
-    });
-
-    // 點擊地圖關閉圖層選單與收合抽屜
+    // 點擊地圖背景收合
     map.on('click', () => {
       document.getElementById('layer-picker-menu').classList.remove('active');
       document.getElementById('search-suggestions').classList.remove('active');
@@ -1033,7 +1037,7 @@
       }
     });
 
-    /* ─── 🔍 搜尋自動補全提示 (Autocomplete) 與 Enter 事件 ─── */
+    /* ─── 🔍 搜尋自動補全提示 (Autocomplete) 與 Enter 聚焦 ─── */
     const searchBox = document.getElementById('search-box');
     const suggestionsDropdown = document.getElementById('search-suggestions');
 
@@ -1071,7 +1075,6 @@
       }
     });
 
-    // 按下 Enter 鍵直接選擇第一個匹配店家
     searchBox.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         const val = searchBox.value.trim().toLowerCase();
@@ -1094,17 +1097,14 @@
       suggestionsDropdown.classList.remove('active');
       searchBox.blur();
 
-      // 地圖飛行定位並開啟說明彈窗
       map.flyTo([store.lat, store.lng], 17, { duration: 0.8 });
       const marker = markersRef[id];
       if (marker) setTimeout(() => marker.openPopup(), 400);
 
-      // 手機端抽屜自動展開到 half 並高亮卡片
       if (window.innerWidth <= 768) {
         setMobileSheetState('half');
       }
 
-      // 滾動清單至該卡片
       setTimeout(() => {
         const card = document.querySelector(`.store-card[data-id="${id}"]`);
         if (card) {
@@ -1152,7 +1152,7 @@
       updateSidebar();
     };
 
-    /* ─── 經緯度反查與快速新增 ─── */
+    /* ─── 經緯度解析與快速新增 ─── */
     async function reverseGeocode(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
