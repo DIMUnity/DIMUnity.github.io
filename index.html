@@ -217,7 +217,7 @@
       scrollbar-width: none;
       box-sizing: border-box;
       -webkit-overflow-scrolling: touch;
-      padding: 4px 2px 2px;
+      padding: 4px 2px;
       flex-shrink: 0;
     }
     .ig-stories-container::-webkit-scrollbar { display: none; }
@@ -513,7 +513,11 @@
       white-space: nowrap;
     }
 
-    /* 快速建立打卡點 */
+    /* 快捷新增區塊 */
+    .quick-add-wrap {
+      padding: 6px 14px 2px;
+      flex-shrink: 0;
+    }
     .quick-add-box {
       padding: 6px 10px;
       background: var(--ig-surface);
@@ -521,7 +525,6 @@
       border: 1px solid var(--ig-border);
       display: flex;
       gap: 6px;
-      flex-shrink: 0;
     }
     .quick-input {
       flex: 1;
@@ -764,7 +767,7 @@
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; }
 
     /* ═════════════════════════════════════════════
-       💻 電腦端專屬佈局 (> 768px)：標準垂直自然排列
+       💻 電腦端專屬佈局 (> 768px)
        ═════════════════════════════════════════════ */
     @media (min-width: 769px) {
       body { flex-direction: row; }
@@ -776,14 +779,12 @@
         z-index: 1000;
       }
 
-      /* 隱藏手機版專屬組件 */
       .sheet-header-touch-zone,
       .actions-bar,
       #mobile-floating-top {
         display: none !important;
       }
 
-      /* 電腦端側邊欄內部區塊：標準流式間距 */
       .desktop-sidebar-content {
         padding: 12px 14px 6px;
         display: flex;
@@ -816,30 +817,43 @@
         height: 100vh;
       }
 
-      /* 隱藏電腦版專屬組件 */
       .sidebar-desktop-header,
       .desktop-sidebar-content {
         display: none !important;
       }
 
-      /* 手機端懸浮頂部搜尋與限動列 */
+      /* 📱 手機頂部全螢幕邊緣滑動容器 (解決左右截斷) */
       #mobile-floating-top {
         position: fixed;
-        top: 14px;
-        left: 14px;
-        right: 14px;
+        top: 12px;
+        left: 0;
+        right: 0;
+        width: 100vw;
         z-index: 1500;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
+        pointer-events: none;
+      }
+
+      #mobile-floating-top .search-pill-box {
+        margin: 0 14px;
+        pointer-events: auto;
+      }
+
+      #mobile-floating-top .ig-stories-container {
+        width: 100vw;
+        padding: 4px 14px 6px;
+        box-sizing: border-box;
+        pointer-events: auto;
       }
 
       .fab-layer-btn {
-        top: 136px;
+        top: 138px;
         right: 14px;
       }
       .layer-picker-menu {
-        top: 188px;
+        top: 190px;
         right: 14px;
       }
 
@@ -863,9 +877,17 @@
         transition: none !important;
       }
 
+      /* 📱 精確三段高度：半開提升至 42vh */
       #sidebar.sheet-collapsed { height: 64px; }
-      #sidebar.sheet-half { height: 35vh; }
+      #sidebar.sheet-half { height: 42vh; }
       #sidebar.sheet-full { height: 96vh; }
+
+      /* 半開與收合時隱藏次要工具列，把全部空間留給店家卡片 */
+      #sidebar.sheet-collapsed .actions-bar,
+      #sidebar.sheet-collapsed .quick-add-wrap,
+      #sidebar.sheet-half .actions-bar {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -891,7 +913,7 @@
     </div>
   </div>
 
-  <!-- 📱 手機端專屬懸浮頂部搜尋與限動 (電腦端自動隱藏) -->
+  <!-- 📱 手機端專屬懸浮頂部搜尋與限動 (支援無截斷邊緣滑動) -->
   <div id="mobile-floating-top">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
@@ -931,6 +953,7 @@
         <div class="story-ring" id="mobile-status-ring"><div class="story-avatar">❤️</div></div>
         <span class="story-label">已打卡</span>
       </div>
+      <div style="min-width: 6px; height: 1px; flex-shrink: 0;"></div>
     </div>
   </div>
 
@@ -947,9 +970,8 @@
       </div>
     </div>
 
-    <!-- 💻 電腦端專屬垂直流式內容 (無重疊、標準自然排版) -->
+    <!-- 💻 電腦端專屬垂直流式內容 -->
     <div class="desktop-sidebar-content">
-      <!-- 電腦端搜尋框 -->
       <div class="search-pill-box">
         <span style="font-size: 15px;">🔍</span>
         <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
@@ -959,7 +981,6 @@
         <div class="search-suggestions-dropdown" id="search-suggestions-desktop"></div>
       </div>
 
-      <!-- 電腦端 IG 限動分類圈 -->
       <div class="ig-stories-container">
         <div class="story-item active" onclick="setCategoryFilter('all')">
           <div class="story-ring"><div class="story-avatar">✨</div></div>
@@ -991,7 +1012,6 @@
         </div>
       </div>
 
-      <!-- 電腦端 IG Profile 檔案卡 -->
       <div class="ig-profile-card">
         <div class="ig-stats-row">
           <div class="ig-stat-box">
@@ -1039,7 +1059,7 @@
     </div>
 
     <!-- 快捷新增區塊 (電腦與手機通用) -->
-    <div style="padding: 8px 14px 2px;">
+    <div class="quick-add-wrap">
       <div class="quick-add-box">
         <input type="text" id="gmaps-input" class="quick-input" placeholder="貼上經緯度、地址或 Google 地圖連結..." />
         <button class="btn-quick-add" id="btn-quick-submit" onclick="handleQuickAdd()">新增</button>
@@ -1266,8 +1286,8 @@
     /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
-        const topBarHeight = 140;
-        const bottomSheetHeight = window.innerHeight * 0.35;
+        const topBarHeight = 135;
+        const bottomSheetHeight = window.innerHeight * 0.42;
         const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomSheetHeight) / 2;
         const screenCenterY = window.innerHeight / 2;
         const offsetY = visibleCenterY - screenCenterY;
@@ -1351,7 +1371,6 @@
     window.handleSearchSync = function(val) {
       searchKeyword = val.trim().toLowerCase();
       
-      // 同步電腦與手機的輸入框文字
       document.querySelectorAll('.search-input-field').forEach(input => {
         if (input.value !== val) input.value = val;
       });
@@ -1390,7 +1409,6 @@
       }
     };
 
-    // 按下 Enter 聚焦
     document.querySelectorAll('.search-input-field').forEach(input => {
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -1423,7 +1441,7 @@
         if (card) {
           document.querySelectorAll('.store-card').forEach(c => c.classList.remove('highlight-card'));
           card.classList.add('highlight-card');
-          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       }, 300);
     };
@@ -1444,14 +1462,13 @@
       }
     };
 
-    /* ─── 標籤篩選 (同步電腦與手機 Stories 狀態) ─── */
+    /* ─── 標籤篩選 ─── */
     let currentCategory = 'all';
     let filterVisitedOnly = false;
 
     window.setCategoryFilter = function(cat) {
       currentCategory = cat;
       
-      // 同步所有相同分類的 story-item active 狀態
       document.querySelectorAll('.story-item').forEach(item => {
         const label = item.querySelector('.story-label')?.innerText.trim();
         if (label === (cat === 'all' ? '全部' : cat)) {
@@ -1564,7 +1581,7 @@
         `, {
           autoPan: true,
           autoPanPaddingTopLeft: [20, 140],
-          autoPanPaddingBottomRight: [20, window.innerHeight * 0.36]
+          autoPanPaddingBottomRight: [20, window.innerHeight * 0.42]
         });
       });
     }
@@ -1615,7 +1632,6 @@
         card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
         card.setAttribute('data-id', s.id);
 
-        // 雙擊點讚爆心動畫
         card.addEventListener('dblclick', (e) => {
           e.stopPropagation();
           if (!s.visited) toggleVisited(s.id);
