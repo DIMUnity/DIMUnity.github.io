@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>我的專屬蔬食探索星圖 - IG Edition</title>
+  <title>蔬食探索星圖</title>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -738,7 +738,7 @@
         <div class="lock-logo-inner">🌱</div>
       </div>
       <div>
-        <h2 class="lock-title">新竹蔬食探索星圖</h2>
+        <h2 class="lock-title">蔬食探索星圖</h2>
         <p class="lock-subtitle" style="margin-top: 6px;">🔒 本星圖僅限受邀授權帳號訪問</p>
       </div>
       <button class="btn-google-login" onclick="handleAuth()">
@@ -764,7 +764,7 @@
             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
           </svg>
-          新竹蔬食星圖
+          蔬食星圖
         </h1>
         <div class="btn-action-group">
           <button class="btn-icon" onclick="handleAuth()" title="登出帳號">
@@ -863,7 +863,7 @@
         </div>
       </div>
       <div class="profile-bio">
-        <span class="rank-name" id="rank-name">🌱 風城蔬食初探者</span>
+        <span class="rank-name" id="rank-name">🌱 蔬食初探者</span>
         <span id="stat-ratio-text" style="font-size:11px; color:var(--ig-text-sub);">0 / 0</span>
       </div>
       <div class="progress-bar-bg">
@@ -1053,13 +1053,11 @@
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
 
-    // 手機版載入時預設收合側邊欄
     if (window.innerWidth <= 768) {
       document.getElementById('sidebar').classList.add('collapsed');
       document.getElementById('sidebar-toggle').innerText = '▶';
     }
 
-    /* ─── 側邊欄收合切換 ─── */
     window.toggleSidebar = function() {
       const sidebar = document.getElementById('sidebar');
       const toggleBtn = document.getElementById('sidebar-toggle');
@@ -1077,7 +1075,6 @@
       requestAnimationFrame(resizeLoop);
     };
 
-    /* ─── 登入 / 登出 ─── */
     window.handleAuth = async function() {
       if (!isFirebaseReady) {
         alert('請先填入正確的 firebaseConfig！');
@@ -1097,7 +1094,6 @@
       }
     };
 
-    /* ─── 音效 ─── */
     function playSparkleSound() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1118,15 +1114,15 @@
     }
 
     function calculateRank(visitedCount, total) {
-      if (total === 0 || visitedCount === 0) return '🌱 風城蔬食初探者';
+      if (total === 0 || visitedCount === 0) return '🌱 蔬食初探者';
       const pct = Math.round((visitedCount / total) * 100);
 
-      if (pct === 100) return '👑 風城蔬食星域主宰';
+      if (pct === 100) return '👑 蔬食星域主宰';
       if (pct >= 80 || visitedCount >= 15) return '🌟 蔬食星圖領航星';
-      if (pct >= 60 || visitedCount >= 10) return '✨ 風城綠光導航員';
+      if (pct >= 60 || visitedCount >= 10) return '✨ 綠光導航員';
       if (pct >= 40 || visitedCount >= 6) return '🍃 植感生活達人';
       if (pct >= 20 || visitedCount >= 3) return '🌿 巷弄綠食行者';
-      return '🌱 風城蔬食初探者';
+      return '🌱 蔬食初探者';
     }
 
     function checkDuplicateStore(name, lat, lng, excludeId = null) {
@@ -1151,7 +1147,7 @@
           const road = addr.road || addr.pedestrian || addr.street || '';
           const house = addr.house_number ? `${addr.house_number}號` : '';
           const suburb = addr.suburb || addr.district || '';
-          const city = addr.city || addr.county || '新竹市';
+          const city = addr.city || addr.county || '';
           return `${city}${suburb}${road}${house}` || data.display_name.split(',')[0];
         }
       } catch (err) {}
@@ -1189,8 +1185,7 @@
       ].map(q => q ? q.trim() : '').filter(q => q && q.length >= 3);
 
       for (const q of [...new Set(queries)]) {
-        const finalQuery = (q.includes('新竹') || q.includes('市') || q.includes('縣')) ? q : `新竹市 ${q}`;
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finalQuery)}&limit=1&countrycodes=tw`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1&countrycodes=tw`;
         try {
           const res = await fetch(url);
           const data = await res.json();
@@ -1405,7 +1400,6 @@
         const marker = markersRef[id];
         if (marker) setTimeout(() => marker.openPopup(), 300);
 
-        // 📱 手機點選卡片時自動收合側邊欄，讓使用者看地圖
         if (window.innerWidth <= 768) {
           const sidebar = document.getElementById('sidebar');
           if (!sidebar.classList.contains('collapsed')) {
