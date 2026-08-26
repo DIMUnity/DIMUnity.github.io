@@ -742,7 +742,7 @@
     .btn-toggle.unlock { background: var(--ig-gradient); color: #fff; }
     .btn-toggle.relock { background: #18181b; color: #e4e4e7; }
 
-    /* ─── 👤 修復後的 IG 風格帳號選單 Action Sheet ─── */
+    /* ─── 👤 IG 風格帳號選單 Action Sheet ─── */
     .ig-user-sheet {
       background: var(--ig-surface);
       border: 1px solid var(--ig-border);
@@ -1351,7 +1351,6 @@
             currentUser = user;
             lockScreen.style.display = 'none';
 
-            // 更新所有圓形頭像與選單資訊
             avatarSyncEls.forEach(el => {
               if (user.photoURL) {
                 el.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
@@ -1534,7 +1533,7 @@
         if (input.value !== val) input.value = val;
       });
 
-      updateSidebar();
+      refreshAll();
 
       const dropdowns = [
         document.getElementById('search-suggestions-desktop'),
@@ -1546,11 +1545,7 @@
         return;
       }
 
-      const matches = stores.filter(s => 
-        s.name.toLowerCase().includes(searchKeyword) || 
-        (s.address && s.address.toLowerCase().includes(searchKeyword)) ||
-        (s.category && s.category.toLowerCase().includes(searchKeyword))
-      );
+      const matches = getFilteredStores();
 
       if (matches.length > 0) {
         const html = matches.slice(0, 5).map(s => `
@@ -1572,7 +1567,7 @@
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           if (!searchKeyword) return;
-          const matched = stores.find(s => 
+          const matched = getFilteredStores().find(s => 
             s.name.toLowerCase().includes(searchKeyword) || 
             (s.address && s.address.toLowerCase().includes(searchKeyword))
           );
@@ -1630,7 +1625,7 @@
       }
     };
 
-    /* ─── 標籤篩選 ─── */
+    /* ─── 標籤篩選 (同步電腦與手機 Stories 狀態) ─── */
     let currentCategory = 'all';
     let filterVisitedOnly = false;
 
@@ -1646,7 +1641,7 @@
         }
       });
 
-      updateSidebar();
+      refreshAll();
       if (window.innerWidth <= 768 && sheetState === 'collapsed') setMobileSheetState('half');
     };
 
@@ -1656,8 +1651,20 @@
       rings.forEach(ring => {
         if (ring) ring.style.background = filterVisitedOnly ? 'var(--ig-gradient)' : '#2c2c2e';
       });
-      updateSidebar();
+      refreshAll();
     };
+
+    /* ─── 核心篩選輔助函式 ─── */
+    function getFilteredStores() {
+      return stores.filter(s => {
+        const matchCategory = (currentCategory === 'all') || (s.category && s.category.includes(currentCategory));
+        const matchVisited = !filterVisitedOnly || s.visited;
+        const matchSearch = s.name.toLowerCase().includes(searchKeyword) || 
+                            (s.address && s.address.toLowerCase().includes(searchKeyword)) ||
+                            (s.category && s.category.toLowerCase().includes(searchKeyword));
+        return matchCategory && matchVisited && matchSearch;
+      });
+    }
 
     /* ─── 經緯度解析與快速新增 ─── */
     async function reverseGeocode(lat, lng) {
@@ -1708,9 +1715,10 @@
       }
     };
 
-    function renderConstellation() {
+    /* ─── 🪐 星軌連線同步過濾 ─── */
+    function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
-      const visitedStores = stores.filter(s => s.visited);
+      const visitedStores = filteredStores.filter(s => s.visited);
       if (visitedStores.length >= 2) {
         const latlngs = visitedStores.map(s => [s.lat, s.lng]);
         L.polyline(latlngs, { color: '#dc2743', weight: 5, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
@@ -1718,9 +1726,12 @@
       }
     }
 
-    function renderMarkers() {
+    /* ─── 📍 地標同步篩選（非該分類之地標即刻隱藏） ─── */
+    function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
-      stores.forEach(s => {
+      for (const id in markersRef) delete markersRef[id];
+
+      filteredStores.forEach(s => {
         const iconHtml = `
           <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
                style="width:${s.visited ? '26px' : '18px'}; height:${s.visited ? '26px' : '18px'}; font-size:10px;">
@@ -1754,7 +1765,7 @@
       });
     }
 
-    function updateSidebar() {
+    function updateSidebar(filteredStores) {
       const listEl = document.getElementById('restaurant-list');
       listEl.innerHTML = '';
 
@@ -1782,20 +1793,12 @@
         desktopBar.style.width = `${pct}%`;
       }
 
-      const filtered = stores.filter(s => {
-        const matchCategory = (currentCategory === 'all') || (s.category && s.category.includes(currentCategory));
-        const matchVisited = !filterVisitedOnly || s.visited;
-        const matchSearch = s.name.toLowerCase().includes(searchKeyword) || 
-                            (s.address && s.address.toLowerCase().includes(searchKeyword));
-        return matchCategory && matchVisited && matchSearch;
-      });
-
-      if (filtered.length === 0) {
+      if (filteredStores.length === 0) {
         listEl.innerHTML = `<div style="text-align:center; padding:30px; color:var(--ig-text-sub); font-size:12px;">無符合店家</div>`;
         return;
       }
 
-      filtered.forEach((s) => {
+      filteredStores.forEach((s) => {
         const card = document.createElement('div');
         card.className = `store-card ${s.visited ? 'is-unlocked' : ''}`;
         card.setAttribute('data-id', s.id);
@@ -1856,7 +1859,7 @@
             });
             await batch.commit();
           }
-          renderConstellation();
+          renderConstellation(getFilteredStores());
         }
       });
     }
@@ -2003,9 +2006,10 @@
     };
 
     function refreshAll() {
-      renderConstellation();
-      renderMarkers();
-      updateSidebar();
+      const filtered = getFilteredStores();
+      renderConstellation(filtered);
+      renderMarkers(filtered);
+      updateSidebar(filtered);
     }
 
     refreshAll();
