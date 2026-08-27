@@ -1726,17 +1726,27 @@
       }
     }
 
-    /* ─── 📍 地標同步篩選（非該分類之地標即刻隱藏） ─── */
+    /* ─── 📍 地標同步篩選（依分類動態顯示圖示） ─── */
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
 
       filteredStores.forEach(s => {
+        // 判斷分類圖示：已打卡顯示 ❤️，未打卡則依分類顯示
+        let iconSymbol = '🌱';
+        if (s.visited) {
+          iconSymbol = '❤️';
+        } else if (s.category && s.category.includes('蛋奶素')) {
+          iconSymbol = '🍳';
+        } else if (s.category && (s.category.includes('純素') || s.category.includes('全素'))) {
+          iconSymbol = '🌱';
+        }
+
         const iconHtml = `
           <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
                style="width:${s.visited ? '26px' : '18px'}; height:${s.visited ? '26px' : '18px'}; font-size:10px;">
             <div class="${s.visited ? 'marker-unlocked-inner' : ''}">
-              ${s.visited ? '❤️' : '🌱'}
+              ${iconSymbol}
             </div>
           </div>
         `;
