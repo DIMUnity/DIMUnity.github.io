@@ -349,22 +349,24 @@
       position: absolute;
       display: flex;
       align-items: flex-end;
-      gap: 10px;
+      gap: 12px;
       z-index: 1200;
+      pointer-events: none; /* 讓透明區域不阻擋滑鼠 */
     }
 
     #gmaps-layer-box {
-      width: 58px;
-      height: 58px;
-      border-radius: 12px;
+      width: 72px;          /* 放大至 72px */
+      height: 72px;         /* 放大至 72px */
+      border-radius: 16px;
       overflow: hidden;
-      border: 2.5px solid #ffffff;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+      border: 3px solid #ffffff;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
       cursor: pointer;
       background: #1c1c1e;
       position: relative;
       flex-shrink: 0;
       transition: transform 0.15s, border-color 0.2s;
+      pointer-events: auto; /* 僅方框本身接收點擊與懸停 */
     }
     #gmaps-layer-box:active {
       transform: scale(0.95);
@@ -389,37 +391,38 @@
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       color: #fff;
-      font-size: 10.5px;
+      font-size: 11.5px;
       font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 4px;
-      padding: 3px 0;
+      padding: 4px 0;
       z-index: 100 !important;
       pointer-events: none;
     }
 
-    /* 橫向展開面板 (Google Maps 原生右側卡片列) */
+    /* 橫向展開面板：只有在滑鼠懸停於方框或選單本身時才顯示 */
     .layer-picker-horizontal {
       background: rgba(28, 28, 30, 0.96);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      padding: 8px 12px;
+      border-radius: 18px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
       opacity: 0;
       visibility: hidden;
       transform: translateX(-12px);
       transition: opacity 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), visibility 0.25s;
+      pointer-events: auto;
     }
 
-    /* 電腦端滑鼠懸停 (Hover) 自動展開，或在點選狀態下展開 */
-    .gmaps-layer-dock:hover .layer-picker-horizontal,
+    #gmaps-layer-box:hover + .layer-picker-horizontal,
+    .layer-picker-horizontal:hover,
     .layer-picker-horizontal.active {
       opacity: 1;
       visibility: visible;
@@ -430,21 +433,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       cursor: pointer;
       user-select: none;
     }
     .layer-thumb-box {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
       overflow: hidden;
       border: 2px solid transparent;
       display: flex;
       align-items: center;
       justify-content: center;
       background: #000;
-      font-size: 20px;
+      font-size: 22px;
       transition: border-color 0.2s, transform 0.15s;
     }
     .layer-thumb-item:active .layer-thumb-box {
@@ -452,10 +455,10 @@
     }
     .layer-thumb-item.active .layer-thumb-box {
       border-color: var(--ig-blue);
-      box-shadow: 0 0 10px rgba(0, 149, 246, 0.6);
+      box-shadow: 0 0 12px rgba(0, 149, 246, 0.6);
     }
     .layer-thumb-name {
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--ig-text-sub);
       font-weight: 600;
     }
@@ -1300,7 +1303,7 @@
   <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
   <div id="sidebar" class="sheet-collapsed">
     
-    <!-- 💻 電腦端頂部 Header 與 IG 操作按鈕 -->
+    <!-- 💻 電腦端專屬頂部 Header 與 IG 操作按鈕 -->
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="desktop-action-group">
@@ -1474,10 +1477,10 @@
   <!-- 地圖本體 -->
   <div id="map"></div>
 
-  <!-- 新增 / 編輯彈窗 Modal -->
+  <!-- 編輯彈窗 Modal -->
   <div class="modal-overlay" id="modal">
     <div class="modal-content">
-      <div id="modal-title" style="font-size: 15px; font-weight: 800; color: #fff;">📍 新增蔬食店家</div>
+      <div id="modal-title" style="font-size: 15px; font-weight: 800; color: #fff;">📍 編輯蔬食店家</div>
       <input type="hidden" id="form-id" />
       <input type="hidden" id="form-lat" />
       <input type="hidden" id="form-lng" />
@@ -1704,13 +1707,11 @@
     };
 
     window.handleLayerBoxClick = function() {
-      // 若在手機端，點擊可同時展開橫向選單或切換
       const picker = document.getElementById('layer-picker-horizontal');
       if (window.innerWidth <= 768) {
         picker.classList.toggle('active');
       }
 
-      // 快速在當前地圖與衛星之間切換
       if (currentBaseLayer === layers.satellite) {
         const defaultItem = document.querySelector('.layer-thumb-item:nth-child(1)');
         switchBaseLayer('taiwan', defaultItem);
