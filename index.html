@@ -685,7 +685,7 @@
       cursor: pointer;
     }
 
-    /* 地標 Marker (平滑縮放支援) */
+    /* ─── 地標 Marker ─── */
     .custom-marker {
       display: flex;
       align-items: center;
@@ -711,6 +711,19 @@
       background: #27272a;
       border: 1.5px solid #3f3f46;
       opacity: 0.9;
+    }
+
+    /* 遠景極簡微型點樣式 */
+    .marker-dot-unlocked {
+      background: var(--ig-gradient);
+      box-shadow: 0 0 8px var(--ig-gradient-glow);
+      border-radius: 50%;
+      border: 1px solid #fff;
+    }
+    .marker-dot-locked {
+      background: #71717a;
+      border-radius: 50%;
+      opacity: 0.55;
     }
 
     .leaflet-popup-content-wrapper {
@@ -1042,7 +1055,7 @@
     </div>
   </div>
 
-  <!-- 👤 修復後的 IG 風格帳號管理選單 (正統圓形光圈頭像) -->
+  <!-- 👤 IG 風格帳號管理選單 -->
   <div class="modal-overlay" id="user-menu-modal" onclick="closeUserMenu()">
     <div class="ig-user-sheet" onclick="event.stopPropagation()">
       <div class="ig-user-sheet-header">
@@ -1750,7 +1763,7 @@
       }
     };
 
-    /* ─── 🪐 星軌連線（依地圖 Zoom 等級動態調整距離與線寬） ─── */
+    /* ─── 🪐 星軌連線（聚落星系網） ─── */
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       const visited = filteredStores.filter(s => s.visited);
@@ -1758,11 +1771,11 @@
 
       const zoom = map.getZoom();
       
-      // 依縮放層級動態決定連線範圍：遠看時收緊連線，近看時適度展開
-      let maxDist = 1200; // 預設 1.2 公里
+      // 遠看時收緊連線避免雜亂，近看時適度展開
+      let maxDist = 1200;
       if (zoom >= 16) maxDist = 2000;
-      else if (zoom >= 14) maxDist = 1500;
-      else if (zoom <= 12) maxDist = 800;
+      else if (zoom >= 14) maxDist = 1400;
+      else if (zoom <= 12) maxDist = 600;
 
       const connectedPairs = new Set();
 
@@ -1785,38 +1798,49 @@
           if (!connectedPairs.has(pairKey)) {
             connectedPairs.add(pairKey);
             const latlngs = [[p1.lat, p1.lng], [p2.lat, p2.lng]];
-            L.polyline(latlngs, { color: '#dc2743', weight: zoom >= 14 ? 3 : 2, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
-            L.polyline(latlngs, { color: '#f09433', weight: zoom >= 14 ? 1.5 : 1, dashArray: '4, 5', opacity: 0.9 }).addTo(constellationLayer);
+            L.polyline(latlngs, { color: '#dc2743', weight: zoom >= 14 ? 3 : 1.8, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
+            L.polyline(latlngs, { color: '#f09433', weight: zoom >= 14 ? 1.5 : 0.8, dashArray: '4, 5', opacity: 0.9 }).addTo(constellationLayer);
           }
         });
       });
     }
 
-    /* ─── 📍 地標同步篩選（依 Zoom 等級動態縮放大小，避免重疊） ─── */
+    /* ─── 📍 地標同步篩選（遠看極簡微型點 + 解鎖高亮） ─── */
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
 
       const zoom = map.getZoom();
-
-      // 遠看時使用小尺寸（14px/10px），近看時展開為標準尺寸（28px/20px）
       const isDense = zoom < 14;
-      const sizeVisited = isDense ? 16 : 28;
-      const sizeLocked = isDense ? 10 : 20;
-      const fontSize = isDense ? 0 : 13; // 遠看隱藏內部文字，只保留微光圓點
 
       filteredStores.forEach(s => {
-        const size = s.visited ? sizeVisited : sizeLocked;
-        const iconChar = isDense ? '' : getCategoryIcon(s.category);
+        let size, iconHtml;
 
-        const iconHtml = `
-          <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
-               style="width:${size}px; height:${size}px; font-size:${fontSize}px;">
-            <div class="${s.visited ? 'marker-unlocked-inner' : ''}">
-              ${iconChar}
+        if (isDense) {
+          // 遠景模式：未打卡為 5px 灰色微點，已打卡為 12px 亮色光點
+          if (s.visited) {
+            size = 12;
+            iconHtml = `<div class="marker-dot-unlocked" style="width:${size}px; height:${size}px;"></div>`;
+          } else {
+            size = 5;
+            iconHtml = `<div class="marker-dot-locked" style="width:${size}px; height:${size}px;"></div>`;
+          }
+        } else {
+          // 近景模式：展開為完整 Emoji 圖示
+          size = s.visited ? 28 : 20;
+          const fontSize = s.visited ? 13 : 10;
+          const iconChar = getCategoryIcon(s.category);
+
+          iconHtml = `
+            <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
+                 style="width:${size}px; height:${size}px; font-size:${fontSize}px;">
+              <div class="${s.visited ? 'marker-unlocked-inner' : ''}">
+                ${iconChar}
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
+
         const marker = L.marker([s.lat, s.lng], {
           icon: L.divIcon({ html: iconHtml, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] })
         }).addTo(markersLayer);
