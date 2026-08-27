@@ -1922,7 +1922,11 @@
         const data = await res.json();
         if (data && data.address) {
           const addr = data.address;
-          return `${addr.city || addr.county || ''}${addr.suburb || addr.district || ''}${addr.road || ''}${addr.house_number ? addr.house_number + '號' : ''}`;
+          let houseNum = addr.house_number || '';
+          if (houseNum && !houseNum.endsWith('號')) {
+            houseNum += '號';
+          }
+          return `${addr.city || addr.county || ''}${addr.suburb || addr.district || ''}${addr.road || ''}${houseNum}`;
         }
       } catch (e) {}
       return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
