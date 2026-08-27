@@ -351,12 +351,12 @@
       align-items: flex-end;
       gap: 12px;
       z-index: 1200;
-      pointer-events: none; /* 讓透明區域不阻擋滑鼠 */
+      pointer-events: none;
     }
 
     #gmaps-layer-box {
-      width: 72px;          /* 放大至 72px */
-      height: 72px;         /* 放大至 72px */
+      width: 72px;
+      height: 72px;
       border-radius: 16px;
       overflow: hidden;
       border: 3px solid #ffffff;
@@ -366,7 +366,7 @@
       position: relative;
       flex-shrink: 0;
       transition: transform 0.15s, border-color 0.2s;
-      pointer-events: auto; /* 僅方框本身接收點擊與懸停 */
+      pointer-events: auto;
     }
     #gmaps-layer-box:active {
       transform: scale(0.95);
@@ -402,7 +402,6 @@
       pointer-events: none;
     }
 
-    /* 橫向展開面板：只有在滑鼠懸停於方框或選單本身時才顯示 */
     .layer-picker-horizontal {
       background: rgba(28, 28, 30, 0.96);
       backdrop-filter: blur(20px);
@@ -1749,20 +1748,7 @@
 
     /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
-      if (window.innerWidth <= 768) {
-        const topBarHeight = 135;
-        const bottomCardHeight = 180;
-        const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomCardHeight) / 2;
-        const screenCenterY = window.innerHeight / 2;
-        const offsetY = visibleCenterY - screenCenterY;
-
-        const targetPoint = map.project([lat, lng], zoom);
-        const offsetPoint = L.point(targetPoint.x, targetPoint.y - offsetY);
-        const targetLatLng = map.unproject(offsetPoint, zoom);
-        map.flyTo(targetLatLng, zoom, { duration: 0.6 });
-      } else {
-        map.flyTo([lat, lng], zoom, { duration: 0.6 });
-      }
+      map.flyTo([lat, lng], zoom, { duration: 0.6 });
     };
 
     /* ─── 📍 Google Maps 風格底部店家卡片控制 ─── */
@@ -1935,6 +1921,7 @@
       });
     });
 
+    /* ─── 🔍 搜尋選取處理（僅地圖移動置中與清單高亮，不跳出底部資訊卡） ─── */
     window.selectStoreFromSearch = function(id) {
       const store = stores.find(s => s.id === id);
       if (!store) return;
@@ -1943,7 +1930,11 @@
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       document.querySelectorAll('.search-input-field').forEach(input => input.blur());
 
-      openDetailSheet(id);
+      // 關閉可能已開啟的卡片
+      closeDetailSheet();
+
+      // 純視圖移動置中
+      flyToWithOffset(store.lat, store.lng, 16.5);
 
       setTimeout(() => {
         const card = document.querySelector(`.store-card[data-id="${id}"]`);
