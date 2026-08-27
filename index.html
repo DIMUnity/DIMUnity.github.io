@@ -367,7 +367,7 @@
       height: 100%;
       background-size: cover;
       background-position: center;
-      background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/7165/13700');
+      background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/16/28096/54955');
     }
 
     .gmaps-layer-label {
@@ -1632,9 +1632,11 @@
         // 切換左下角縮圖預覽
         const thumbEl = document.getElementById('layer-thumb-bg');
         if (type === 'satellite') {
-          thumbEl.style.backgroundImage = "url('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/14/7165/13700')";
+          // 目前是衛星模式 -> 縮圖顯示「有道路街景的地圖圖磚」
+          thumbEl.style.backgroundImage = "url('https://tile.openstreetmap.org/15/27477/14048.png')";
         } else {
-          thumbEl.style.backgroundImage = "url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/7165/13700')";
+          // 目前是普通地圖 -> 縮圖顯示「有城市建築與綠地的真實衛星圖磚」
+          thumbEl.style.backgroundImage = "url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/16/28096/54955')";
         }
       }
     };
