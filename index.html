@@ -407,7 +407,7 @@
       flex: 1;
       height: 100%;
       width: 100%;
-      background: #000000;
+      background: #09090b;
       z-index: 1;
     }
 
@@ -1749,56 +1749,38 @@
       }
     };
 
-    /* ─── 🪐 戰爭迷霧解鎖（全地圖黑幕遮罩 + 打卡點挖空點亮） ─── */
-    function createCirclePoints(centerLat, centerLng, radiusMeters, numPoints = 48) {
-      const coords = [];
-      const latOffset = radiusMeters / 111320;
-      const lngOffset = radiusMeters / (111320 * Math.cos(centerLat * Math.PI / 180));
-      for (let i = 0; i <= numPoints; i++) {
-        const theta = (i / numPoints) * (2 * Math.PI);
-        coords.push([
-          centerLat + latOffset * Math.sin(theta),
-          centerLng + lngOffset * Math.cos(theta)
-        ]);
-      }
-      return coords;
-    }
-
+    /* ─── 🪐 星軌連線（聚落星系網：商圈內自動成網，跨縣市/遠距離不拉雜線） ─── */
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       const visited = filteredStores.filter(s => s.visited);
+      if (visited.length < 2) return;
 
-      // 全球世界黑幕迷霧
-      const worldOuterBoundary = [
-        [85, -180],
-        [85, 180],
-        [-85, 180],
-        [-85, -180]
-      ];
+      const MAX_DISTANCE_METERS = 4000; // 4 公里以內視為同商圈星系
+      const connectedPairs = new Set();
 
-      // 每個已打卡店家挖出點亮透明孔洞（約 650 公尺半徑）
-      const holes = visited.map(s => createCirclePoints(s.lat, s.lng, 650));
+      visited.forEach((p1, i) => {
+        const neighbors = [];
+        visited.forEach((p2, j) => {
+          if (i !== j) {
+            const dist = L.latLng(p1.lat, p1.lng).distanceTo(L.latLng(p2.lat, p2.lng));
+            if (dist <= MAX_DISTANCE_METERS) {
+              neighbors.push({ p2, j, dist });
+            }
+          }
+        });
 
-      L.polygon([worldOuterBoundary, ...holes], {
-        color: '#000000',
-        weight: 0,
-        fillColor: '#000000',
-        fillOpacity: 0.88,
-        interactive: false
-      }).addTo(constellationLayer);
+        neighbors.sort((a, b) => a.dist - b.dist);
+        const closest = neighbors.slice(0, 2); // 每個打卡點連接最近的 2 個鄰居形成優美星簇
 
-      // 解鎖邊緣純淨白光微亮漸層
-      visited.forEach(s => {
-        L.circle([s.lat, s.lng], {
-          radius: 650,
-          color: '#ffffff',
-          weight: 1.5,
-          opacity: 0.55,
-          dashArray: '4, 8',
-          fillColor: '#ffffff',
-          fillOpacity: 0.05,
-          interactive: false
-        }).addTo(constellationLayer);
+        closest.forEach(({ p2, j }) => {
+          const pairKey = i < j ? `${i}-${j}` : `${j}-${i}`;
+          if (!connectedPairs.has(pairKey)) {
+            connectedPairs.add(pairKey);
+            const latlngs = [[p1.lat, p1.lng], [p2.lat, p2.lng]];
+            L.polyline(latlngs, { color: '#dc2743', weight: 3.5, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
+            L.polyline(latlngs, { color: '#f09433', weight: 1.5, dashArray: '4, 5', opacity: 0.9 }).addTo(constellationLayer);
+          }
+        });
       });
     }
 
