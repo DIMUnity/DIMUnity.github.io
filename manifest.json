@@ -1,0 +1,24 @@
+{
+  "name": "蔬食探索星圖",
+  "short_name": "蔬食星圖",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "./icon-light.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any",
+      "color_scheme": "light"
+    },
+    {
+      "src": "./icon-dark.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any",
+      "color_scheme": "dark"
+    }
+  ]
+}
