@@ -2331,21 +2331,6 @@
       }
     };
 
-    map.on('click', async (e) => {
-      if (!currentUser) return alert('請先登入！');
-      document.getElementById('form-id').value = '';
-      document.getElementById('form-name').value = '';
-      document.getElementById('form-category').value = '蛋奶素';
-      document.getElementById('form-lat').value = e.latlng.lat;
-      document.getElementById('form-lng').value = e.latlng.lng;
-      document.getElementById('form-address').value = '取得地址中...';
-      document.getElementById('form-visited').value = 'false';
-      document.getElementById('modal').classList.add('active');
-
-      const addr = await reverseGeocode(e.latlng.lat, e.latlng.lng);
-      document.getElementById('form-address').value = addr;
-    });
-
     window.openEditModal = function(id) {
       if (!currentUser) return alert('請先登入！');
       const store = stores.find(s => s.id === id);
