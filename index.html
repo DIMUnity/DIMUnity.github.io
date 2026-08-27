@@ -685,12 +685,13 @@
       cursor: pointer;
     }
 
-    /* 地標 Marker */
+    /* 地標 Marker (平滑縮放支援) */
     .custom-marker {
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
+      transition: all 0.2s ease;
     }
     .marker-unlocked {
       background: var(--ig-gradient);
@@ -1749,13 +1750,20 @@
       }
     };
 
-    /* ─── 🪐 星軌連線（聚落星系網：商圈內自動成網，跨縣市/遠距離不拉雜線） ─── */
+    /* ─── 🪐 星軌連線（依地圖 Zoom 等級動態調整距離與線寬） ─── */
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       const visited = filteredStores.filter(s => s.visited);
       if (visited.length < 2) return;
 
-      const MAX_DISTANCE_METERS = 4000; // 4 公里以內視為同商圈星系
+      const zoom = map.getZoom();
+      
+      // 依縮放層級動態決定連線範圍：遠看時收緊連線，近看時適度展開
+      let maxDist = 1200; // 預設 1.2 公里
+      if (zoom >= 16) maxDist = 2000;
+      else if (zoom >= 14) maxDist = 1500;
+      else if (zoom <= 12) maxDist = 800;
+
       const connectedPairs = new Set();
 
       visited.forEach((p1, i) => {
@@ -1763,44 +1771,54 @@
         visited.forEach((p2, j) => {
           if (i !== j) {
             const dist = L.latLng(p1.lat, p1.lng).distanceTo(L.latLng(p2.lat, p2.lng));
-            if (dist <= MAX_DISTANCE_METERS) {
+            if (dist <= maxDist) {
               neighbors.push({ p2, j, dist });
             }
           }
         });
 
         neighbors.sort((a, b) => a.dist - b.dist);
-        const closest = neighbors.slice(0, 2); // 每個打卡點連接最近的 2 個鄰居形成優美星簇
+        const closest = neighbors.slice(0, 2);
 
         closest.forEach(({ p2, j }) => {
           const pairKey = i < j ? `${i}-${j}` : `${j}-${i}`;
           if (!connectedPairs.has(pairKey)) {
             connectedPairs.add(pairKey);
             const latlngs = [[p1.lat, p1.lng], [p2.lat, p2.lng]];
-            L.polyline(latlngs, { color: '#dc2743', weight: 3.5, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
-            L.polyline(latlngs, { color: '#f09433', weight: 1.5, dashArray: '4, 5', opacity: 0.9 }).addTo(constellationLayer);
+            L.polyline(latlngs, { color: '#dc2743', weight: zoom >= 14 ? 3 : 2, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
+            L.polyline(latlngs, { color: '#f09433', weight: zoom >= 14 ? 1.5 : 1, dashArray: '4, 5', opacity: 0.9 }).addTo(constellationLayer);
           }
         });
       });
     }
 
-    /* ─── 📍 地標同步篩選（依分類呈現專屬圖案） ─── */
+    /* ─── 📍 地標同步篩選（依 Zoom 等級動態縮放大小，避免重疊） ─── */
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
 
+      const zoom = map.getZoom();
+
+      // 遠看時使用小尺寸（14px/10px），近看時展開為標準尺寸（28px/20px）
+      const isDense = zoom < 14;
+      const sizeVisited = isDense ? 16 : 28;
+      const sizeLocked = isDense ? 10 : 20;
+      const fontSize = isDense ? 0 : 13; // 遠看隱藏內部文字，只保留微光圓點
+
       filteredStores.forEach(s => {
-        const iconChar = getCategoryIcon(s.category);
+        const size = s.visited ? sizeVisited : sizeLocked;
+        const iconChar = isDense ? '' : getCategoryIcon(s.category);
+
         const iconHtml = `
           <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
-               style="width:${s.visited ? '28px' : '22px'}; height:${s.visited ? '28px' : '22px'}; font-size:${s.visited ? '13px' : '11px'};">
+               style="width:${size}px; height:${size}px; font-size:${fontSize}px;">
             <div class="${s.visited ? 'marker-unlocked-inner' : ''}">
               ${iconChar}
             </div>
           </div>
         `;
         const marker = L.marker([s.lat, s.lng], {
-          icon: L.divIcon({ html: iconHtml, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
+          icon: L.divIcon({ html: iconHtml, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] })
         }).addTo(markersLayer);
         markersRef[s.id] = marker;
 
@@ -1823,6 +1841,13 @@
         });
       });
     }
+
+    // 地圖縮放時動態重新計算地標與星軌大小
+    map.on('zoomend', () => {
+      const filtered = getFilteredStores();
+      renderConstellation(filtered);
+      renderMarkers(filtered);
+    });
 
     function updateSidebar(filteredStores) {
       const listEl = document.getElementById('restaurant-list');
