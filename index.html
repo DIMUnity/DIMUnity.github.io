@@ -286,7 +286,7 @@
       font-weight: 700;
     }
 
-    /* ─── IG Profile 個人檔案卡 (電腦端) ─── */
+    /* ─── IG Profile 個人檔案卡 ─── */
     .ig-profile-card {
       background: var(--ig-surface);
       border: 1px solid var(--ig-border);
@@ -344,19 +344,27 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 🗺️ Google Maps 風格左下角即時同步圖層方塊 ─── */
-    #gmaps-layer-box {
+    /* ─── 🗺️ Google Maps 風格左下角圖層群組與橫向展開面板 ─── */
+    .gmaps-layer-dock {
       position: absolute;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      z-index: 1200;
+    }
+
+    #gmaps-layer-box {
       width: 58px;
       height: 58px;
       border-radius: 12px;
       overflow: hidden;
-      border: 2px solid #ffffff;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
       cursor: pointer;
-      z-index: 1200;
-      transition: transform 0.15s, border-color 0.2s;
       background: #1c1c1e;
+      position: relative;
+      flex-shrink: 0;
+      transition: transform 0.15s, border-color 0.2s;
     }
     #gmaps-layer-box:active {
       transform: scale(0.95);
@@ -366,6 +374,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
+      z-index: 1;
     }
     #mini-map .leaflet-control-attribution {
       display: none !important;
@@ -376,18 +385,83 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+      background: rgba(18, 18, 18, 0.88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       color: #fff;
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 10.5px;
+      font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      padding: 2px 0;
-      z-index: 10;
+      gap: 4px;
+      padding: 3px 0;
+      z-index: 100 !important;
+      pointer-events: none;
+    }
+
+    /* 橫向展開面板 (Google Maps 原生右側卡片列) */
+    .layer-picker-horizontal {
+      background: rgba(28, 28, 30, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-12px);
+      transition: opacity 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), visibility 0.25s;
+    }
+
+    /* 電腦端滑鼠懸停 (Hover) 自動展開，或在點選狀態下展開 */
+    .gmaps-layer-dock:hover .layer-picker-horizontal,
+    .layer-picker-horizontal.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    .layer-thumb-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .layer-thumb-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      font-size: 20px;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .layer-thumb-item:active .layer-thumb-box {
+      transform: scale(0.92);
+    }
+    .layer-thumb-item.active .layer-thumb-box {
+      border-color: var(--ig-blue);
+      box-shadow: 0 0 10px rgba(0, 149, 246, 0.6);
+    }
+    .layer-thumb-name {
+      font-size: 11px;
+      color: var(--ig-text-sub);
+      font-weight: 600;
+    }
+    .layer-thumb-item.active .layer-thumb-name {
+      color: #fff;
+      font-weight: 800;
     }
 
     /* ─── 地圖 ─── */
@@ -399,7 +473,7 @@
       z-index: 1;
     }
 
-    /* ─── 側邊欄 (電腦) / 底部抽屜 (手機) ─── */
+    /* ─── 側邊欄 ─── */
     #sidebar {
       background: var(--ig-bg);
       display: flex;
@@ -408,7 +482,6 @@
       overflow: hidden;
     }
 
-    /* 電腦端頂部 Header */
     .sidebar-desktop-header {
       padding: 14px 16px 10px;
       display: flex;
@@ -447,7 +520,6 @@
     }
     .btn-icon:hover { background: var(--ig-card-hover); }
 
-    /* 手機端頂部拉桿區 */
     .sheet-header-touch-zone {
       width: 100%;
       height: 64px;
@@ -491,7 +563,6 @@
       font-weight: 600;
     }
 
-    /* 手機端工具按鈕列 */
     .actions-bar {
       padding: 8px 14px;
       display: flex;
@@ -515,7 +586,6 @@
       white-space: nowrap;
     }
 
-    /* 快捷新增區塊 */
     .quick-add-wrap {
       padding: 6px 14px 2px;
       flex-shrink: 0;
@@ -549,7 +619,6 @@
       cursor: pointer;
     }
 
-    /* 店家列表容器 */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -716,7 +785,6 @@
       opacity: 0.9;
     }
 
-    /* 遠景極簡微型點樣式 */
     .marker-dot-unlocked {
       background: var(--ig-gradient);
       box-shadow: 0 0 8px var(--ig-gradient-glow);
@@ -1036,7 +1104,7 @@
         border-bottom: 1px solid var(--ig-border);
       }
 
-      #gmaps-layer-box {
+      .gmaps-layer-dock {
         left: calc(var(--sidebar-width) + 20px);
         bottom: 24px;
       }
@@ -1095,7 +1163,7 @@
         pointer-events: auto;
       }
 
-      #gmaps-layer-box {
+      .gmaps-layer-dock {
         left: 14px;
         bottom: 80px;
       }
@@ -1232,7 +1300,7 @@
   <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
   <div id="sidebar" class="sheet-collapsed">
     
-    <!-- 💻 電腦端專屬頂部 Header 與 IG 操作按鈕 -->
+    <!-- 💻 電腦端頂部 Header 與 IG 操作按鈕 -->
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="desktop-action-group">
@@ -1368,16 +1436,38 @@
     </div>
   </div>
 
-  <!-- 🗺️ Google Maps 風格即時同步圖層方塊 -->
-  <div id="gmaps-layer-box" onclick="toggleMainBaseLayer()" title="點擊切換衛星/街景">
-    <div id="mini-map"></div>
-    <div class="gmaps-layer-label">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-        <polyline points="2 17 12 22 22 17"></polyline>
-        <polyline points="2 12 12 17 22 12"></polyline>
-      </svg>
-      <span>圖層</span>
+  <!-- 🗺️ Google Maps 風格左下角圖層切換方塊 + 橫向展開面板 -->
+  <div class="gmaps-layer-dock">
+    <div id="gmaps-layer-box" onclick="handleLayerBoxClick()" title="點擊切換衛星/街景，長按或懸停自訂圖層">
+      <div id="mini-map"></div>
+      <div class="gmaps-layer-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <span id="layer-box-text">衛星</span>
+      </div>
+    </div>
+
+    <!-- 橫向展開之 Google Maps 圖層選擇卡片列 -->
+    <div class="layer-picker-horizontal" id="layer-picker-horizontal">
+      <div class="layer-thumb-item active" onclick="switchBaseLayer('taiwan', this)">
+        <div class="layer-thumb-box">🇹🇼</div>
+        <span class="layer-thumb-name">臺灣通用</span>
+      </div>
+      <div class="layer-thumb-item" onclick="switchBaseLayer('satellite', this)">
+        <div class="layer-thumb-box">🛰️</div>
+        <span class="layer-thumb-name">衛星空照</span>
+      </div>
+      <div class="layer-thumb-item" onclick="switchBaseLayer('dark', this)">
+        <div class="layer-thumb-box">🌑</div>
+        <span class="layer-thumb-name">極簡暗黑</span>
+      </div>
+      <div class="layer-thumb-item" onclick="switchBaseLayer('osm', this)">
+        <div class="layer-thumb-box">🗺️</div>
+        <span class="layer-thumb-name">開源街景</span>
+      </div>
     </div>
   </div>
 
@@ -1581,32 +1671,52 @@
     let currentMiniLayer = miniLayers.satellite;
     currentMiniLayer.addTo(miniMap);
 
-    // 主地圖平移、縮放時即時同步 Mini-Map
     map.on('move', () => {
       miniMap.setView(map.getCenter(), map.getZoom(), { animate: false });
     });
 
-    window.toggleMainBaseLayer = function() {
-      if (currentBaseLayer === layers.taiwan || currentBaseLayer === layers.osm || currentBaseLayer === layers.dark) {
-        // 主地圖轉為衛星
-        map.removeLayer(currentBaseLayer);
-        currentBaseLayer = layers.satellite;
-        currentBaseLayer.addTo(map);
-
-        // Mini-Map 轉為街景
+    function updateLayerBoxState(mainType) {
+      const labelText = document.getElementById('layer-box-text');
+      if (mainType === 'satellite') {
         miniMap.removeLayer(currentMiniLayer);
         currentMiniLayer = miniLayers.street;
         currentMiniLayer.addTo(miniMap);
+        if (labelText) labelText.innerText = '地圖';
       } else {
-        // 主地圖轉為街景
-        map.removeLayer(currentBaseLayer);
-        currentBaseLayer = layers.taiwan;
-        currentBaseLayer.addTo(map);
-
-        // Mini-Map 轉為衛星
         miniMap.removeLayer(currentMiniLayer);
         currentMiniLayer = miniLayers.satellite;
         currentMiniLayer.addTo(miniMap);
+        if (labelText) labelText.innerText = '衛星';
+      }
+    }
+
+    window.switchBaseLayer = function(type, el) {
+      if (layers[type]) {
+        map.removeLayer(currentBaseLayer);
+        currentBaseLayer = layers[type];
+        currentBaseLayer.addTo(map);
+
+        document.querySelectorAll('.layer-thumb-item').forEach(btn => btn.classList.remove('active'));
+        if (el) el.classList.add('active');
+
+        updateLayerBoxState(type);
+      }
+    };
+
+    window.handleLayerBoxClick = function() {
+      // 若在手機端，點擊可同時展開橫向選單或切換
+      const picker = document.getElementById('layer-picker-horizontal');
+      if (window.innerWidth <= 768) {
+        picker.classList.toggle('active');
+      }
+
+      // 快速在當前地圖與衛星之間切換
+      if (currentBaseLayer === layers.satellite) {
+        const defaultItem = document.querySelector('.layer-thumb-item:nth-child(1)');
+        switchBaseLayer('taiwan', defaultItem);
+      } else {
+        const satItem = document.querySelector('.layer-thumb-item:nth-child(2)');
+        switchBaseLayer('satellite', satItem);
       }
     };
 
@@ -1762,6 +1872,8 @@
 
     map.on('click', () => {
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
+      const picker = document.getElementById('layer-picker-horizontal');
+      if (picker) picker.classList.remove('active');
       closeDetailSheet();
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
         setMobileSheetState('collapsed');
