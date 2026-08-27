@@ -561,7 +561,7 @@
       cursor: pointer;
     }
 
-    /* 店家列表容器 */
+    /* ─── 店家列表容器（美化或隱藏捲軸） ─── */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -571,6 +571,25 @@
       gap: 8px;
       -webkit-overflow-scrolling: touch;
       min-height: 0;
+    
+      /* 方案 1：Firefox 採用極細深色捲軸 */
+      scrollbar-width: thin;
+      scrollbar-color: #3f3f46 transparent;
+    }
+    
+    /* 方案 1：Chrome / Edge / Safari 自訂暗黑極簡捲軸 */
+    .list-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .list-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .list-container::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+      border-radius: 999px;
+    }
+    .list-container::-webkit-scrollbar-thumb:hover {
+      background: #52525b;
     }
 
     .store-card {
