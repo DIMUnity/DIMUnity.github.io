@@ -819,6 +819,10 @@
       gap: 8px;
       overflow-x: auto;
       padding-top: 4px;
+      scrollbar-width: none;               /* Firefox 隱藏捲軸 */
+    }
+    .detail-actions-row::-webkit-scrollbar {
+      display: none;                       /* Chrome/Safari 隱藏捲軸 */
     }
 
     .btn-gmaps-action {
@@ -1039,10 +1043,11 @@
       }
 
       #gmaps-detail-sheet {
-        left: calc(var(--sidebar-width) + 16px);
+        left: calc(var(--sidebar-width) + 20px);
         right: auto;
-        bottom: 16px;
-        width: 360px;
+        bottom: 20px;
+        width: 440px;            /* 加寬至 440px，讓按鈕完整展開 */
+        max-width: calc(100vw - var(--sidebar-width) - 40px);
         border-radius: 20px;
         border: 1px solid #3f3f46;
       }
