@@ -344,15 +344,15 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 🗺️ Google Maps 風格左下角圖層方塊 ─── */
+    /* ─── 🗺️ Google Maps 風格左下角即時同步圖層方塊 ─── */
     #gmaps-layer-box {
       position: absolute;
-      width: 52px;
-      height: 52px;
+      width: 58px;
+      height: 58px;
       border-radius: 12px;
       overflow: hidden;
       border: 2px solid #ffffff;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
       cursor: pointer;
       z-index: 1200;
       transition: transform 0.15s, border-color 0.2s;
@@ -362,12 +362,13 @@
       transform: scale(0.95);
     }
 
-    .gmaps-layer-thumb {
+    #mini-map {
       width: 100%;
       height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/16/28096/54955');
+      pointer-events: none;
+    }
+    #mini-map .leaflet-control-attribution {
+      display: none !important;
     }
 
     .gmaps-layer-label {
@@ -386,42 +387,7 @@
       justify-content: center;
       gap: 3px;
       padding: 2px 0;
-    }
-
-    .layer-picker-menu {
-      position: absolute;
-      background: rgba(18, 18, 18, 0.96);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--ig-border);
-      border-radius: 16px;
-      padding: 8px;
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      z-index: 1300;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.8);
-      width: 140px;
-    }
-    .layer-picker-menu.active { display: flex; }
-
-    .layer-option-btn {
-      background: transparent;
-      border: none;
-      color: var(--ig-text-sub);
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .layer-option-btn.active, .layer-option-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      z-index: 10;
     }
 
     /* ─── 地圖 ─── */
@@ -583,7 +549,7 @@
       cursor: pointer;
     }
 
-    /* 店家列表容器 (暗色極細美化捲軸) */
+    /* 店家列表容器 */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -1074,12 +1040,6 @@
         left: calc(var(--sidebar-width) + 20px);
         bottom: 24px;
       }
-      .layer-picker-menu {
-        left: calc(var(--sidebar-width) + 20px);
-        bottom: 84px;
-        top: auto !important;
-        right: auto !important;
-      }
 
       #gmaps-detail-sheet {
         left: calc(var(--sidebar-width) + 20px);
@@ -1138,12 +1098,6 @@
       #gmaps-layer-box {
         left: 14px;
         bottom: 80px;
-      }
-      .layer-picker-menu {
-        left: 14px;
-        bottom: 140px;
-        top: auto !important;
-        right: auto !important;
       }
 
       #sidebar {
@@ -1414,9 +1368,9 @@
     </div>
   </div>
 
-  <!-- 🗺️ Google Maps 風格左下角圖層切換方塊 -->
-  <div id="gmaps-layer-box" onclick="toggleLayerMenu()" title="切換地圖風格">
-    <div class="gmaps-layer-thumb" id="layer-thumb-bg"></div>
+  <!-- 🗺️ Google Maps 風格即時同步圖層方塊 -->
+  <div id="gmaps-layer-box" onclick="toggleMainBaseLayer()" title="點擊切換衛星/街景">
+    <div id="mini-map"></div>
     <div class="gmaps-layer-label">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
@@ -1425,14 +1379,6 @@
       </svg>
       <span>圖層</span>
     </div>
-  </div>
-
-  <!-- 圖層選擇面板 (浮動在方塊上方) -->
-  <div class="layer-picker-menu" id="layer-picker-menu">
-    <button class="layer-option-btn active" onclick="switchBaseLayer('taiwan', this)">🇹🇼 臺灣通用</button>
-    <button class="layer-option-btn" onclick="switchBaseLayer('dark', this)">🌑 極簡暗黑</button>
-    <button class="layer-option-btn" onclick="switchBaseLayer('osm', this)">🗺️ 開源街景</button>
-    <button class="layer-option-btn" onclick="switchBaseLayer('satellite', this)">🛰️ 衛星空照</button>
   </div>
 
   <!-- 地圖本體 -->
@@ -1600,7 +1546,7 @@
 
     let stores = [];
 
-    // 初始化地圖
+    // 初始化主地圖
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
     // 多風格底圖定義
@@ -1611,33 +1557,56 @@
       satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 })
     };
 
-    // 🇹🇼 預設使用臺灣通用地圖
     let currentBaseLayer = layers.taiwan;
     currentBaseLayer.addTo(map);
 
-    window.toggleLayerMenu = function() {
-      document.getElementById('layer-picker-menu').classList.toggle('active');
+    // ─── 🗺️ 左下角 Mini-Map 實例化與同步 ───
+    const miniMap = L.map('mini-map', {
+      center: map.getCenter(),
+      zoom: map.getZoom(),
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      touchZoom: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false
+    });
+
+    const miniLayers = {
+      satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }),
+      street: L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', { maxZoom: 19 })
     };
 
-    window.switchBaseLayer = function(type, el) {
-      if (layers[type]) {
+    let currentMiniLayer = miniLayers.satellite;
+    currentMiniLayer.addTo(miniMap);
+
+    // 主地圖平移、縮放時即時同步 Mini-Map
+    map.on('move', () => {
+      miniMap.setView(map.getCenter(), map.getZoom(), { animate: false });
+    });
+
+    window.toggleMainBaseLayer = function() {
+      if (currentBaseLayer === layers.taiwan || currentBaseLayer === layers.osm || currentBaseLayer === layers.dark) {
+        // 主地圖轉為衛星
         map.removeLayer(currentBaseLayer);
-        currentBaseLayer = layers[type];
+        currentBaseLayer = layers.satellite;
         currentBaseLayer.addTo(map);
 
-        document.querySelectorAll('.layer-option-btn').forEach(btn => btn.classList.remove('active'));
-        if (el) el.classList.add('active');
-        document.getElementById('layer-picker-menu').classList.remove('active');
+        // Mini-Map 轉為街景
+        miniMap.removeLayer(currentMiniLayer);
+        currentMiniLayer = miniLayers.street;
+        currentMiniLayer.addTo(miniMap);
+      } else {
+        // 主地圖轉為街景
+        map.removeLayer(currentBaseLayer);
+        currentBaseLayer = layers.taiwan;
+        currentBaseLayer.addTo(map);
 
-        // 切換左下角縮圖預覽
-        const thumbEl = document.getElementById('layer-thumb-bg');
-        if (type === 'satellite') {
-          // 目前是衛星模式 -> 縮圖顯示「有道路街景的地圖圖磚」
-          thumbEl.style.backgroundImage = "url('https://tile.openstreetmap.org/15/27477/14048.png')";
-        } else {
-          // 目前是普通地圖 -> 縮圖顯示「有城市建築與綠地的真實衛星圖磚」
-          thumbEl.style.backgroundImage = "url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/16/28096/54955')";
-        }
+        // Mini-Map 轉為衛星
+        miniMap.removeLayer(currentMiniLayer);
+        currentMiniLayer = miniLayers.satellite;
+        currentMiniLayer.addTo(miniMap);
       }
     };
 
@@ -1792,7 +1761,6 @@
     });
 
     map.on('click', () => {
-      document.getElementById('layer-picker-menu').classList.remove('active');
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       closeDetailSheet();
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
@@ -1951,7 +1919,7 @@
       });
     }
 
-    /* ─── 經緯度解析與快速新增 (修復號號問題) ─── */
+    /* ─── 經緯度解析與快速新增 ─── */
     async function reverseGeocode(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
