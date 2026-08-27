@@ -1104,9 +1104,13 @@
         <div class="story-ring"><div class="story-avatar">🍕</div></div>
         <span class="story-label">異國</span>
       </div>
-      <div class="story-item" onclick="toggleStatusFilter()">
-        <div class="story-ring" id="mobile-status-ring"><div class="story-avatar">❤️</div></div>
+      <div class="story-item" onclick="toggleStatusFilter('visited')">
+        <div class="story-ring" id="mobile-status-ring-visited"><div class="story-avatar">❤️</div></div>
         <span class="story-label">已打卡</span>
+      </div>
+      <div class="story-item" onclick="toggleStatusFilter('unvisited')">
+        <div class="story-ring" id="mobile-status-ring-unvisited"><div class="story-avatar">🔖</div></div>
+        <span class="story-label">待造訪</span>
       </div>
       <div style="min-width: 6px; height: 1px; flex-shrink: 0;"></div>
     </div>
@@ -1161,9 +1165,13 @@
           <div class="story-ring"><div class="story-avatar">🍕</div></div>
           <span class="story-label">異國</span>
         </div>
-        <div class="story-item" onclick="toggleStatusFilter()">
-          <div class="story-ring" id="desktop-status-ring"><div class="story-avatar">❤️</div></div>
+        <div class="story-item" onclick="toggleStatusFilter('visited')">
+          <div class="story-ring" id="desktop-status-ring-visited"><div class="story-avatar">❤️</div></div>
           <span class="story-label">已打卡</span>
+        </div>
+        <div class="story-item" onclick="toggleStatusFilter('unvisited')">
+          <div class="story-ring" id="desktop-status-ring-unvisited"><div class="story-avatar">🔖</div></div>
+          <span class="story-label">待造訪</span>
         </div>
       </div>
 
@@ -1441,6 +1449,17 @@
       return '🌱 蔬食初探者';
     }
 
+    /* ─── 取得分類對應圖示 ─── */
+    function getCategoryIcon(category) {
+      if (!category) return '🌱';
+      if (category.includes('蛋奶素')) return '🍳';
+      if (category.includes('純素') || category.includes('全素')) return '🌱';
+      if (category.includes('早午餐')) return '🥪';
+      if (category.includes('甜點')) return '🍰';
+      if (category.includes('異國')) return '🍕';
+      return '🌱';
+    }
+
     /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
@@ -1627,7 +1646,7 @@
 
     /* ─── 標籤篩選 (同步電腦與手機 Stories 狀態) ─── */
     let currentCategory = 'all';
-    let filterVisitedOnly = false;
+    let statusFilter = 'all'; // 可選值: 'all' | 'visited' | 'unvisited'
 
     window.setCategoryFilter = function(cat) {
       currentCategory = cat;
@@ -1636,7 +1655,7 @@
         const label = item.querySelector('.story-label')?.innerText.trim();
         if (label === (cat === 'all' ? '全部' : cat)) {
           item.classList.add('active');
-        } else if (label !== '已打卡') {
+        } else if (label !== '已打卡' && label !== '待造訪') {
           item.classList.remove('active');
         }
       });
@@ -1645,12 +1664,23 @@
       if (window.innerWidth <= 768 && sheetState === 'collapsed') setMobileSheetState('half');
     };
 
-    window.toggleStatusFilter = function() {
-      filterVisitedOnly = !filterVisitedOnly;
-      const rings = [document.getElementById('desktop-status-ring'), document.getElementById('mobile-status-ring')];
-      rings.forEach(ring => {
-        if (ring) ring.style.background = filterVisitedOnly ? 'var(--ig-gradient)' : '#2c2c2e';
+    window.toggleStatusFilter = function(type) {
+      if (statusFilter === type) {
+        statusFilter = 'all';
+      } else {
+        statusFilter = type;
+      }
+
+      const visitedRings = [document.getElementById('desktop-status-ring-visited'), document.getElementById('mobile-status-ring-visited')];
+      const unvisitedRings = [document.getElementById('desktop-status-ring-unvisited'), document.getElementById('mobile-status-ring-unvisited')];
+
+      visitedRings.forEach(ring => {
+        if (ring) ring.style.background = statusFilter === 'visited' ? 'var(--ig-gradient)' : '#2c2c2e';
       });
+      unvisitedRings.forEach(ring => {
+        if (ring) ring.style.background = statusFilter === 'unvisited' ? 'var(--ig-gradient)' : '#2c2c2e';
+      });
+
       refreshAll();
     };
 
@@ -1658,11 +1688,15 @@
     function getFilteredStores() {
       return stores.filter(s => {
         const matchCategory = (currentCategory === 'all') || (s.category && s.category.includes(currentCategory));
-        const matchVisited = !filterVisitedOnly || s.visited;
+        
+        let matchStatus = true;
+        if (statusFilter === 'visited') matchStatus = s.visited;
+        if (statusFilter === 'unvisited') matchStatus = !s.visited;
+
         const matchSearch = s.name.toLowerCase().includes(searchKeyword) || 
                             (s.address && s.address.toLowerCase().includes(searchKeyword)) ||
                             (s.category && s.category.toLowerCase().includes(searchKeyword));
-        return matchCategory && matchVisited && matchSearch;
+        return matchCategory && matchStatus && matchSearch;
       });
     }
 
@@ -1726,32 +1760,23 @@
       }
     }
 
-    /* ─── 📍 地標同步篩選（依分類動態顯示圖示） ─── */
+    /* ─── 📍 地標同步篩選（依分類呈現專屬圖案） ─── */
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
 
       filteredStores.forEach(s => {
-        // 判斷分類圖示：已打卡顯示 ❤️，未打卡則依分類顯示
-        let iconSymbol = '🌱';
-        if (s.visited) {
-          iconSymbol = '❤️';
-        } else if (s.category && s.category.includes('蛋奶素')) {
-          iconSymbol = '🍳';
-        } else if (s.category && (s.category.includes('純素') || s.category.includes('全素'))) {
-          iconSymbol = '🌱';
-        }
-
+        const iconChar = getCategoryIcon(s.category);
         const iconHtml = `
           <div class="custom-marker ${s.visited ? 'marker-unlocked' : 'marker-locked'}" 
-               style="width:${s.visited ? '26px' : '18px'}; height:${s.visited ? '26px' : '18px'}; font-size:10px;">
+               style="width:${s.visited ? '28px' : '22px'}; height:${s.visited ? '28px' : '22px'}; font-size:${s.visited ? '13px' : '11px'};">
             <div class="${s.visited ? 'marker-unlocked-inner' : ''}">
-              ${iconSymbol}
+              ${iconChar}
             </div>
           </div>
         `;
         const marker = L.marker([s.lat, s.lng], {
-          icon: L.divIcon({ html: iconHtml, className: '', iconSize: [26, 26], iconAnchor: [13, 13] })
+          icon: L.divIcon({ html: iconHtml, className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
         }).addTo(markersLayer);
         markersRef[s.id] = marker;
 
@@ -1849,7 +1874,7 @@
       });
 
       if (sortableInstance) sortableInstance.destroy();
-      const isCustomSortAllowed = currentCategory === 'all' && !filterVisitedOnly && searchKeyword === '';
+      const isCustomSortAllowed = currentCategory === 'all' && statusFilter === 'all' && searchKeyword === '';
 
       sortableInstance = new Sortable(listEl, {
         animation: 180,
