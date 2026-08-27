@@ -179,7 +179,7 @@
       display: block;
     }
 
-    /* 🔍 搜尋提示下拉選單 (Autocomplete) */
+    /* 🔍 搜尋提示下拉選單 */
     .search-suggestions-dropdown {
       position: absolute;
       top: 46px;
@@ -726,37 +726,127 @@
       opacity: 0.55;
     }
 
-    .leaflet-popup-content-wrapper {
-      background: var(--ig-card) !important;
-      color: #fff !important;
-      border: 1px solid var(--ig-border);
-      border-radius: 14px;
-    }
-    .leaflet-popup-tip { background: var(--ig-card) !important; }
-
-    .popup-container {
-      padding: 4px;
+    /* ─── 📍 Google Maps 風格底部店家詳細卡片 (Bottom Detail Sheet) ─── */
+    #gmaps-detail-sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(24, 24, 27, 0.98);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid #3f3f46;
+      border-radius: 24px 24px 0 0;
+      padding: 12px 18px 24px;
+      z-index: 2500;
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.95);
+      transform: translateY(105%);
+      transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      max-width: 220px;
+      gap: 12px;
     }
-    .popup-title { font-size: 13.5px; font-weight: 700; color: #fff; }
-    .popup-address { font-size: 11px; color: var(--ig-text-sub); }
-    .popup-btn-row { display: flex; gap: 4px; margin-top: 4px; }
-    .btn-toggle {
-      flex: 1;
-      padding: 5px;
+    #gmaps-detail-sheet.active {
+      transform: translateY(0);
+    }
+
+    .detail-sheet-pill {
+      width: 40px;
+      height: 4px;
+      background: #52525b;
+      border-radius: 999px;
+      margin: 0 auto;
+    }
+
+    .detail-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .detail-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .detail-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .detail-badge-pill {
       font-size: 10px;
       font-weight: 700;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 8px;
+      background: #000;
+      color: #a1a1aa;
+      border: 1px solid #3f3f46;
     }
-    .btn-toggle.unlock { background: var(--ig-gradient); color: #fff; }
-    .btn-toggle.relock { background: #18181b; color: #e4e4e7; }
+    .detail-badge-visited {
+      background: var(--ig-gradient);
+      color: #fff;
+      border: none;
+    }
 
-    /* ─── 👤 IG 風格帳號選單 Action Sheet ─── */
+    .detail-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #27272a;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .detail-address-text {
+      font-size: 12.5px;
+      color: var(--ig-text-sub);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .detail-actions-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-top: 4px;
+    }
+
+    .btn-gmaps-action {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-gmaps-action.primary {
+      background: var(--ig-blue);
+      color: #fff;
+    }
+    .btn-gmaps-action.secondary {
+      background: #27272a;
+      color: #fff;
+      border: 1px solid var(--ig-border);
+    }
+
+    /* ─── 👤 IG 風格帳號選單 ─── */
     .ig-user-sheet {
       background: var(--ig-surface);
       border: 1px solid var(--ig-border);
@@ -946,6 +1036,15 @@
       .layer-picker-menu {
         top: 68px;
         right: 16px;
+      }
+
+      #gmaps-detail-sheet {
+        left: calc(var(--sidebar-width) + 16px);
+        right: auto;
+        bottom: 16px;
+        width: 360px;
+        border-radius: 20px;
+        border: 1px solid #3f3f46;
       }
     }
 
@@ -1247,6 +1346,28 @@
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
+  <!-- 📍 Google Maps 風格底部店家詳細卡片 -->
+  <div id="gmaps-detail-sheet">
+    <div class="detail-sheet-pill"></div>
+    <div class="detail-header-row">
+      <div>
+        <div class="detail-title" id="sheet-store-name">店家名稱</div>
+        <div class="detail-badges">
+          <span class="detail-badge-pill" id="sheet-store-category">純素</span>
+          <span class="detail-badge-pill" id="sheet-store-status">待造訪</span>
+        </div>
+      </div>
+      <button class="detail-close-btn" onclick="closeDetailSheet()" title="關閉">✕</button>
+    </div>
+    <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
+    <div class="detail-actions-row">
+      <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action primary">🧭 Google 導航</a>
+      <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary">❤️ 打卡</button>
+      <button id="sheet-btn-edit" class="btn-gmaps-action secondary">✏️ 編輯</button>
+      <button id="sheet-btn-delete" class="btn-gmaps-action secondary" style="color:#ff453a;">🗑️</button>
+    </div>
+  </div>
+
   <!-- 右上角圓形圖層切換按鈕 -->
   <button class="fab-layer-btn" onclick="toggleLayerMenu()" title="切換地圖風格">🗺️</button>
 
@@ -1480,12 +1601,12 @@
       return '🌱';
     }
 
-    /* ─── 🎯 視圖精確居中計算 ─── */
+    /* ─── 🎯 視圖精確居中計算（避開底部卡片與頂部搜尋） ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
         const topBarHeight = 135;
-        const bottomSheetHeight = window.innerHeight * 0.42;
-        const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomSheetHeight) / 2;
+        const bottomCardHeight = 180; // 底部店家卡片高度
+        const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomCardHeight) / 2;
         const screenCenterY = window.innerHeight / 2;
         const offsetY = visibleCenterY - screenCenterY;
 
@@ -1496,6 +1617,62 @@
       } else {
         map.flyTo([lat, lng], zoom, { duration: 0.6 });
       }
+    };
+
+    /* ─── 📍 Google Maps 風格底部店家卡片控制 ─── */
+    let selectedStoreId = null;
+
+    window.openDetailSheet = function(id) {
+      const store = stores.find(s => s.id === id);
+      if (!store) return;
+
+      selectedStoreId = id;
+      document.getElementById('sheet-store-name').innerText = store.name;
+      document.getElementById('sheet-store-category').innerText = store.category || '蔬食';
+      
+      const statusBadge = document.getElementById('sheet-store-status');
+      if (store.visited) {
+        statusBadge.innerText = '❤️ 已打卡';
+        statusBadge.className = 'detail-badge-pill detail-badge-visited';
+      } else {
+        statusBadge.innerText = '🔖 待造訪';
+        statusBadge.className = 'detail-badge-pill';
+      }
+
+      document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
+
+      // 設置導航連結 (Google Maps 導航 URL)
+      const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
+      document.getElementById('sheet-btn-navigate').href = navUrl;
+
+      // 綁定打卡按鈕事件
+      const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
+      toggleBtn.innerText = store.visited ? '🤍 取消打卡' : '❤️ 點亮打卡';
+      toggleBtn.onclick = () => {
+        toggleVisited(store.id);
+        openDetailSheet(store.id);
+      };
+
+      // 綁定編輯與刪除
+      document.getElementById('sheet-btn-edit').onclick = () => openEditModal(store.id);
+      document.getElementById('sheet-btn-delete').onclick = () => {
+        deleteStore(store.id);
+        closeDetailSheet();
+      };
+
+      // 顯示底部卡片
+      document.getElementById('gmaps-detail-sheet').classList.add('active');
+
+      // 地圖視圖平滑置中
+      flyToWithOffset(store.lat, store.lng, 16.5);
+
+      // 若手機抽屜打開則收起
+      if (window.innerWidth <= 768) setMobileSheetState('collapsed');
+    };
+
+    window.closeDetailSheet = function() {
+      document.getElementById('gmaps-detail-sheet').classList.remove('active');
+      selectedStoreId = null;
     };
 
     /* ─── 📱 手機端跟手抽屜引擎 ─── */
@@ -1557,12 +1734,13 @@
     map.on('click', () => {
       document.getElementById('layer-picker-menu').classList.remove('active');
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
+      closeDetailSheet();
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
         setMobileSheetState('collapsed');
       }
     });
 
-    /* ─── 🔍 搜尋自動補全提示（Google Maps 風格：僅提供搜尋跳轉，不硬性過濾地圖與清單） ─── */
+    /* ─── 🔍 搜尋自動補全提示 ─── */
     window.handleSearchSync = function(val) {
       const kw = val.trim().toLowerCase();
       
@@ -1580,7 +1758,6 @@
         return;
       }
 
-      // 從所有店家尋找符合關鍵字的項目
       const matches = stores.filter(s => 
         s.name.toLowerCase().includes(kw) || 
         (s.address && s.address.toLowerCase().includes(kw)) ||
@@ -1625,11 +1802,7 @@
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       document.querySelectorAll('.search-input-field').forEach(input => input.blur());
 
-      if (window.innerWidth <= 768) setMobileSheetState('half');
-
-      flyToWithOffset(store.lat, store.lng, 16.5);
-      const marker = markersRef[id];
-      if (marker) setTimeout(() => marker.openPopup(), 400);
+      openDetailSheet(id);
 
       setTimeout(() => {
         const card = document.querySelector(`.store-card[data-id="${id}"]`);
@@ -1666,9 +1839,9 @@
       }
     };
 
-    /* ─── 標籤篩選 (同步電腦與手機 Stories 狀態) ─── */
+    /* ─── 標籤篩選 ─── */
     let currentCategory = 'all';
-    let statusFilter = 'all'; // 可選值: 'all' | 'visited' | 'unvisited'
+    let statusFilter = 'all';
 
     window.setCategoryFilter = function(cat) {
       currentCategory = cat;
@@ -1706,7 +1879,6 @@
       refreshAll();
     };
 
-    /* ─── 核心篩選輔助函式（僅依標籤與打卡狀態篩選） ─── */
     function getFilteredStores() {
       return stores.filter(s => {
         const matchCategory = (currentCategory === 'all') || (s.category && s.category.includes(currentCategory));
@@ -1838,7 +2010,7 @@
       });
     }
 
-    /* ─── 📍 地標同步篩選（遠看極簡微型點 + 解鎖高亮） ─── */
+    /* ─── 📍 地標同步篩選（點擊地標直接開啟 Google Maps 底部卡片，不跳 Popup） ─── */
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
@@ -1877,27 +2049,14 @@
         }).addTo(markersLayer);
         markersRef[s.id] = marker;
 
-        marker.bindPopup(`
-          <div class="popup-container">
-            <div class="popup-title">${s.name}</div>
-            <div class="popup-address">📍 ${s.address || '無地址'}</div>
-            <div class="popup-btn-row">
-              <button class="btn-toggle ${s.visited ? 'relock' : 'unlock'}" onclick="toggleVisited('${s.id}')">
-                ${s.visited ? '取消打卡' : '❤️ 點亮打卡'}
-              </button>
-              <button class="card-edit-btn" onclick="openEditModal('${s.id}')">✏️</button>
-              <button class="card-edit-btn" style="color:#ff453a;" onclick="deleteStore('${s.id}')">🗑️</button>
-            </div>
-          </div>
-        `, {
-          autoPan: true,
-          autoPanPaddingTopLeft: [20, 140],
-          autoPanPaddingBottomRight: [20, window.innerHeight * 0.42]
+        // 點擊地標直接呼叫底部卡片並置中
+        marker.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          openDetailSheet(s.id);
         });
       });
     }
 
-    // 地圖縮放時動態重新計算地標與星軌大小
     map.on('zoomend', () => {
       const filtered = getFilteredStores();
       renderConstellation(filtered);
@@ -1912,10 +2071,8 @@
       const visitedCount = stores.filter(s => s.visited).length;
       const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
 
-      // 📱 手機端摘要
       document.getElementById('peek-stats-text').innerText = `已收錄 ${total} ｜ 打卡 ${visitedCount}`;
 
-      // 💻 電腦端 IG Profile 數據
       const desktopTotal = document.getElementById('desktop-stat-total');
       const desktopVisited = document.getElementById('desktop-stat-visited');
       const desktopPct = document.getElementById('desktop-stat-pct');
@@ -2004,13 +2161,7 @@
     }
 
     window.focusStore = function(id) {
-      const store = stores.find(s => s.id === id);
-      if (store) {
-        if (window.innerWidth <= 768) setMobileSheetState('half');
-        flyToWithOffset(store.lat, store.lng, 16.5);
-        const marker = markersRef[id];
-        if (marker) setTimeout(() => marker.openPopup(), 300);
-      }
+      openDetailSheet(id);
     };
 
     window.toggleVisited = async function(id) {
@@ -2018,7 +2169,6 @@
       const target = stores.find(s => s.id === id);
       if (target) {
         await updateDoc(doc(db, "vegan_stores", id), { visited: !target.visited });
-        map.closePopup();
       }
     };
 
@@ -2066,7 +2216,6 @@
       document.getElementById('form-lat').value = store.lat;
       document.getElementById('form-lng').value = store.lng;
       document.getElementById('form-visited').value = store.visited ? 'true' : 'false';
-      map.closePopup();
       document.getElementById('modal').classList.add('active');
     };
 
@@ -2086,7 +2235,6 @@
 
       if (!name) return alert('請輸入店名！');
 
-      // 檢查輸入框內是否有經緯度並自動更新座標
       const coordMatch = address.match(/(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)/);
       if (coordMatch) {
         lat = parseFloat(coordMatch[1]);
