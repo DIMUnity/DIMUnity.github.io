@@ -1749,15 +1749,35 @@
       }
     };
 
-    /* ─── 🪐 星軌連線同步過濾 ─── */
+    /* ─── 🪐 星軌連線（優化版：最近鄰居演算法，避免交叉打結） ─── */
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
-      const visitedStores = filteredStores.filter(s => s.visited);
-      if (visitedStores.length >= 2) {
-        const latlngs = visitedStores.map(s => [s.lat, s.lng]);
-        L.polyline(latlngs, { color: '#dc2743', weight: 5, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
-        L.polyline(latlngs, { color: '#f09433', weight: 2, dashArray: '6, 6', opacity: 0.9 }).addTo(constellationLayer);
+      const visited = filteredStores.filter(s => s.visited);
+      if (visited.length < 2) return;
+
+      // 依空間距離最近的點逐步連接，呈現精緻星座線條
+      const pool = [...visited];
+      const ordered = [pool.shift()];
+
+      while (pool.length > 0) {
+        const last = ordered[ordered.length - 1];
+        let nearestIdx = 0;
+        let minDist = Infinity;
+
+        pool.forEach((p, idx) => {
+          const dist = Math.hypot(p.lat - last.lat, p.lng - last.lng);
+          if (dist < minDist) {
+            minDist = dist;
+            nearestIdx = idx;
+          }
+        });
+
+        ordered.push(pool.splice(nearestIdx, 1)[0]);
       }
+
+      const latlngs = ordered.map(s => [s.lat, s.lng]);
+      L.polyline(latlngs, { color: '#dc2743', weight: 4, opacity: 0.35, lineJoin: 'round' }).addTo(constellationLayer);
+      L.polyline(latlngs, { color: '#f09433', weight: 1.5, dashArray: '5, 6', opacity: 0.9 }).addTo(constellationLayer);
     }
 
     /* ─── 📍 地標同步篩選（依分類呈現專屬圖案） ─── */
