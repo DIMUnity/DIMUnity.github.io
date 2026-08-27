@@ -1748,7 +1748,20 @@
 
     /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
-      map.flyTo([lat, lng], zoom, { duration: 0.6 });
+      if (window.innerWidth <= 768) {
+        const topBarHeight = 135;
+        const bottomCardHeight = 180;
+        const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomCardHeight) / 2;
+        const screenCenterY = window.innerHeight / 2;
+        const offsetY = visibleCenterY - screenCenterY;
+
+        const targetPoint = map.project([lat, lng], zoom);
+        const offsetPoint = L.point(targetPoint.x, targetPoint.y - offsetY);
+        const targetLatLng = map.unproject(offsetPoint, zoom);
+        map.flyTo(targetLatLng, zoom, { duration: 0.6 });
+      } else {
+        map.flyTo([lat, lng], zoom, { duration: 0.6 });
+      }
     };
 
     /* ─── 📍 Google Maps 風格底部店家卡片控制 ─── */
@@ -1921,7 +1934,6 @@
       });
     });
 
-    /* ─── 🔍 搜尋選取處理（僅地圖移動置中與清單高亮，不跳出底部資訊卡） ─── */
     window.selectStoreFromSearch = function(id) {
       const store = stores.find(s => s.id === id);
       if (!store) return;
@@ -1930,11 +1942,7 @@
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       document.querySelectorAll('.search-input-field').forEach(input => input.blur());
 
-      // 關閉可能已開啟的卡片
-      closeDetailSheet();
-
-      // 純視圖移動置中
-      flyToWithOffset(store.lat, store.lng, 16.5);
+      openDetailSheet(id);
 
       setTimeout(() => {
         const card = document.querySelector(`.store-card[data-id="${id}"]`);
@@ -1971,7 +1979,7 @@
       }
     };
 
-    /* ─── 標籤篩選 ─── */
+    /* ─── 標籤篩選 (點擊不自動拉起抽屜) ─── */
     let currentCategory = 'all';
     let statusFilter = 'all';
 
@@ -1988,7 +1996,6 @@
       });
 
       refreshAll();
-      if (window.innerWidth <= 768 && sheetState === 'collapsed') setMobileSheetState('half');
     };
 
     window.toggleStatusFilter = function(type) {
