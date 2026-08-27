@@ -407,7 +407,7 @@
       flex: 1;
       height: 100%;
       width: 100%;
-      background: #09090b;
+      background: #000000;
       z-index: 1;
     }
 
@@ -1749,78 +1749,58 @@
       }
     };
 
-    /* ─── 🪐 戰爭迷霧與點亮核心引擎 (Fog of War Masking) ─── */
-    let lastFogVisitedStores = [];
-
-    function renderFogCanvas() {
-      const canvas = document.getElementById('fog-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const bounds = map.getBounds();
-      const nw = map.latLngToContainerPoint(bounds.getNorthWest());
-      const se = map.latLngToContainerPoint(bounds.getSouthEast());
-
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (lastFogVisitedStores.length === 0) return;
-
-      // 1. 繪製全域暗黑迷霧層
-      ctx.fillStyle = 'rgba(8, 8, 10, 0.72)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // 2. 使用 destination-out 挖空已打卡區域（透出原本地圖）
-      ctx.globalCompositeOperation = 'destination-out';
-      lastFogVisitedStores.forEach(s => {
-        const p = map.latLngToContainerPoint([s.lat, s.lng]);
-        const grad = ctx.createRadialGradient(p.x, p.y, 10, p.x, p.y, 130);
-        grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
-        grad.addColorStop(0.6, 'rgba(0, 0, 0, 0.85)');
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 130, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // 3. 在透空邊界疊加柔和探索能量光芒
-      ctx.globalCompositeOperation = 'source-over';
-      lastFogVisitedStores.forEach(s => {
-        const p = map.latLngToContainerPoint([s.lat, s.lng]);
-        const glowGrad = ctx.createRadialGradient(p.x, p.y, 25, p.x, p.y, 140);
-        glowGrad.addColorStop(0, 'rgba(240, 148, 51, 0.22)');
-        glowGrad.addColorStop(0.5, 'rgba(220, 39, 67, 0.12)');
-        glowGrad.addColorStop(1, 'rgba(220, 39, 67, 0)');
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 140, 0, Math.PI * 2);
-        ctx.fill();
-      });
+    /* ─── 🪐 戰爭迷霧解鎖（全地圖黑幕遮罩 + 打卡點挖空點亮） ─── */
+    function createCirclePoints(centerLat, centerLng, radiusMeters, numPoints = 48) {
+      const coords = [];
+      const latOffset = radiusMeters / 111320;
+      const lngOffset = radiusMeters / (111320 * Math.cos(centerLat * Math.PI / 180));
+      for (let i = 0; i <= numPoints; i++) {
+        const theta = (i / numPoints) * (2 * Math.PI);
+        coords.push([
+          centerLat + latOffset * Math.sin(theta),
+          centerLng + lngOffset * Math.cos(theta)
+        ]);
+      }
+      return coords;
     }
 
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
-      lastFogVisitedStores = filteredStores.filter(s => s.visited);
+      const visited = filteredStores.filter(s => s.visited);
 
-      let canvas = document.getElementById('fog-canvas');
-      if (!canvas) {
-        canvas = document.createElement('canvas');
-        canvas.id = 'fog-canvas';
-        canvas.style.position = 'absolute';
-        canvas.style.top = '0';
-        canvas.style.left = '0';
-        canvas.style.pointerEvents = 'none';
-        canvas.style.zIndex = '350';
-        map.getPanes().overlayPane.appendChild(canvas);
-      }
+      // 全球世界黑幕迷霧
+      const worldOuterBoundary = [
+        [85, -180],
+        [85, 180],
+        [-85, 180],
+        [-85, -180]
+      ];
 
-      renderFogCanvas();
+      // 每個已打卡店家挖出點亮透明孔洞（約 650 公尺半徑）
+      const holes = visited.map(s => createCirclePoints(s.lat, s.lng, 650));
+
+      L.polygon([worldOuterBoundary, ...holes], {
+        color: '#000000',
+        weight: 0,
+        fillColor: '#000000',
+        fillOpacity: 0.88,
+        interactive: false
+      }).addTo(constellationLayer);
+
+      // 解鎖邊緣純淨白光微亮漸層
+      visited.forEach(s => {
+        L.circle([s.lat, s.lng], {
+          radius: 650,
+          color: '#ffffff',
+          weight: 1.5,
+          opacity: 0.55,
+          dashArray: '4, 8',
+          fillColor: '#ffffff',
+          fillOpacity: 0.05,
+          interactive: false
+        }).addTo(constellationLayer);
+      });
     }
-
-    map.on('move', renderFogCanvas);
-    map.on('zoom', renderFogCanvas);
-    map.on('resize', renderFogCanvas);
 
     /* ─── 📍 地標同步篩選（依分類呈現專屬圖案） ─── */
     function renderMarkers(filteredStores) {
