@@ -344,26 +344,85 @@
       transition: width 0.4s ease;
     }
 
-    <!-- 🗺️ Google Maps 風格左下角圖層切換方塊 -->
-    <div id="gmaps-layer-box" onclick="toggleLayerMenu()" title="切換地圖風格">
-      <div class="gmaps-layer-thumb" id="layer-thumb-bg"></div>
-      <div class="gmaps-layer-label">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-          <polyline points="2 17 12 22 22 17"></polyline>
-          <polyline points="2 12 12 17 22 12"></polyline>
-        </svg>
-        <span>圖層</span>
-      </div>
-    </div>
-    
-    <!-- 圖層選擇面板 (浮動在方塊上方) -->
-    <div class="layer-picker-menu" id="layer-picker-menu">
-      <button class="layer-option-btn active" onclick="switchBaseLayer('taiwan', this)">🇹🇼 臺灣通用</button>
-      <button class="layer-option-btn" onclick="switchBaseLayer('dark', this)">🌑 極簡暗黑</button>
-      <button class="layer-option-btn" onclick="switchBaseLayer('osm', this)">🗺️ 開源街景</button>
-      <button class="layer-option-btn" onclick="switchBaseLayer('satellite', this)">🛰️ 衛星空照</button>
-    </div>
+    /* ─── 🗺️ Google Maps 風格左下角圖層方塊 ─── */
+    #gmaps-layer-box {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      z-index: 1200;
+      transition: transform 0.15s, border-color 0.2s;
+      background: #1c1c1e;
+    }
+    #gmaps-layer-box:active {
+      transform: scale(0.95);
+    }
+
+    .gmaps-layer-thumb {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/7165/13700');
+    }
+
+    .gmaps-layer-label {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 2px 0;
+    }
+
+    .layer-picker-menu {
+      position: absolute;
+      background: rgba(18, 18, 18, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--ig-border);
+      border-radius: 16px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 1300;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+      width: 140px;
+    }
+    .layer-picker-menu.active { display: flex; }
+
+    .layer-option-btn {
+      background: transparent;
+      border: none;
+      color: var(--ig-text-sub);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .layer-option-btn.active, .layer-option-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
 
     /* ─── 地圖 ─── */
     #map {
@@ -524,7 +583,7 @@
       cursor: pointer;
     }
 
-    /* ─── 店家列表容器（美化或隱藏捲軸） ─── */
+    /* 店家列表容器 (暗色極細美化捲軸) */
     .list-container {
       flex: 1;
       overflow-y: auto;
@@ -534,13 +593,9 @@
       gap: 8px;
       -webkit-overflow-scrolling: touch;
       min-height: 0;
-    
-      /* 方案 1：Firefox 採用極細深色捲軸 */
       scrollbar-width: thin;
       scrollbar-color: #3f3f46 transparent;
     }
-    
-    /* 方案 1：Chrome / Edge / Safari 自訂暗黑極簡捲軸 */
     .list-container::-webkit-scrollbar {
       width: 6px;
     }
@@ -708,7 +763,7 @@
       opacity: 0.55;
     }
 
-    /* ─── 📍 Google Maps 風格底部店家詳細卡片 (Bottom Detail Sheet) ─── */
+    /* ─── 📍 Google Maps 風格底部店家詳細卡片 ─── */
     #gmaps-detail-sheet {
       position: fixed;
       left: 0;
@@ -801,10 +856,10 @@
       gap: 8px;
       overflow-x: auto;
       padding-top: 4px;
-      scrollbar-width: none;               /* Firefox 隱藏捲軸 */
+      scrollbar-width: none;
     }
     .detail-actions-row::-webkit-scrollbar {
-      display: none;                       /* Chrome/Safari 隱藏捲軸 */
+      display: none;
     }
 
     .btn-gmaps-action {
@@ -1015,89 +1070,22 @@
         border-bottom: 1px solid var(--ig-border);
       }
 
-      /* ─── Google Maps 左下角正方形圖層方塊 ─── */
       #gmaps-layer-box {
-        position: absolute;
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 2px solid #ffffff;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-        cursor: pointer;
-        z-index: 1200;
-        transition: transform 0.15s, border-color 0.2s;
-        background: #1c1c1e;
-      }
-      #gmaps-layer-box:active {
-        transform: scale(0.95);
-      }
-      
-      /* 縮圖背景圖（預設顯示衛星空照縮圖） */
-      .gmaps-layer-thumb {
-        width: 100%;
-        height: 100%;
-        background-size: cover;
-        background-position: center;
-        background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/7165/13700');
-      }
-      
-      /* 底層文字標籤條 */
-      .gmaps-layer-label {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        color: #fff;
-        font-size: 10px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
-        padding: 2px 0;
-      }
-      
-      /* 電腦版定位：左側側邊欄旁邊 */
-      @media (min-width: 769px) {
-        #gmaps-layer-box {
-          left: calc(var(--sidebar-width) + 20px);
-          bottom: 24px;
-        }
-        .layer-picker-menu {
-          left: calc(var(--sidebar-width) + 20px);
-          bottom: 84px;
-          top: auto !important;
-          right: auto !important;
-        }
-      }
-      
-      /* 手機版定位：左下角，避開底部抽屜 */
-      @media (max-width: 768px) {
-        #gmaps-layer-box {
-          left: 14px;
-          bottom: 80px;
-        }
-        .layer-picker-menu {
-          left: 14px;
-          bottom: 140px;
-          top: auto !important;
-          right: auto !important;
-        }
+        left: calc(var(--sidebar-width) + 20px);
+        bottom: 24px;
       }
       .layer-picker-menu {
-        top: 68px;
-        right: 16px;
+        left: calc(var(--sidebar-width) + 20px);
+        bottom: 84px;
+        top: auto !important;
+        right: auto !important;
       }
 
       #gmaps-detail-sheet {
         left: calc(var(--sidebar-width) + 20px);
         right: auto;
         bottom: 20px;
-        width: 440px;            /* 加寬至 440px，讓按鈕完整展開 */
+        width: 440px;
         max-width: calc(100vw - var(--sidebar-width) - 40px);
         border-radius: 20px;
         border: 1px solid #3f3f46;
@@ -1147,13 +1135,15 @@
         pointer-events: auto;
       }
 
-      .fab-layer-btn {
-        top: 138px;
-        right: 14px;
+      #gmaps-layer-box {
+        left: 14px;
+        bottom: 80px;
       }
       .layer-picker-menu {
-        top: 190px;
-        right: 14px;
+        left: 14px;
+        bottom: 140px;
+        top: auto !important;
+        right: auto !important;
       }
 
       #sidebar {
@@ -1424,10 +1414,20 @@
     </div>
   </div>
 
-  <!-- 右上角圓形圖層切換按鈕 -->
-  <button class="fab-layer-btn" onclick="toggleLayerMenu()" title="切換地圖風格">🗺️</button>
+  <!-- 🗺️ Google Maps 風格左下角圖層切換方塊 -->
+  <div id="gmaps-layer-box" onclick="toggleLayerMenu()" title="切換地圖風格">
+    <div class="gmaps-layer-thumb" id="layer-thumb-bg"></div>
+    <div class="gmaps-layer-label">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+        <polyline points="2 17 12 22 22 17"></polyline>
+        <polyline points="2 12 12 17 22 12"></polyline>
+      </svg>
+      <span>圖層</span>
+    </div>
+  </div>
 
-  <!-- 圖層選擇浮動選單 (預設臺灣通用) -->
+  <!-- 圖層選擇面板 (浮動在方塊上方) -->
   <div class="layer-picker-menu" id="layer-picker-menu">
     <button class="layer-option-btn active" onclick="switchBaseLayer('taiwan', this)">🇹🇼 臺灣通用</button>
     <button class="layer-option-btn" onclick="switchBaseLayer('dark', this)">🌑 極簡暗黑</button>
@@ -1624,12 +1624,12 @@
         map.removeLayer(currentBaseLayer);
         currentBaseLayer = layers[type];
         currentBaseLayer.addTo(map);
-    
+
         document.querySelectorAll('.layer-option-btn').forEach(btn => btn.classList.remove('active'));
         if (el) el.classList.add('active');
         document.getElementById('layer-picker-menu').classList.remove('active');
-    
-        // 切換左下角縮圖預覽：目前是衛星就顯示地圖縮圖，目前是地圖就顯示衛星縮圖
+
+        // 切換左下角縮圖預覽
         const thumbEl = document.getElementById('layer-thumb-bg');
         if (type === 'satellite') {
           thumbEl.style.backgroundImage = "url('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/14/7165/13700')";
@@ -1638,6 +1638,7 @@
         }
       }
     };
+
     const constellationLayer = L.layerGroup().addTo(map);
     const markersLayer = L.layerGroup().addTo(map);
     const markersRef = {};
@@ -1664,11 +1665,11 @@
       return '🌱';
     }
 
-    /* ─── 🎯 視圖精確居中計算（避開底部卡片與頂部搜尋） ─── */
+    /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
         const topBarHeight = 135;
-        const bottomCardHeight = 180; // 底部店家卡片高度
+        const bottomCardHeight = 180;
         const visibleCenterY = topBarHeight + (window.innerHeight - topBarHeight - bottomCardHeight) / 2;
         const screenCenterY = window.innerHeight / 2;
         const offsetY = visibleCenterY - screenCenterY;
@@ -1704,11 +1705,9 @@
 
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
 
-      // 設置導航連結 (Google Maps 導航 URL)
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
       document.getElementById('sheet-btn-navigate').href = navUrl;
 
-      // 綁定打卡按鈕事件
       const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
       toggleBtn.innerText = store.visited ? '🤍 取消打卡' : '❤️ 點亮打卡';
       toggleBtn.onclick = () => {
@@ -1716,20 +1715,16 @@
         openDetailSheet(store.id);
       };
 
-      // 綁定編輯與刪除
       document.getElementById('sheet-btn-edit').onclick = () => openEditModal(store.id);
       document.getElementById('sheet-btn-delete').onclick = () => {
         deleteStore(store.id);
         closeDetailSheet();
       };
 
-      // 顯示底部卡片
       document.getElementById('gmaps-detail-sheet').classList.add('active');
 
-      // 地圖視圖平滑置中
       flyToWithOffset(store.lat, store.lng, 16.5);
 
-      // 若手機抽屜打開則收起
       if (window.innerWidth <= 768) setMobileSheetState('collapsed');
     };
 
@@ -1954,7 +1949,7 @@
       });
     }
 
-    /* ─── 經緯度解析與快速新增 ─── */
+    /* ─── 經緯度解析與快速新增 (修復號號問題) ─── */
     async function reverseGeocode(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
@@ -2077,7 +2072,7 @@
       });
     }
 
-    /* ─── 📍 地標同步篩選（點擊地標直接開啟 Google Maps 底部卡片，不跳 Popup） ─── */
+    /* ─── 📍 地標同步篩選 ─── */
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
@@ -2116,7 +2111,6 @@
         }).addTo(markersLayer);
         markersRef[s.id] = marker;
 
-        // 點擊地標直接呼叫底部卡片並置中
         marker.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           openDetailSheet(s.id);
