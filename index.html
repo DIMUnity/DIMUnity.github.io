@@ -1731,26 +1731,62 @@
       if (!currentUser) return alert('請先登入！');
       const input = document.getElementById('gmaps-input').value.trim();
       if (!input) return;
-
+    
       const btn = document.getElementById('btn-quick-submit');
       btn.innerText = '...';
       btn.disabled = true;
-
-      let lat = 24.805, lng = 120.975, address = input;
-      const coordMatch = input.match(/(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)/);
-      if (coordMatch) {
-        lat = parseFloat(coordMatch[1]);
-        lng = parseFloat(coordMatch[2]);
+    
+      let lat = 24.805, lng = 120.975;
+      let detectedName = '';
+      let address = '';
+    
+      // 1️⃣ 情況一：使用者貼上 Google 地圖完整網址
+      if (input.includes('google.com/maps') || input.includes('goo.gl')) {
+        // 🔍 抓取店名 (例如 /place/宏仁素食/ 或 /place/%E5%AE%8F%E4%BB%81%E7%B4%A0%E9%A3%9F/)
+        const nameMatch = input.match(/\/place\/([^\/@?]+)/);
+        if (nameMatch && nameMatch[1]) {
+          try {
+            detectedName = decodeURIComponent(nameMatch[1].replace(/\+/g, ' '));
+          } catch (e) {
+            detectedName = nameMatch[1];
+          }
+        }
+    
+        // 🔍 抓取店家精準座標 (!3d緯度!4d經度 優先度最高，其次為 @緯度,經度)
+        const preciseMatch = input.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+        const atMatch = input.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    
+        if (preciseMatch) {
+          lat = parseFloat(preciseMatch[1]);
+          lng = parseFloat(preciseMatch[2]);
+        } else if (atMatch) {
+          lat = parseFloat(atMatch[1]);
+          lng = parseFloat(atMatch[2]);
+        }
+    
+        // 自動反向解析真實中文地址
         address = await reverseGeocode(lat, lng);
+      } 
+      // 2️⃣ 情況二：純經緯度 (如: 24.793955, 120.962877)
+      else {
+        const coordMatch = input.match(/(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)/);
+        if (coordMatch) {
+          lat = parseFloat(coordMatch[1]);
+          lng = parseFloat(coordMatch[2]);
+          address = await reverseGeocode(lat, lng);
+        } else {
+          address = input;
+        }
       }
-
-      const name = prompt('📍 請輸入店家名稱：', '新蔬食店家');
+    
+      // 彈出確認視窗，店名已自動填妥（若沒抓到則顯示預設名稱）
+      const finalName = prompt('📍 請確認店家名稱：', detectedName || '新蔬食店家');
       btn.innerText = '新增';
       btn.disabled = false;
-
-      if (name) {
+    
+      if (finalName) {
         await addDoc(storesCollection, {
-          name: name.trim(),
+          name: finalName.trim(),
           address: address || '',
           category: '蛋奶素',
           visited: false,
