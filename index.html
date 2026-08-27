@@ -8,11 +8,27 @@
   <!-- 瀏覽器分頁圖示 -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>" />
   
-  <!-- 📱 iPhone 主畫面專屬實體圖檔設定 -->
-  <link rel="apple-touch-icon" sizes="180x180" href="./icon.png" />
+<!-- 引入 PWA 設定 -->
+  <link rel="manifest" href="./manifest.json" />
+  
+  <!-- 📱 iPhone 主畫面圖示 (加上 id 供 JS 自動切換) -->
+  <link id="apple-icon" rel="apple-touch-icon" sizes="180x180" href="./icon-dark.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="蔬食星圖" />
+
+  <!-- 🌓 自動偵測深淺色模式腳本 -->
+  <script>
+    function updateAppIcon() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const iconEl = document.getElementById('apple-icon');
+      if (iconEl) {
+        iconEl.href = isDark ? './icon-dark.png' : './icon-light.png';
+      }
+    }
+    updateAppIcon();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateAppIcon);
+  </script>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
