@@ -2047,16 +2047,26 @@
       if (!currentUser) return alert('請先登入！');
       const editId = document.getElementById('form-id').value;
       const name = document.getElementById('form-name').value.trim();
-      const address = document.getElementById('form-address').value.trim();
+      let address = document.getElementById('form-address').value.trim();
       const category = document.getElementById('form-category').value.trim() || '蛋奶素';
       const visited = document.getElementById('form-visited').value === 'true';
-      const lat = parseFloat(document.getElementById('form-lat').value) || 24.805;
-      const lng = parseFloat(document.getElementById('form-lng').value) || 120.975;
-
+      let lat = parseFloat(document.getElementById('form-lat').value) || 24.805;
+      let lng = parseFloat(document.getElementById('form-lng').value) || 120.975;
+    
       if (!name) return alert('請輸入店名！');
-
+    
+      // 🔍 檢查使用者是否在地址欄位輸入了經緯度 (如: 24.793955, 120.962877)
+      const coordMatch = address.match(/(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)/);
+      if (coordMatch) {
+        lat = parseFloat(coordMatch[1]);
+        lng = parseFloat(coordMatch[2]);
+        // 自動反向解析真實中文地址（若解析失敗則維持原文字）
+        const realAddr = await reverseGeocode(lat, lng);
+        if (realAddr) address = realAddr;
+      }
+    
       const payload = { name, address, category, visited, lat, lng };
-
+    
       if (editId) {
         await updateDoc(doc(db, "vegan_stores", editId), payload);
       } else {
@@ -2064,7 +2074,7 @@
         payload.createdAt = serverTimestamp ? serverTimestamp() : Date.now();
         await addDoc(storesCollection, payload);
       }
-
+    
       closeModal();
     };
 
