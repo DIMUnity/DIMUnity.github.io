@@ -1749,34 +1749,78 @@
       }
     };
 
-    /* ─── 🪐 探索迷霧熱力光暈（生活圈雙層漸層解鎖） ─── */
-    function renderConstellation(filteredStores) {
-      constellationLayer.clearLayers();
-      const visited = filteredStores.filter(s => s.visited);
+    /* ─── 🪐 戰爭迷霧與點亮核心引擎 (Fog of War Masking) ─── */
+    let lastFogVisitedStores = [];
 
-      visited.forEach(s => {
-        // 外層寬廣漸變迷霧光暈（半徑 500m）
-        L.circle([s.lat, s.lng], {
-          radius: 500,
-          stroke: false,
-          fillColor: '#f09433',
-          fillOpacity: 0.08,
-          interactive: false
-        }).addTo(constellationLayer);
+    function renderFogCanvas() {
+      const canvas = document.getElementById('fog-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const bounds = map.getBounds();
+      const nw = map.latLngToContainerPoint(bounds.getNorthWest());
+      const se = map.latLngToContainerPoint(bounds.getSouthEast());
 
-        // 內層核心微光領域（半徑 240m，帶細光絲邊界）
-        L.circle([s.lat, s.lng], {
-          radius: 240,
-          color: '#dc2743',
-          weight: 1,
-          opacity: 0.35,
-          dashArray: '3, 6',
-          fillColor: '#dc2743',
-          fillOpacity: 0.16,
-          interactive: false
-        }).addTo(constellationLayer);
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (lastFogVisitedStores.length === 0) return;
+
+      // 1. 繪製全域暗黑迷霧層
+      ctx.fillStyle = 'rgba(8, 8, 10, 0.72)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 2. 使用 destination-out 挖空已打卡區域（透出原本地圖）
+      ctx.globalCompositeOperation = 'destination-out';
+      lastFogVisitedStores.forEach(s => {
+        const p = map.latLngToContainerPoint([s.lat, s.lng]);
+        const grad = ctx.createRadialGradient(p.x, p.y, 10, p.x, p.y, 130);
+        grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+        grad.addColorStop(0.6, 'rgba(0, 0, 0, 0.85)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 130, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 3. 在透空邊界疊加柔和探索能量光芒
+      ctx.globalCompositeOperation = 'source-over';
+      lastFogVisitedStores.forEach(s => {
+        const p = map.latLngToContainerPoint([s.lat, s.lng]);
+        const glowGrad = ctx.createRadialGradient(p.x, p.y, 25, p.x, p.y, 140);
+        glowGrad.addColorStop(0, 'rgba(240, 148, 51, 0.22)');
+        glowGrad.addColorStop(0.5, 'rgba(220, 39, 67, 0.12)');
+        glowGrad.addColorStop(1, 'rgba(220, 39, 67, 0)');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 140, 0, Math.PI * 2);
+        ctx.fill();
       });
     }
+
+    function renderConstellation(filteredStores) {
+      constellationLayer.clearLayers();
+      lastFogVisitedStores = filteredStores.filter(s => s.visited);
+
+      let canvas = document.getElementById('fog-canvas');
+      if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'fog-canvas';
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '350';
+        map.getPanes().overlayPane.appendChild(canvas);
+      }
+
+      renderFogCanvas();
+    }
+
+    map.on('move', renderFogCanvas);
+    map.on('zoom', renderFogCanvas);
+    map.on('resize', renderFogCanvas);
 
     /* ─── 📍 地標同步篩選（依分類呈現專屬圖案） ─── */
     function renderMarkers(filteredStores) {
