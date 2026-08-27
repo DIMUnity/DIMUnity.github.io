@@ -1337,12 +1337,7 @@
     ];
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
-      authDomain: "hsinchu-veg-map.firebaseapp.com",
-      projectId: "hsinchu-veg-map",
-      storageBucket: "hsinchu-veg-map.firebasestorage.app",
-      messagingSenderId: "229294662793",
-      appId: "1:229294662793:web:d467459c29f46eb0aed258"
+
     };
 
     let db = null;
@@ -1562,41 +1557,31 @@
       }
     });
 
-    /* ─── 🔍 搜尋同步與自動補全提示（Google Maps 模式） ─── */
+    /* ─── 🔍 搜尋自動補全提示（Google Maps 風格：僅提供搜尋跳轉，不硬性過濾地圖與清單） ─── */
     window.handleSearchSync = function(val) {
-      searchKeyword = val.trim().toLowerCase();
+      const kw = val.trim().toLowerCase();
       
-      // 同步手機與電腦端的輸入內容
       document.querySelectorAll('.search-input-field').forEach(input => {
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            if (!searchKeyword) return;
-            const matched = stores.find(s => 
-              s.name.toLowerCase().includes(searchKeyword) || 
-              (s.address && s.address.toLowerCase().includes(searchKeyword))
-            );
-            if (matched) selectStoreFromSearch(matched.id);
-          }
-        });
+        if (input.value !== val) input.value = val;
       });
-    
+
       const dropdowns = [
         document.getElementById('search-suggestions-desktop'),
         document.getElementById('search-suggestions-mobile')
       ];
-    
-      if (!searchKeyword) {
+
+      if (!kw) {
         dropdowns.forEach(d => { if (d) { d.classList.remove('active'); d.innerHTML = ''; } });
         return;
       }
-    
-      // 🔍 僅在下拉選單尋找符合的店家（不影響地圖現有標記）
+
+      // 從所有店家尋找符合關鍵字的項目
       const matches = stores.filter(s => 
-        s.name.toLowerCase().includes(searchKeyword) || 
-        (s.address && s.address.toLowerCase().includes(searchKeyword)) ||
-        (s.category && s.category.toLowerCase().includes(searchKeyword))
+        s.name.toLowerCase().includes(kw) || 
+        (s.address && s.address.toLowerCase().includes(kw)) ||
+        (s.category && s.category.toLowerCase().includes(kw))
       );
-    
+
       if (matches.length > 0) {
         const html = matches.slice(0, 5).map(s => `
           <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
@@ -1616,10 +1601,11 @@
     document.querySelectorAll('.search-input-field').forEach(input => {
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-          if (!searchKeyword) return;
-          const matched = getFilteredStores().find(s => 
-            s.name.toLowerCase().includes(searchKeyword) || 
-            (s.address && s.address.toLowerCase().includes(searchKeyword))
+          const kw = input.value.trim().toLowerCase();
+          if (!kw) return;
+          const matched = stores.find(s => 
+            s.name.toLowerCase().includes(kw) || 
+            (s.address && s.address.toLowerCase().includes(kw))
           );
           if (matched) selectStoreFromSearch(matched.id);
         }
@@ -1715,7 +1701,7 @@
       refreshAll();
     };
 
-    /* ─── 核心篩選輔助函式 ─── */
+    /* ─── 核心篩選輔助函式（僅依標籤與打卡狀態篩選） ─── */
     function getFilteredStores() {
       return stores.filter(s => {
         const matchCategory = (currentCategory === 'all') || (s.category && s.category.includes(currentCategory));
@@ -1723,8 +1709,8 @@
         let matchStatus = true;
         if (statusFilter === 'visited') matchStatus = s.visited;
         if (statusFilter === 'unvisited') matchStatus = !s.visited;
-        
-        return matchCategory && matchStatus && matchSearch;
+
+        return matchCategory && matchStatus;
       });
     }
 
@@ -1745,18 +1731,16 @@
       if (!currentUser) return alert('請先登入！');
       const input = document.getElementById('gmaps-input').value.trim();
       if (!input) return;
-    
+
       const btn = document.getElementById('btn-quick-submit');
       btn.innerText = '...';
       btn.disabled = true;
-    
+
       let lat = 24.805, lng = 120.975;
       let detectedName = '';
       let address = '';
-    
-      // 1️⃣ 情況一：使用者貼上 Google 地圖完整網址
+
       if (input.includes('google.com/maps') || input.includes('goo.gl')) {
-        // 🔍 抓取店名 (例如 /place/宏仁素食/ 或 /place/%E5%AE%8F%E4%BB%81%E7%B4%A0%E9%A3%9F/)
         const nameMatch = input.match(/\/place\/([^\/@?]+)/);
         if (nameMatch && nameMatch[1]) {
           try {
@@ -1765,11 +1749,10 @@
             detectedName = nameMatch[1];
           }
         }
-    
-        // 🔍 抓取店家精準座標 (!3d緯度!4d經度 優先度最高，其次為 @緯度,經度)
+
         const preciseMatch = input.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
         const atMatch = input.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-    
+
         if (preciseMatch) {
           lat = parseFloat(preciseMatch[1]);
           lng = parseFloat(preciseMatch[2]);
@@ -1777,12 +1760,9 @@
           lat = parseFloat(atMatch[1]);
           lng = parseFloat(atMatch[2]);
         }
-    
-        // 自動反向解析真實中文地址
+
         address = await reverseGeocode(lat, lng);
-      } 
-      // 2️⃣ 情況二：純經緯度 (如: 24.793955, 120.962877)
-      else {
+      } else {
         const coordMatch = input.match(/(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)/);
         if (coordMatch) {
           lat = parseFloat(coordMatch[1]);
@@ -1792,12 +1772,11 @@
           address = input;
         }
       }
-    
-      // 彈出確認視窗，店名已自動填妥（若沒抓到則顯示預設名稱）
+
       const finalName = prompt('📍 請確認店家名稱：', detectedName || '新蔬食店家');
       btn.innerText = '新增';
       btn.disabled = false;
-    
+
       if (finalName) {
         await addDoc(storesCollection, {
           name: finalName.trim(),
@@ -1821,7 +1800,6 @@
 
       const zoom = map.getZoom();
       
-      // 遠看時收緊連線避免雜亂，近看時適度展開
       let maxDist = 1200;
       if (zoom >= 16) maxDist = 2000;
       else if (zoom >= 14) maxDist = 1400;
@@ -1867,7 +1845,6 @@
         let size, iconHtml;
 
         if (isDense) {
-          // 遠景模式：未打卡為 5px 灰色微點，已打卡為 12px 亮色光點
           if (s.visited) {
             size = 12;
             iconHtml = `<div class="marker-dot-unlocked" style="width:${size}px; height:${size}px;"></div>`;
@@ -1876,7 +1853,6 @@
             iconHtml = `<div class="marker-dot-locked" style="width:${size}px; height:${size}px;"></div>`;
           }
         } else {
-          // 近景模式：展開為完整 Emoji 圖示
           size = s.visited ? 28 : 20;
           const fontSize = s.visited ? 13 : 10;
           const iconChar = getCategoryIcon(s.category);
@@ -1997,7 +1973,7 @@
       });
 
       if (sortableInstance) sortableInstance.destroy();
-      const isCustomSortAllowed = currentCategory === 'all' && statusFilter === 'all' && searchKeyword === '';
+      const isCustomSortAllowed = currentCategory === 'all' && statusFilter === 'all';
 
       sortableInstance = new Sortable(listEl, {
         animation: 180,
@@ -2102,21 +2078,20 @@
       const visited = document.getElementById('form-visited').value === 'true';
       let lat = parseFloat(document.getElementById('form-lat').value) || 24.805;
       let lng = parseFloat(document.getElementById('form-lng').value) || 120.975;
-    
+
       if (!name) return alert('請輸入店名！');
-    
-      // 🔍 檢查使用者是否在地址欄位輸入了經緯度 (如: 24.793955, 120.962877)
+
+      // 檢查輸入框內是否有經緯度並自動更新座標
       const coordMatch = address.match(/(-?\d+\.\d+)\s*[,，\s]\s*(-?\d+\.\d+)/);
       if (coordMatch) {
         lat = parseFloat(coordMatch[1]);
         lng = parseFloat(coordMatch[2]);
-        // 自動反向解析真實中文地址（若解析失敗則維持原文字）
         const realAddr = await reverseGeocode(lat, lng);
         if (realAddr) address = realAddr;
       }
-    
+
       const payload = { name, address, category, visited, lat, lng };
-    
+
       if (editId) {
         await updateDoc(doc(db, "vegan_stores", editId), payload);
       } else {
@@ -2124,7 +2099,7 @@
         payload.createdAt = serverTimestamp ? serverTimestamp() : Date.now();
         await addDoc(storesCollection, payload);
       }
-    
+
       closeModal();
     };
 
