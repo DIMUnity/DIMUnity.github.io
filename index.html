@@ -1562,30 +1562,41 @@
       }
     });
 
-    /* ─── 🔍 搜尋同步與自動補全提示 ─── */
-    let searchKeyword = '';
-
+    /* ─── 🔍 搜尋同步與自動補全提示（Google Maps 模式） ─── */
     window.handleSearchSync = function(val) {
       searchKeyword = val.trim().toLowerCase();
       
+      // 同步手機與電腦端的輸入內容
       document.querySelectorAll('.search-input-field').forEach(input => {
-        if (input.value !== val) input.value = val;
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            if (!searchKeyword) return;
+            const matched = stores.find(s => 
+              s.name.toLowerCase().includes(searchKeyword) || 
+              (s.address && s.address.toLowerCase().includes(searchKeyword))
+            );
+            if (matched) selectStoreFromSearch(matched.id);
+          }
+        });
       });
-
-      refreshAll();
-
+    
       const dropdowns = [
         document.getElementById('search-suggestions-desktop'),
         document.getElementById('search-suggestions-mobile')
       ];
-
+    
       if (!searchKeyword) {
         dropdowns.forEach(d => { if (d) { d.classList.remove('active'); d.innerHTML = ''; } });
         return;
       }
-
-      const matches = getFilteredStores();
-
+    
+      // 🔍 僅在下拉選單尋找符合的店家（不影響地圖現有標記）
+      const matches = stores.filter(s => 
+        s.name.toLowerCase().includes(searchKeyword) || 
+        (s.address && s.address.toLowerCase().includes(searchKeyword)) ||
+        (s.category && s.category.toLowerCase().includes(searchKeyword))
+      );
+    
       if (matches.length > 0) {
         const html = matches.slice(0, 5).map(s => `
           <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
@@ -1712,10 +1723,7 @@
         let matchStatus = true;
         if (statusFilter === 'visited') matchStatus = s.visited;
         if (statusFilter === 'unvisited') matchStatus = !s.visited;
-
-        const matchSearch = s.name.toLowerCase().includes(searchKeyword) || 
-                            (s.address && s.address.toLowerCase().includes(searchKeyword)) ||
-                            (s.category && s.category.toLowerCase().includes(searchKeyword));
+        
         return matchCategory && matchStatus && matchSearch;
       });
     }
