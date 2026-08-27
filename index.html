@@ -1937,21 +1937,24 @@
     window.selectStoreFromSearch = function(id) {
       const store = stores.find(s => s.id === id);
       if (!store) return;
-
+    
       document.querySelectorAll('.search-input-field').forEach(input => input.value = store.name);
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       document.querySelectorAll('.search-input-field').forEach(input => input.blur());
-
+    
       openDetailSheet(id);
-
-      setTimeout(() => {
-        const card = document.querySelector(`.store-card[data-id="${id}"]`);
-        if (card) {
-          document.querySelectorAll('.store-card').forEach(c => c.classList.remove('highlight-card'));
-          card.classList.add('highlight-card');
-          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }, 300);
+    
+      // 僅在電腦版 (> 768px) 同步高亮與滾動側邊欄
+      if (window.innerWidth > 768) {
+        setTimeout(() => {
+          const card = document.querySelector(`.store-card[data-id="${id}"]`);
+          if (card) {
+            document.querySelectorAll('.store-card').forEach(c => c.classList.remove('highlight-card'));
+            card.classList.add('highlight-card');
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 200);
+      }
     };
 
     /* ─── 👤 帳號選單控制 ─── */
