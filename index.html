@@ -917,15 +917,17 @@
       border: 1px solid var(--ig-border);
     }
 
+    /* ─── 🪐 右下角 IG 膠囊氣泡 (層級調整 + 支援 Hover 自然彈出) ─── */
     .ig-dock-capsule-container {
       position: fixed;
       right: 24px;
       bottom: 24px;
-      z-index: 2400;
+      z-index: 1800; /* 低於抽屜的 2000，確保抽屜展開時自然被蓋住 */
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      pointer-events: none;
+      pointer-events: auto;
+      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
     .ig-dock-capsule {
@@ -941,7 +943,6 @@
       cursor: pointer;
       user-select: none;
       transition: all 0.2s ease;
-      pointer-events: auto;
     }
     .ig-dock-capsule:hover {
       background: #26262a;
@@ -1018,6 +1019,8 @@
       100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
+    /* 滑鼠懸停膠囊或列表時直接跳出，不用手動點擊 */
+    .ig-dock-capsule-container:hover .ig-dock-popover,
     .ig-dock-capsule-container.active .ig-dock-popover {
       display: flex;
     }
@@ -1243,7 +1246,7 @@
       font-weight: 700;
     }
 
-    /* ─── 📸 編輯個人檔案：採用同款精緻 Card 視窗 ─── */
+    /* ─── 📸 編輯個人檔案：同款質感 Card 視窗 ─── */
     .ig-edit-card {
       background: #18181b;
       border: 1px solid var(--ig-border);
@@ -1459,6 +1462,14 @@
         bottom: 74px;
       }
 
+      /* 當底部抽屜展開（拉出來）時，膠囊徹底隱藏不阻擋檢視 */
+      #sidebar.sheet-half ~ .ig-dock-capsule-container,
+      #sidebar.sheet-full ~ .ig-dock-capsule-container {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transform: translateY(20px);
+      }
+
       #sidebar {
         position: fixed;
         left: 0;
@@ -1524,11 +1535,10 @@
           <div class="ig-user-sheet-name" id="menu-user-name">OneDimMan</div>
           <div class="ig-user-sheet-bio" id="menu-user-bio">尚未填寫個人介紹</div>
           <div class="ig-user-sheet-email" id="menu-user-email">user@gmail.com</div>
-          <div class="ig-user-sheet-badge" id="menu-user-badge">🛡️ 授權探索成員</div>
+          <div class="ig-user-sheet-badge">🛡️ 授權探索成員</div>
         </div>
       </div>
       <div class="ig-user-sheet-actions">
-        <!-- 移除括號備註，回歸純淨 IG 選單項目 -->
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
           編輯個人檔案
@@ -1548,7 +1558,7 @@
     </div>
   </div>
 
-  <!-- 📸 編輯個人檔案：採用同款彈窗 (Card Modal) -->
+  <!-- 📸 編輯個人檔案：同款質感 Card 彈窗 -->
   <div class="modal-overlay" id="profile-edit-modal" onclick="closeProfileEditModal()">
     <div class="ig-edit-card" onclick="event.stopPropagation()">
       <div class="ig-edit-card-header">
@@ -1782,6 +1792,30 @@
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
+  <!-- 🪐 右下角 IG 膠囊氣泡 (置於 sidebar 之後，受展開規則控制遮蔽) -->
+  <div class="ig-dock-capsule-container" id="ig-dock-container">
+    <div class="ig-dock-popover" id="dock-popover-list">
+      <div class="dock-popover-header">
+        <span>👥 星圖視角排行榜</span>
+        <span style="font-size: 10px; color:#a1a1aa;">移至上方切換</span>
+      </div>
+      <div id="dock-friend-list-items" style="display:flex; flex-direction:column; gap:4px;"></div>
+    </div>
+
+    <div class="ig-dock-capsule">
+      <div class="dock-left-info">
+        <svg class="dock-paper-plane-icon" viewBox="0 0 24 24">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+        <span class="dock-capsule-title" id="dock-current-view-title">我的星圖</span>
+      </div>
+      <div class="dock-avatar-stack" id="dock-avatar-stack">
+        <div class="dock-stack-avatar">🌱</div>
+      </div>
+    </div>
+  </div>
+
   <div id="gmaps-detail-sheet">
     <div class="detail-sheet-pill"></div>
     <div class="detail-header-row">
@@ -1833,30 +1867,6 @@
       <div class="layer-thumb-item" onclick="switchBaseLayer('osm', this)">
         <div class="layer-thumb-box">🗺️</div>
         <span class="layer-thumb-name">開源街景</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🪐 右下角 IG 膠囊氣泡 -->
-  <div class="ig-dock-capsule-container" id="ig-dock-container">
-    <div class="ig-dock-popover" id="dock-popover-list">
-      <div class="dock-popover-header">
-        <span>👥 星圖視角排行榜</span>
-        <span style="font-size: 10px; color:#a1a1aa;">點擊切換</span>
-      </div>
-      <div id="dock-friend-list-items" style="display:flex; flex-direction:column; gap:4px;"></div>
-    </div>
-
-    <div class="ig-dock-capsule" onclick="toggleCapsulePopup(event)">
-      <div class="dock-left-info">
-        <svg class="dock-paper-plane-icon" viewBox="0 0 24 24">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-        <span class="dock-capsule-title" id="dock-current-view-title">我的星圖</span>
-      </div>
-      <div class="dock-avatar-stack" id="dock-avatar-stack">
-        <div class="dock-stack-avatar">🌱</div>
       </div>
     </div>
   </div>
@@ -2122,11 +2132,6 @@
       refreshAll();
     };
 
-    window.toggleCapsulePopup = function(e) {
-      if (e) e.stopPropagation();
-      document.getElementById('ig-dock-container').classList.toggle('active');
-    };
-
     window.selectViewTarget = function(targetEmail) {
       changeViewingTarget(targetEmail);
       document.getElementById('ig-dock-container')?.classList.remove('active');
@@ -2206,7 +2211,6 @@
       container.innerHTML = listHtml;
     }
 
-    // ─── 開啟同款 Card 彈窗 ───
     window.openProfileEditModal = function() {
       closeUserMenu();
       const myEmail = currentUser.email.toLowerCase();
