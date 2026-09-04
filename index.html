@@ -788,7 +788,6 @@
       opacity: 0.55;
     }
 
-    /* ─── 📍 Google Maps 風格底部店家詳細卡片 (修正：徹底隱藏) ─── */
     #gmaps-detail-sheet {
       position: fixed;
       left: 0;
@@ -918,7 +917,6 @@
       border: 1px solid var(--ig-border);
     }
 
-    /* ─── 🪐 右下角 IG 膠囊氣泡 (純點擊展開，內建星圖排行) ─── */
     .ig-dock-capsule-container {
       position: fixed;
       right: 24px;
@@ -1117,7 +1115,6 @@
       display: block;
     }
 
-    /* ─── 👤 IG 官方質感個人選單 ─── */
     .ig-user-sheet {
       background: #18181b;
       border: 1px solid var(--ig-border);
@@ -1245,7 +1242,7 @@
       font-weight: 700;
     }
 
-    /* ─── 📸 復刻截圖：Instagram「編輯個人檔案」全螢幕/滿版面板 ─── */
+    /* ─── 📸 Instagram「編輯個人檔案」面板（已隱藏原生白條捲軸） ─── */
     .ig-edit-profile-sheet {
       position: fixed;
       inset: 0;
@@ -1255,7 +1252,11 @@
       flex-direction: column;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox 隱藏捲軸 */
       animation: igSheetSlideUp 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .ig-edit-profile-sheet::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Edge 徹底隱藏白色捲軸 */
     }
     .ig-edit-profile-sheet.active { display: flex; }
     @keyframes igSheetSlideUp {
@@ -1274,6 +1275,7 @@
       top: 0;
       background: #000000;
       z-index: 10;
+      flex-shrink: 0;
     }
     .ig-nav-back-btn {
       background: transparent;
@@ -1312,6 +1314,7 @@
       position: relative;
       width: 140px;
       height: 90px;
+      cursor: pointer;
     }
     .ig-avatar-circle-main {
       width: 82px;
@@ -1357,21 +1360,21 @@
       display: flex;
       flex-direction: column;
       padding-top: 6px;
+      padding-bottom: 24px;
     }
     .ig-form-row {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       padding: 14px 18px;
       border-bottom: 0.5px solid #262626;
       gap: 16px;
     }
     .ig-row-label {
-      width: 90px;
+      width: 95px;
       font-size: 14.5px;
       color: #fff;
       font-weight: 500;
       flex-shrink: 0;
-      padding-top: 2px;
     }
     .ig-row-input {
       flex: 1;
@@ -1383,104 +1386,6 @@
     }
     .ig-row-input::placeholder {
       color: #71717a;
-    }
-    .ig-row-value-text {
-      flex: 1;
-      font-size: 14.5px;
-      color: #71717a;
-    }
-
-    .ig-link-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 15px 18px;
-      border-bottom: 0.5px solid #262626;
-      cursor: pointer;
-    }
-    .ig-link-label {
-      font-size: 14.5px;
-      color: #fff;
-    }
-    .ig-link-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13.5px;
-      color: #71717a;
-    }
-
-    .ig-badge-new {
-      background: var(--ig-blue);
-      color: #fff;
-      font-size: 10.5px;
-      font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 999px;
-    }
-
-    .ig-switch-row {
-      padding: 16px 18px 12px;
-      border-bottom: 0.5px solid #262626;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .ig-switch-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .ig-switch-label-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ig-switch-subtext {
-      font-size: 12px;
-      color: #71717a;
-      line-height: 1.4;
-      margin-top: 4px;
-    }
-    .ig-switch-subtext a {
-      color: var(--ig-blue);
-      text-decoration: none;
-    }
-
-    .ig-toggle-btn {
-      width: 44px;
-      height: 26px;
-      border-radius: 999px;
-      background: #27272a;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .ig-toggle-btn::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #fff;
-      transition: transform 0.2s;
-    }
-    .ig-toggle-btn.active {
-      background: #fff;
-    }
-    .ig-toggle-btn.active::after {
-      transform: translateX(18px);
-      background: #000;
-    }
-
-    .ig-bottom-link-item {
-      padding: 16px 18px;
-      font-size: 14.5px;
-      color: var(--ig-blue);
-      border-bottom: 0.5px solid #262626;
-      cursor: pointer;
     }
 
     .modal-overlay {
@@ -1564,15 +1469,14 @@
         transform: translateY(0) scale(1);
       }
 
-      /* 電腦版居中編輯檔案視窗 */
       .ig-edit-profile-sheet {
         inset: auto;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) !important;
         width: 420px;
-        height: 85vh;
-        max-height: 800px;
+        height: 80vh;
+        max-height: 700px;
         border-radius: 28px;
         border: 1px solid #333;
         box-shadow: 0 24px 60px rgba(0,0,0,0.95);
@@ -1717,7 +1621,7 @@
     </div>
   </div>
 
-  <!-- 📸 復刻截圖：Instagram「編輯個人檔案」完整頁面 -->
+  <!-- 📸 復刻截圖：Instagram「編輯個人檔案」精簡版（已隱藏右側原生白捲軸，刪除多餘項目） -->
   <div class="ig-edit-profile-sheet" id="profile-edit-modal">
     <!-- 頂部導航 -->
     <div class="ig-edit-nav">
@@ -1733,11 +1637,9 @@
     <!-- 大頭貼更換區 (雙圓形) -->
     <div class="ig-avatar-edit-section">
       <div class="ig-dual-avatar-container" onclick="document.getElementById('avatar-file-input').click()">
-        <!-- 主大頭貼 -->
         <div class="ig-avatar-circle-main user-avatar-sync">
           🌱
         </div>
-        <!-- 虛擬替身圓形 (裝飾) -->
         <div class="ig-avatar-circle-avatar">
           🐻
         </div>
@@ -1746,7 +1648,7 @@
       <span class="ig-edit-avatar-text" onclick="document.getElementById('avatar-file-input').click()">編輯大頭貼照或虛擬替身</span>
     </div>
 
-    <!-- 表單欄位 -->
+    <!-- 僅保留必備核心欄位 -->
     <div class="ig-form-rows-container">
       <div class="ig-form-row">
         <span class="ig-row-label">姓名</span>
@@ -1764,57 +1666,6 @@
         <span class="ig-row-label">個人簡介</span>
         <input type="text" id="edit-profile-bio" class="ig-row-input" placeholder="個人簡介" />
       </div>
-
-      <!-- 連結與次要設定項 -->
-      <div class="ig-link-row">
-        <span class="ig-link-label">連結</span>
-        <div class="ig-link-right">
-          <span>新增連結</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </div>
-      </div>
-
-      <div class="ig-link-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
-        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-          <span class="ig-link-label">橫幅</span>
-          <div class="ig-link-right">
-            <span>1</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
-        </div>
-        <span style="font-size:12px; color:#71717a;">新增音樂、個人檔案等內容。</span>
-      </div>
-
-      <div class="ig-link-row">
-        <span class="ig-link-label">重新排序網格</span>
-        <div class="ig-link-right">
-          <span class="ig-badge-new">最新</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </div>
-      </div>
-
-      <div class="ig-link-row">
-        <span class="ig-link-label">性別</span>
-        <div class="ig-link-right">
-          <span>性別</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </div>
-      </div>
-
-      <!-- AI 創作者開關 -->
-      <div class="ig-switch-row">
-        <div class="ig-switch-header">
-          <div class="ig-switch-label-group">
-            <span class="ig-link-label">AI 創作者</span>
-            <span class="ig-badge-new">最新</span>
-          </div>
-          <div class="ig-toggle-btn" id="ai-creator-toggle" onclick="this.classList.toggle('active')"></div>
-        </div>
-        <span class="ig-switch-subtext">如果你的內容經常使用 AI，請為個人檔案加上此標籤。<a href="#">瞭解詳情</a></span>
-      </div>
-
-      <div class="ig-bottom-link-item">切換為專業帳號</div>
-      <div class="ig-bottom-link-item" style="margin-bottom: 40px;">個人資料設定</div>
     </div>
   </div>
 
@@ -2072,7 +1923,7 @@
     </div>
   </div>
 
-  <!-- 🪐 右下角 IG 膠囊氣泡 (純點擊展開，整併成員排行榜) -->
+  <!-- 🪐 右下角 IG 膠囊氣泡 -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
     <div class="ig-dock-popover" id="dock-popover-list">
       <div class="dock-popover-header">
@@ -2183,7 +2034,7 @@
     let allMembersList = [];
     let userProfilesMap = {};
     let viewingTargetEmail = "mine";
-    let pendingAvatarBase64 = null; // 暫存使用者挑選的新大頭貼
+    let pendingAvatarBase64 = null;
 
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
       try {
@@ -2274,7 +2125,6 @@
 
     let stores = [];
 
-    // ─── 讀取自訂 Profile ───
     async function loadUserProfile(userEmail) {
       try {
         const profileDoc = await getDoc(doc(db, "user_profiles", userEmail));
@@ -2383,7 +2233,6 @@
         title.innerText = `${getMemberDisplayName(currentView)} 的星圖`;
       }
 
-      // 重疊小頭像（有照片就顯示照片，無照片顯示英文字母）
       let stackHtml = '';
       allMembersList.slice(0, 3).forEach((m, idx) => {
         const photo = getMemberPhoto(m);
@@ -2443,7 +2292,6 @@
       container.innerHTML = listHtml;
     }
 
-    // ─── 📸 復刻截圖：打開編輯個人檔案介面 ───
     window.openProfileEditModal = function() {
       closeUserMenu();
       const myEmail = currentUser.email.toLowerCase();
@@ -2464,7 +2312,6 @@
       document.getElementById('profile-edit-modal').classList.remove('active');
     };
 
-    // ─── 🖼️ 選擇並智慧壓縮大頭貼圖片 (HTML5 Canvas Base64) ───
     window.handleAvatarFileSelect = function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -2474,7 +2321,7 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const maxDim = 200; // 壓縮為 200x200 極佳大頭貼尺寸
+          const maxDim = 200;
           let w = img.width, h = img.height;
           if (w > h) {
             if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
@@ -2486,7 +2333,6 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
 
-          // 壓縮為輕量 WebP/JPEG 格式，直接存入 Firestore
           pendingAvatarBase64 = canvas.toDataURL('image/webp', 0.82);
           updateAvatarElements(pendingAvatarBase64);
         };
@@ -2495,7 +2341,6 @@
       reader.readAsDataURL(file);
     };
 
-    // ─── 儲存更新個人檔案 ───
     window.saveUserProfile = async function() {
       if (!currentUser) return;
       const myEmail = currentUser.email.toLowerCase();
