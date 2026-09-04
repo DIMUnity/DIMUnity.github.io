@@ -8,7 +8,7 @@
   <!-- 瀏覽器分頁圖示 -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>" />
   
-<!-- 引入 PWA 設定 -->
+  <!-- 引入 PWA 設定 -->
   <link rel="manifest" href="./manifest.json" />
   
   <!-- 📱 iPhone 主畫面圖示 (加上 id 供 JS 自動切換) -->
@@ -368,7 +368,7 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 🗺️ Google Maps 風格左下角圖層群組與橫向展開面板 ─── */
+    /* ─── 🗺️ Google Maps 風格左下角圖層群組 ─── */
     .gmaps-layer-dock {
       position: absolute;
       display: flex;
@@ -392,9 +392,7 @@
       transition: transform 0.15s, border-color 0.2s;
       pointer-events: auto;
     }
-    #gmaps-layer-box:active {
-      transform: scale(0.95);
-    }
+    #gmaps-layer-box:active { transform: scale(0.95); }
 
     #mini-map {
       width: 100%;
@@ -402,9 +400,7 @@
       pointer-events: none;
       z-index: 1;
     }
-    #mini-map .leaflet-control-attribution {
-      display: none !important;
-    }
+    #mini-map .leaflet-control-attribution { display: none !important; }
 
     .gmaps-layer-label {
       position: absolute;
@@ -473,9 +469,7 @@
       font-size: 22px;
       transition: border-color 0.2s, transform 0.15s;
     }
-    .layer-thumb-item:active .layer-thumb-box {
-      transform: scale(0.92);
-    }
+    .layer-thumb-item:active .layer-thumb-box { transform: scale(0.92); }
     .layer-thumb-item.active .layer-thumb-box {
       border-color: var(--ig-blue);
       box-shadow: 0 0 12px rgba(0, 149, 246, 0.6);
@@ -657,19 +651,13 @@
       scrollbar-width: thin;
       scrollbar-color: #3f3f46 transparent;
     }
-    .list-container::-webkit-scrollbar {
-      width: 6px;
-    }
-    .list-container::-webkit-scrollbar-track {
-      background: transparent;
-    }
+    .list-container::-webkit-scrollbar { width: 6px; }
+    .list-container::-webkit-scrollbar-track { background: transparent; }
     .list-container::-webkit-scrollbar-thumb {
       background: #3f3f46;
       border-radius: 999px;
     }
-    .list-container::-webkit-scrollbar-thumb:hover {
-      background: #52525b;
-    }
+    .list-container::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
     .store-card {
       background: var(--ig-card);
@@ -843,9 +831,7 @@
       flex-direction: column;
       gap: 12px;
     }
-    #gmaps-detail-sheet.active {
-      transform: translateY(0);
-    }
+    #gmaps-detail-sheet.active { transform: translateY(0); }
 
     .detail-sheet-pill {
       width: 40px;
@@ -918,9 +904,7 @@
       padding-top: 4px;
       scrollbar-width: none;
     }
-    .detail-actions-row::-webkit-scrollbar {
-      display: none;
-    }
+    .detail-actions-row::-webkit-scrollbar { display: none; }
 
     .btn-gmaps-action {
       flex: 1;
@@ -1053,12 +1037,8 @@
       gap: 8px;
       transition: background 0.15s;
     }
-    .ig-user-sheet-btn:last-child {
-      border-bottom: none;
-    }
-    .ig-user-sheet-btn:active {
-      background: rgba(255, 255, 255, 0.08);
-    }
+    .ig-user-sheet-btn:last-child { border-bottom: none; }
+    .ig-user-sheet-btn:active { background: rgba(255, 255, 255, 0.08); }
     .ig-user-sheet-btn.danger {
       color: var(--ig-heart);
       font-weight: 700;
@@ -1100,7 +1080,7 @@
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
     .btn-secondary { background: #27272a; color: #fff; padding: 6px 12px; border: none; border-radius: 8px; font-size: 12px; }
-    .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; }
+    .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
     /* ═════════════════════════════════════════════
        💻 電腦端專屬佈局 (> 768px)
@@ -1262,6 +1242,10 @@
         </div>
       </div>
       <div class="ig-user-sheet-actions">
+        <!-- 🛡️ 主管理員專屬按鈕：授權成員名單維護 -->
+        <button class="ig-user-sheet-btn" id="btn-open-whitelist" style="display:none;" onclick="openWhitelistModal()">
+          🛡️ 授權成員管理
+        </button>
         <button class="ig-user-sheet-btn danger" onclick="confirmLogout()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -1271,6 +1255,31 @@
           登出 Google 帳號
         </button>
         <button class="ig-user-sheet-btn" onclick="closeUserMenu()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🛡️ 授權成員名單管理彈窗 (新增可進入帳號) -->
+  <div class="modal-overlay" id="whitelist-modal" onclick="closeWhitelistModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div style="font-size: 16px; font-weight: 800; color: #fff; display:flex; justify-content:space-between; align-items:center;">
+        <span>🛡️ 授權成員名單</span>
+        <button class="detail-close-btn" onclick="closeWhitelistModal()">✕</button>
+      </div>
+
+      <div style="font-size: 11px; color: var(--ig-text-sub);">
+        新增或移除可登入訪問此地圖的 Google 帳號 Email。
+      </div>
+
+      <!-- 新增 Email 欄位 -->
+      <div style="display: flex; gap: 8px; margin-top: 4px;">
+        <input type="email" id="new-whitelist-email" class="form-control" placeholder="輸入好友的 Gmail" style="flex:1;" />
+        <button class="btn-primary" onclick="addWhitelistMember()">新增</button>
+      </div>
+
+      <!-- 成員列表滾動容器 -->
+      <div id="whitelist-members-box" style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+        <!-- JS 動態填入 -->
       </div>
     </div>
   </div>
@@ -1557,6 +1566,9 @@
       updateDoc, 
       deleteDoc, 
       doc, 
+      setDoc,
+      getDoc,
+      getDocs,
       writeBatch, 
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -1569,11 +1581,9 @@
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     // ──────────────────────────────────────────
-    // 🛡️ 授權白名單
+    // 🛡️ 系統主管理員 Email (擁有最高權限且不可被移除)
     // ──────────────────────────────────────────
-    const ALLOWED_EMAILS = [
-      "tp6u4jo6@gmail.com",
-    ];
+    const SUPER_ADMIN_EMAIL = "tp6u4jo6@gmail.com";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCI9IfeQEa37kdx5ZSqtFvpsm9z3oa9n-Y",
@@ -1607,8 +1617,26 @@
           const avatarSyncEls = document.querySelectorAll('.user-avatar-sync');
 
           if (user) {
-            if (!ALLOWED_EMAILS.includes(user.email)) {
-              alert(`⛔ 存取被拒絕！\n\n帳號【${user.email}】不在授權白名單中。`);
+            const userEmail = (user.email || "").toLowerCase().trim();
+            let isAuthorized = false;
+
+            // 1. 檢查是否為主管理員
+            if (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) {
+              isAuthorized = true;
+            } else {
+              // 2. 查詢 Firestore 中的 whitelist_users 授權白名單
+              try {
+                const memberDoc = await getDoc(doc(db, "whitelist_users", userEmail));
+                if (memberDoc.exists()) {
+                  isAuthorized = true;
+                }
+              } catch (err) {
+                console.error("讀取白名單失敗:", err);
+              }
+            }
+
+            if (!isAuthorized) {
+              alert(`⛔ 存取被拒絕！\n\n帳號【${user.email}】尚未取得訪問授權。\n請聯繫管理員為您開啟權限。`);
               currentUser = null;
               await signOut(auth);
               lockScreen.style.display = 'flex';
@@ -1617,6 +1645,12 @@
 
             currentUser = user;
             lockScreen.style.display = 'none';
+
+            // 若登入者是主管理員，顯示成員名單管理按鈕
+            const adminBtn = document.getElementById('btn-open-whitelist');
+            if (adminBtn) {
+              adminBtn.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
+            }
 
             avatarSyncEls.forEach(el => {
               if (user.photoURL) {
@@ -1759,7 +1793,6 @@
       return '🌱 蔬食初探者';
     }
 
-    /* ─── 取得分類對應圖示 ─── */
     function getCategoryIcon(category) {
       if (!category) return '🌱';
       if (category.includes('蛋奶素')) return '🍳';
@@ -1770,7 +1803,6 @@
       return '🌱';
     }
 
-    /* ─── 🎯 視圖精確居中計算 ─── */
     window.flyToWithOffset = function(lat, lng, zoom = 16.5) {
       if (window.innerWidth <= 768) {
         const topBarHeight = 135;
@@ -1788,7 +1820,6 @@
       }
     };
 
-    /* ─── 📍 Google Maps 風格底部店家卡片控制 ─── */
     let selectedStoreId = null;
 
     window.openDetailSheet = function(id) {
@@ -1838,7 +1869,7 @@
       selectedStoreId = null;
     };
 
-    /* ─── 📱 手機端跟手抽屜引擎 ─── */
+    // ─── 📱 手機端抽屜控制 ───
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
     let sheetState = 'collapsed';
@@ -1904,7 +1935,7 @@
       }
     });
 
-    /* ─── 🔍 搜尋自動補全提示 ─── */
+    // ─── 🔍 搜尋自動補全 ───
     window.handleSearchSync = function(val) {
       const kw = val.trim().toLowerCase();
       
@@ -1961,14 +1992,13 @@
     window.selectStoreFromSearch = function(id) {
       const store = stores.find(s => s.id === id);
       if (!store) return;
-    
+      
       document.querySelectorAll('.search-input-field').forEach(input => input.value = store.name);
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       document.querySelectorAll('.search-input-field').forEach(input => input.blur());
-    
+      
       openDetailSheet(id);
-    
-      // 僅在電腦版 (> 768px) 同步高亮與滾動側邊欄
+      
       if (window.innerWidth > 768) {
         setTimeout(() => {
           const card = document.querySelector(`.store-card[data-id="${id}"]`);
@@ -1981,7 +2011,7 @@
       }
     };
 
-    /* ─── 👤 帳號選單控制 ─── */
+    // ─── 👤 帳號選單控制 ───
     window.openUserMenu = function() {
       document.getElementById('user-menu-modal').classList.add('active');
     };
@@ -2006,7 +2036,86 @@
       }
     };
 
-    /* ─── 標籤篩選 (點擊不自動拉起抽屜) ─── */
+    // ──────────────────────────────────────────
+    // 🛡️ 授權成員名單維護邏輯 (主管理員專用)
+    // ──────────────────────────────────────────
+    window.openWhitelistModal = async function() {
+      closeUserMenu();
+      document.getElementById('whitelist-modal').classList.add('active');
+      await renderWhitelistMembers();
+    };
+
+    window.closeWhitelistModal = function() {
+      document.getElementById('whitelist-modal').classList.remove('active');
+    };
+
+    async function renderWhitelistMembers() {
+      const box = document.getElementById('whitelist-members-box');
+      box.innerHTML = '<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">名單讀取中...</div>';
+
+      try {
+        const snap = await getDocs(collection(db, "whitelist_users"));
+        let html = `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#18181b; padding:8px 12px; border-radius:10px; font-size:12.5px; border:1px solid #333;">
+            <span>👑 ${SUPER_ADMIN_EMAIL}</span>
+            <span style="color:#a1a1aa; font-size:10px; background:#000; padding:2px 6px; border-radius:6px;">系統擁有者</span>
+          </div>
+        `;
+
+        if (snap.empty) {
+          html += '<div style="color: #71717a; font-size: 11.5px; text-align: center; padding: 12px;">尚未新增外部授權帳號</div>';
+        } else {
+          snap.forEach(d => {
+            const email = d.id;
+            html += `
+              <div style="display:flex; justify-content:space-between; align-items:center; background:#18181b; padding:8px 12px; border-radius:10px; font-size:12.5px; border:1px solid #27272a;">
+                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:210px;">🌱 ${email}</span>
+                <button onclick="removeWhitelistMember('${email}')" style="background:transparent; border:none; color:#ff453a; cursor:pointer; font-weight:700; font-size:12px;">移除</button>
+              </div>
+            `;
+          });
+        }
+
+        box.innerHTML = html;
+      } catch (e) {
+        box.innerHTML = '<div style="color: #ff453a; font-size: 12px; text-align: center; padding: 10px;">讀取名單失敗，請確認 Firestore 權限規則設定。</div>';
+      }
+    }
+
+    window.addWhitelistMember = async function() {
+      const input = document.getElementById('new-whitelist-email');
+      const email = input.value.trim().toLowerCase();
+      
+      if (!email || !email.includes('@')) {
+        return alert('請輸入正確的 Email 地址！');
+      }
+      if (email === SUPER_ADMIN_EMAIL.toLowerCase()) {
+        return alert('該帳號已經是主管理員！');
+      }
+
+      try {
+        await setDoc(doc(db, "whitelist_users", email), {
+          addedAt: serverTimestamp ? serverTimestamp() : Date.now(),
+          addedBy: currentUser.email
+        });
+        input.value = '';
+        await renderWhitelistMembers();
+      } catch (e) {
+        alert(`新增授權成員失敗：${e.message}`);
+      }
+    };
+
+    window.removeWhitelistMember = async function(email) {
+      if (!confirm(`確定要取消【${email}】的訪問授權嗎？`)) return;
+      try {
+        await deleteDoc(doc(db, "whitelist_users", email));
+        await renderWhitelistMembers();
+      } catch (e) {
+        alert(`移除失敗：${e.message}`);
+      }
+    };
+
+    // ─── 標籤與狀態篩選 ───
     let currentCategory = 'all';
     let statusFilter = 'all';
 
@@ -2048,16 +2157,14 @@
     function getFilteredStores() {
       return stores.filter(s => {
         const matchCategory = (currentCategory === 'all') || (s.category && s.category.includes(currentCategory));
-        
         let matchStatus = true;
         if (statusFilter === 'visited') matchStatus = s.visited;
         if (statusFilter === 'unvisited') matchStatus = !s.visited;
-
         return matchCategory && matchStatus;
       });
     }
 
-    /* ─── 經緯度解析與快速新增 ─── */
+    // ─── 逆地理編碼與新增店家 ───
     async function reverseGeocode(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
@@ -2139,14 +2246,13 @@
       }
     };
 
-    /* ─── 🪐 星軌連線（聚落星系網） ─── */
+    // ─── 🪐 星軌連線 ───
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       const visited = filteredStores.filter(s => s.visited);
       if (visited.length < 2) return;
 
       const zoom = map.getZoom();
-      
       let maxDist = 1200;
       if (zoom >= 16) maxDist = 2000;
       else if (zoom >= 14) maxDist = 1400;
@@ -2180,7 +2286,7 @@
       });
     }
 
-    /* ─── 📍 地標同步篩選 ─── */
+    // ─── 📍 地標 Marker ───
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
