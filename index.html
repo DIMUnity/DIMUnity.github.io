@@ -13,6 +13,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="蔬食星圖" />
 
+  <!-- 引入 IG 經典草寫字體 (Grand Hotel) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&display=swap" rel="stylesheet">
+
   <script>
     function updateAppIcon() {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -39,6 +44,7 @@
       --ig-text-main: #f5f5f5;
       --ig-text-sub: #a8a8a8;
       --ig-blue: #0095f6;
+      --ig-blue-hover: #1877f2;
       --ig-heart: #ff3040;
       --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
       --ig-gradient-glow: rgba(220, 39, 67, 0.4);
@@ -64,6 +70,9 @@
       position: relative;
     }
 
+    /* ═════════════════════════════════════════════
+       📸 Instagram 官方風格全螢幕登入畫面
+       ═════════════════════════════════════════════ */
     #auth-lock-screen {
       position: fixed;
       inset: 0;
@@ -72,75 +81,208 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
+      justify-content: space-between;
+      padding: 32px 16px 20px;
+      overflow-y: auto;
     }
 
-    .lock-card {
-      background: var(--ig-surface);
-      border: 1px solid var(--ig-border);
-      padding: 36px 24px;
-      border-radius: 20px;
-      max-width: 350px;
-      width: 100%;
+    .ig-auth-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+      width: 100%;
+      max-width: 350px;
+      margin: auto 0;
     }
 
-    .lock-logo-ring {
-      width: 72px;
-      height: 72px;
+    .ig-auth-main-card {
+      width: 100%;
+      background: #000000;
+      border: 1px solid #262626;
+      border-radius: 1px;
+      padding: 36px 36px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* IG 經典草寫 Logo */
+    .ig-script-logo {
+      font-family: 'Grand Hotel', cursive, -apple-system, sans-serif;
+      font-size: 42px;
+      font-weight: 400;
+      color: #ffffff;
+      margin-bottom: 24px;
+      user-select: none;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    /* 頭像環與徽章 */
+    .ig-auth-avatar-ring {
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: var(--ig-gradient);
+      padding: 2.5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 3px;
-      box-shadow: 0 0 24px var(--ig-gradient-glow);
+      margin-bottom: 24px;
+      box-shadow: 0 0 16px var(--ig-gradient-glow);
     }
-
-    .lock-logo-inner {
+    .ig-auth-avatar-inner {
       width: 100%;
       height: 100%;
       background: #000;
+      border: 2px solid #000;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
+      font-size: 34px;
     }
 
-    .lock-title {
-      font-size: 20px;
-      font-weight: 800;
-      background: var(--ig-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .btn-google-login {
-      margin-top: 10px;
+    /* 仿 IG 表單輸入框 (偽輸入框呈現授權提示) */
+    .ig-auth-form {
       width: 100%;
-      padding: 12px 18px;
-      background: #ffffff;
-      color: #000000;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .ig-input-box {
+      width: 100%;
+      background: #121212;
+      border: 1px solid #262626;
+      border-radius: 4px;
+      padding: 10px 10px;
+      font-size: 12px;
+      color: #a8a8a8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .ig-input-box span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 經典藍色登入按鈕 */
+    .ig-btn-login {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px 16px;
+      background: var(--ig-blue);
+      color: #ffffff;
       font-size: 14px;
       font-weight: 700;
       border: none;
-      border-radius: 12px;
+      border-radius: 8px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      transition: background 0.15s;
+    }
+    .ig-btn-login:hover { background: var(--ig-blue-hover); }
+    .ig-btn-login:active { opacity: 0.85; }
+
+    /* 「或」分隔線 */
+    .ig-auth-divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin: 18px 0;
+    }
+    .ig-divider-line {
+      flex: 1;
+      height: 1px;
+      background: #262626;
+    }
+    .ig-divider-text {
+      color: #71717a;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 0 16px;
+      user-select: none;
+    }
+
+    /* Google 捷徑登入列 */
+    .ig-google-direct-btn {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px;
       transition: opacity 0.2s;
     }
-    .btn-google-login:active { opacity: 0.85; }
+    .ig-google-direct-btn:hover { opacity: 0.85; }
 
+    /* 下方次要卡片 */
+    .ig-auth-sub-card {
+      width: 100%;
+      background: #000000;
+      border: 1px solid #262626;
+      border-radius: 1px;
+      padding: 18px 24px;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 13px;
+      color: #f5f5f5;
+    }
+    .ig-auth-sub-card a {
+      color: var(--ig-blue);
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* 底部 Meta 頁尾 */
+    .ig-auth-footer {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+      padding: 10px 0;
+    }
+    .ig-footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 16px;
+      font-size: 11.5px;
+      color: #71717a;
+    }
+    .ig-footer-links span { cursor: pointer; }
+    .ig-footer-meta {
+      font-size: 12px;
+      color: #71717a;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    @media (max-width: 450px) {
+      .ig-auth-main-card {
+        border: none;
+        padding: 24px 12px;
+      }
+      .ig-auth-sub-card {
+        border: none;
+      }
+    }
+
+    /* ─── 搜尋輸入框組件 ─── */
     .search-pill-box {
       background: rgba(28, 28, 30, 0.95);
       border: 1px solid var(--ig-border);
@@ -917,12 +1059,12 @@
       border: 1px solid var(--ig-border);
     }
 
-    /* ─── 🪐 右下角 IG 膠囊氣泡 (層級調整 + 支援 Hover 自然彈出) ─── */
+    /* ─── 🪐 右下角 IG 膠囊氣泡 (層級 1800，抽屜展開時自然遮蔽) ─── */
     .ig-dock-capsule-container {
       position: fixed;
       right: 24px;
       bottom: 24px;
-      z-index: 1800; /* 低於抽屜的 2000，確保抽屜展開時自然被蓋住 */
+      z-index: 1800;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
@@ -1019,7 +1161,7 @@
       100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-    /* 滑鼠懸停膠囊或列表時直接跳出，不用手動點擊 */
+    /* 懸停在膠囊或清單上時自然跳出 */
     .ig-dock-capsule-container:hover .ig-dock-popover,
     .ig-dock-capsule-container.active .ig-dock-popover {
       display: flex;
@@ -1246,7 +1388,7 @@
       font-weight: 700;
     }
 
-    /* ─── 📸 編輯個人檔案：同款質感 Card 視窗 ─── */
+    /* ─── 📸 編輯個人檔案：同款精緻 Card 彈窗 ─── */
     .ig-edit-card {
       background: #18181b;
       border: 1px solid var(--ig-border);
@@ -1462,7 +1604,7 @@
         bottom: 74px;
       }
 
-      /* 當底部抽屜展開（拉出來）時，膠囊徹底隱藏不阻擋檢視 */
+      /* 抽屜半開或全開時，膠囊徹底透明隱藏，完全不擋畫面 */
       #sidebar.sheet-half ~ .ig-dock-capsule-container,
       #sidebar.sheet-full ~ .ig-dock-capsule-container {
         opacity: 0 !important;
@@ -1504,23 +1646,73 @@
 </head>
 <body>
 
-  <!-- 全螢幕登入鎖定畫面 -->
+  <!-- 📸 Instagram 官方風格全螢幕登入畫面 -->
   <div id="auth-lock-screen">
-    <div class="lock-card">
-      <div class="lock-logo-ring"><div class="lock-logo-inner">🌱</div></div>
-      <div>
-        <h2 class="lock-title">蔬食探索星圖</h2>
-        <p style="font-size: 13px; color: var(--ig-text-sub); margin-top: 6px;">🔒 本星圖僅限受邀授權帳號訪問</p>
+    <div class="ig-auth-wrapper">
+      
+      <!-- 主登入卡片 -->
+      <div class="ig-auth-main-card">
+        <div class="ig-script-logo">VeganStar</div>
+
+        <div class="ig-auth-avatar-ring">
+          <div class="ig-auth-avatar-inner">🌱</div>
+        </div>
+
+        <div class="ig-auth-form">
+          <div class="ig-input-box">
+            <span>🔒 受邀成員訪問認證</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div class="ig-input-box">
+            <span>🛡️ Firebase 授權星圖白名單</span>
+            <span style="font-size:10px; color:#52525b;">已保護</span>
+          </div>
+
+          <button class="ig-btn-login" onclick="handleAuth()">
+            使用授權帳號登入
+          </button>
+        </div>
+
+        <div class="ig-auth-divider">
+          <div class="ig-divider-line"></div>
+          <span class="ig-divider-text">或</span>
+          <div class="ig-divider-line"></div>
+        </div>
+
+        <button class="ig-google-direct-btn" onclick="handleAuth()">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          使用 Google 授權登入
+        </button>
       </div>
-      <button class="btn-google-login" onclick="handleAuth()">
-        <svg width="18" height="18" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        使用 Google 授權帳號登入
-      </button>
+
+      <!-- 下方次要卡片 -->
+      <div class="ig-auth-sub-card">
+        尚未獲得訪問權限？<a href="mailto:tp6u4jo6@gmail.com">聯繫管理員</a>
+      </div>
+
+    </div>
+
+    <!-- 底部 Meta 標籤列 -->
+    <div class="ig-auth-footer">
+      <div class="ig-footer-links">
+        <span>關於</span>
+        <span>說明</span>
+        <span>API</span>
+        <span>隱私</span>
+        <span>使用條款</span>
+        <span>地點</span>
+        <span>Instagram Lite</span>
+        <span>Threads</span>
+      </div>
+      <div class="ig-footer-meta">
+        <span>繁體中文 (台灣)</span>
+        <span>© 2026 VeganStar from Meta</span>
+      </div>
     </div>
   </div>
 
@@ -1535,7 +1727,7 @@
           <div class="ig-user-sheet-name" id="menu-user-name">OneDimMan</div>
           <div class="ig-user-sheet-bio" id="menu-user-bio">尚未填寫個人介紹</div>
           <div class="ig-user-sheet-email" id="menu-user-email">user@gmail.com</div>
-          <div class="ig-user-sheet-badge">🛡️ 授權探索成員</div>
+          <div class="ig-user-sheet-badge" id="menu-user-badge">🛡️ 授權探索成員</div>
         </div>
       </div>
       <div class="ig-user-sheet-actions">
@@ -1792,7 +1984,7 @@
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
-  <!-- 🪐 右下角 IG 膠囊氣泡 (置於 sidebar 之後，受展開規則控制遮蔽) -->
+  <!-- 🪐 右下角 IG 膠囊氣泡 (移入時跳出) -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
     <div class="ig-dock-popover" id="dock-popover-list">
       <div class="dock-popover-header">
