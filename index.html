@@ -292,40 +292,6 @@
       font-weight: 700;
     }
 
-    /* ─── 觀看星圖視角選擇器 ─── */
-    .view-target-selector-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #18181b;
-      border: 1px solid var(--ig-border);
-      border-radius: 10px;
-      padding: 4px 8px;
-      gap: 6px;
-    }
-    .view-target-label {
-      font-size: 11px;
-      color: var(--ig-text-sub);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .view-target-select {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 11.5px;
-      font-weight: 700;
-      outline: none;
-      cursor: pointer;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .view-target-select option {
-      background: #18181b;
-      color: #fff;
-    }
-
     .ig-profile-card {
       background: var(--ig-surface);
       border: 1px solid var(--ig-border);
@@ -941,6 +907,180 @@
       border: 1px solid var(--ig-border);
     }
 
+    /* ─── 🪐 右下角 IG 膠囊氣泡懸浮視角切換器 ─── */
+    .ig-dock-capsule-container {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 2400;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .ig-dock-capsule {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: #1c1c1e;
+      border: 1px solid #333336;
+      border-radius: 999px;
+      padding: 8px 16px 8px 14px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .ig-dock-capsule:hover {
+      background: #26262a;
+      border-color: #555558;
+      transform: translateY(-2px);
+    }
+
+    .dock-left-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dock-paper-plane-icon {
+      width: 18px;
+      height: 18px;
+      stroke: #ffffff;
+      fill: none;
+      stroke-width: 2.2;
+    }
+    .dock-capsule-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    .dock-avatar-stack {
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+    }
+    .dock-stack-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #1c1c1e;
+      margin-left: -7px;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #fff;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      flex-shrink: 0;
+    }
+    .dock-stack-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ig-dock-popover {
+      background: rgba(24, 24, 27, 0.97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid #363636;
+      border-radius: 18px;
+      padding: 8px;
+      margin-bottom: 12px;
+      width: 240px;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px) scale(0.96);
+      transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+      pointer-events: none;
+    }
+
+    .ig-dock-capsule-container:hover .ig-dock-popover,
+    .ig-dock-capsule-container.active .ig-dock-popover {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .dock-friend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .dock-friend-item:hover,
+    .dock-friend-item.active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .dock-friend-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ig-gradient);
+      padding: 1.5px;
+      flex-shrink: 0;
+    }
+    .dock-friend-avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      overflow: hidden;
+    }
+    .dock-friend-avatar-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .dock-friend-info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+    }
+    .dock-friend-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dock-friend-sub {
+      font-size: 10px;
+      color: var(--ig-text-sub);
+    }
+    .dock-friend-active-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ig-blue);
+      box-shadow: 0 0 6px var(--ig-blue);
+      display: none;
+    }
+    .dock-friend-item.active .dock-friend-active-dot {
+      display: block;
+    }
+
     .ig-user-sheet {
       background: var(--ig-surface);
       border: 1px solid var(--ig-border);
@@ -1164,11 +1304,6 @@
         pointer-events: auto;
       }
 
-      #mobile-floating-top .view-target-selector-box {
-        margin: 0 14px;
-        pointer-events: auto;
-      }
-
       #mobile-floating-top .ig-stories-container {
         width: 100vw;
         padding: 4px 14px 6px;
@@ -1179,6 +1314,11 @@
       .gmaps-layer-dock {
         left: 14px;
         bottom: 80px;
+      }
+
+      .ig-dock-capsule-container {
+        right: 14px;
+        bottom: 74px;
       }
 
       #sidebar {
@@ -1249,7 +1389,6 @@
         </div>
       </div>
       <div class="ig-user-sheet-actions">
-        <!-- 所有成員皆可點擊查看好友解鎖狀況與管理 -->
         <button class="ig-user-sheet-btn" id="btn-open-whitelist" onclick="openWhitelistModal()">
           👥 成員解鎖排行榜與管理
         </button>
@@ -1275,10 +1414,9 @@
       </div>
 
       <div style="font-size: 11.5px; color: var(--ig-text-sub);">
-        點擊成員可直接切換視角，查看他點亮的星圖軌跡！
+        點擊成員即可切換視角，查看他點亮的星圖軌跡！
       </div>
 
-      <!-- 新增 Email 欄位（主管理員可用） -->
       <div id="admin-add-section" style="display: none; flex-direction:column; gap:6px; margin-top: 4px;">
         <div style="display:flex; gap:8px;">
           <input type="email" id="new-whitelist-email" class="form-control" placeholder="輸入好友的 Gmail 授權訪問" style="flex:1;" />
@@ -1286,13 +1424,12 @@
         </div>
       </div>
 
-      <!-- 成員進度榜容器 -->
       <div id="whitelist-members-box" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
       </div>
     </div>
   </div>
 
-  <!-- 📱 手機端懸浮頂部搜尋與視角切換 -->
+  <!-- 📱 手機端懸浮頂部搜尋與限動 -->
   <div id="mobile-floating-top">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
@@ -1301,14 +1438,6 @@
         <div class="user-avatar-img user-avatar-sync">🌱</div>
       </button>
       <div class="search-suggestions-dropdown" id="search-suggestions-mobile"></div>
-    </div>
-
-    <!-- 📱 手機端視角選擇列 -->
-    <div class="view-target-selector-box">
-      <span class="view-target-label">🔭 觀看星圖：</span>
-      <select class="view-target-select view-target-sync" onchange="changeViewingTarget(this.value)">
-        <option value="mine">我的星圖 (預設)</option>
-      </select>
     </div>
 
     <div class="ig-stories-container">
@@ -1369,14 +1498,6 @@
           <div class="user-avatar-img user-avatar-sync">🌱</div>
         </button>
         <div class="search-suggestions-dropdown" id="search-suggestions-desktop"></div>
-      </div>
-
-      <!-- 💻 電腦端視角切換器 -->
-      <div class="view-target-selector-box">
-        <span class="view-target-label">🔭 觀看星圖視角：</span>
-        <select class="view-target-select view-target-sync" onchange="changeViewingTarget(this.value)">
-          <option value="mine">我的星圖 (預設)</option>
-        </select>
       </div>
 
       <div class="ig-stories-container">
@@ -1524,6 +1645,23 @@
     </div>
   </div>
 
+  <!-- 🪐 右下角 IG 膠囊氣泡視角切換器 -->
+  <div class="ig-dock-capsule-container" id="ig-dock-container">
+    <div class="ig-dock-popover" id="dock-popover-list"></div>
+    <div class="ig-dock-capsule" onclick="toggleCapsulePopup()">
+      <div class="dock-left-info">
+        <svg class="dock-paper-plane-icon" viewBox="0 0 24 24">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+        <span class="dock-capsule-title" id="dock-current-view-title">我的星圖</span>
+      </div>
+      <div class="dock-avatar-stack" id="dock-avatar-stack">
+        <div class="dock-stack-avatar">🌱</div>
+      </div>
+    </div>
+  </div>
+
   <div id="map"></div>
 
   <div class="modal-overlay" id="modal">
@@ -1608,7 +1746,7 @@
     let sortableInstance = null;
 
     let allMembersList = [];
-    let viewingTargetEmail = "mine"; // "mine" 代表當前登入者
+    let viewingTargetEmail = "mine";
 
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
       try {
@@ -1651,7 +1789,6 @@
             currentUser = user;
             lockScreen.style.display = 'none';
 
-            // 若為主管理員，顯示新增成員欄位
             const adminAddSection = document.getElementById('admin-add-section');
             if (adminAddSection) {
               adminAddSection.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
@@ -1668,14 +1805,12 @@
             document.getElementById('menu-user-name').innerText = user.displayName || '蔬食探索者';
             document.getElementById('menu-user-email').innerText = user.email;
 
-            // 載入所有成員清單建立視角選項
             await loadAllMembers();
 
             if (!unsubscribeFirestore) {
               unsubscribeFirestore = onSnapshot(storesCollection, (snapshot) => {
                 stores = snapshot.docs.map(d => {
                   const data = d.data();
-                  // 相容處理：若舊資料是 boolean visited，轉成 visitedBy 陣列
                   let visitedBy = Array.isArray(data.visitedBy) ? data.visitedBy : [];
                   if (data.visited === true && !visitedBy.includes(SUPER_ADMIN_EMAIL.toLowerCase())) {
                     visitedBy.push(SUPER_ADMIN_EMAIL.toLowerCase());
@@ -1713,39 +1848,23 @@
 
     let stores = [];
 
-    // ─── 讀取所有成員清單並更新視角選單 ───
     async function loadAllMembers() {
       try {
         const snap = await getDocs(collection(db, "whitelist_users"));
         const set = new Set([SUPER_ADMIN_EMAIL.toLowerCase()]);
         snap.forEach(d => set.add(d.id.toLowerCase()));
         allMembersList = Array.from(set);
-
-        // 更新桌面與手機視角下拉選單
-        const selects = document.querySelectorAll('.view-target-sync');
-        selects.forEach(select => {
-          const currentVal = select.value;
-          let optionsHtml = `<option value="mine">⭐️ 我的星圖 (${currentUser.email.split('@')[0]})</option>`;
-          allMembersList.forEach(m => {
-            if (m !== currentUser.email.toLowerCase()) {
-              optionsHtml += `<option value="${m}">🔭 觀看 ${m.split('@')[0]} 的星圖</option>`;
-            }
-          });
-          select.innerHTML = optionsHtml;
-          select.value = currentVal || "mine";
-        });
+        updateDockCapsuleUI();
       } catch (e) {
         console.error("載入成員清單失敗", e);
       }
     }
 
-    // 取得當前視角所屬的 Email
     function getActiveViewEmail() {
       if (!currentUser) return "";
       return viewingTargetEmail === "mine" ? currentUser.email.toLowerCase() : viewingTargetEmail.toLowerCase();
     }
 
-    // 判定某店家在當前視角中是否算「已解鎖」
     function isStoreUnlockedForCurrentView(store) {
       const email = getActiveViewEmail();
       return Array.isArray(store.visitedBy) && store.visitedBy.includes(email);
@@ -1753,11 +1872,78 @@
 
     window.changeViewingTarget = function(val) {
       viewingTargetEmail = val;
-      document.querySelectorAll('.view-target-sync').forEach(s => s.value = val);
       refreshAll();
     };
 
-    // ─── 地圖與底圖設定 ───
+    window.toggleCapsulePopup = function() {
+      document.getElementById('ig-dock-container').classList.toggle('active');
+    };
+
+    window.selectViewTarget = function(targetEmail) {
+      changeViewingTarget(targetEmail);
+      document.getElementById('ig-dock-container')?.classList.remove('active');
+    };
+
+    function updateDockCapsuleUI() {
+      const popover = document.getElementById('dock-popover-list');
+      const stack = document.getElementById('dock-avatar-stack');
+      const title = document.getElementById('dock-current-view-title');
+      if (!popover || !stack || !currentUser) return;
+
+      const myEmail = currentUser.email.toLowerCase();
+      const currentView = getActiveViewEmail();
+
+      if (viewingTargetEmail === "mine" || currentView === myEmail) {
+        title.innerText = "我的星圖";
+      } else {
+        title.innerText = `${currentView.split('@')[0]} 的星圖`;
+      }
+
+      let stackHtml = '';
+      allMembersList.slice(0, 3).forEach((m, idx) => {
+        const initial = m[0].toUpperCase();
+        const colors = ['#f09433', '#dc2743', '#0095f6', '#10b981'];
+        const bg = colors[idx % colors.length];
+        stackHtml += `<div class="dock-stack-avatar" style="background: ${bg};">${initial}</div>`;
+      });
+      stack.innerHTML = stackHtml;
+
+      let listHtml = `
+        <div class="dock-friend-item ${(viewingTargetEmail === 'mine' || currentView === myEmail) ? 'active' : ''}" onclick="selectViewTarget('mine')">
+          <div class="dock-friend-avatar">
+            <div class="dock-friend-avatar-inner">🌱</div>
+          </div>
+          <div class="dock-friend-info">
+            <div class="dock-friend-name">我的星圖</div>
+            <div class="dock-friend-sub">${myEmail.split('@')[0]} (自己)</div>
+          </div>
+          <div class="dock-friend-active-dot"></div>
+        </div>
+      `;
+
+      allMembersList.forEach(email => {
+        if (email === myEmail) return;
+        const isTarget = (currentView === email);
+        const initial = email[0].toUpperCase();
+        const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(email)).length;
+
+        listHtml += `
+          <div class="dock-friend-item ${isTarget ? 'active' : ''}" onclick="selectViewTarget('${email}')">
+            <div class="dock-friend-avatar">
+              <div class="dock-friend-avatar-inner">${initial}</div>
+            </div>
+            <div class="dock-friend-info">
+              <div class="dock-friend-name">${email.split('@')[0]}</div>
+              <div class="dock-friend-sub">點亮 ${visitedCount} 間店家</div>
+            </div>
+            <div class="dock-friend-active-dot"></div>
+          </div>
+        `;
+      });
+
+      popover.innerHTML = listHtml;
+    }
+
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
     const layers = {
@@ -1902,7 +2088,6 @@
         statusBadge.className = 'detail-badge-pill';
       }
 
-      // 顯示有幾位成員打卡過
       const count = Array.isArray(store.visitedBy) ? store.visitedBy.length : 0;
       document.getElementById('sheet-store-whovisited').innerText = `👥 ${count}人打卡`;
 
@@ -1911,7 +2096,6 @@
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
       document.getElementById('sheet-btn-navigate').href = navUrl;
 
-      // 打卡按鈕只切換「當前登入者自己」的打卡狀態
       const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
       toggleBtn.innerText = isMyVisited ? '🤍 取消我的打卡' : '❤️ 點亮我的打卡';
       toggleBtn.onclick = () => {
@@ -1936,7 +2120,6 @@
       selectedStoreId = null;
     };
 
-    // ─── 📱 手機端抽屜控制 ───
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
     let sheetState = 'collapsed';
@@ -1996,13 +2179,13 @@
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       const picker = document.getElementById('layer-picker-horizontal');
       if (picker) picker.classList.remove('active');
+      document.getElementById('ig-dock-container')?.classList.remove('active');
       closeDetailSheet();
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
         setMobileSheetState('collapsed');
       }
     });
 
-    // ─── 搜尋框邏輯 ───
     window.handleSearchSync = function(val) {
       const kw = val.trim().toLowerCase();
       
@@ -2102,9 +2285,6 @@
       }
     };
 
-    // ──────────────────────────────────────────
-    // 👥 成員解鎖排行榜與管理
-    // ──────────────────────────────────────────
     window.openWhitelistModal = async function() {
       closeUserMenu();
       document.getElementById('whitelist-modal').classList.add('active');
@@ -2123,14 +2303,12 @@
         await loadAllMembers();
 
         const totalStores = stores.length;
-        // 計算每位成員的打卡次數
         const memberStats = allMembersList.map(email => {
           const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(email)).length;
           const pct = totalStores > 0 ? Math.round((visitedCount / totalStores) * 100) : 0;
           return { email, visitedCount, pct };
         });
 
-        // 依解鎖數量多到少排序
         memberStats.sort((a, b) => b.visitedCount - a.visitedCount);
 
         let html = '';
@@ -2204,7 +2382,6 @@
       }
     };
 
-    // ─── 標籤與狀態篩選 ───
     let currentCategory = 'all';
     let statusFilter = 'all';
 
@@ -2255,7 +2432,6 @@
       });
     }
 
-    // ─── 逆地理編碼與新增店家 ───
     async function reverseGeocode(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
@@ -2327,7 +2503,7 @@
           name: finalName.trim(),
           address: address || '',
           category: '蛋奶素',
-          visitedBy: [], // 預設無人打卡
+          visitedBy: [],
           lat,
           lng,
           order: stores.length,
@@ -2337,7 +2513,6 @@
       }
     };
 
-    // ─── 🪐 星軌連線 (以當前選定成員的解鎖紀錄連線) ───
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       const visited = filteredStores.filter(s => isStoreUnlockedForCurrentView(s));
@@ -2377,7 +2552,6 @@
       });
     }
 
-    // ─── 📍 地標 Marker ───
     function renderMarkers(filteredStores) {
       markersLayer.clearLayers();
       for (const id in markersRef) delete markersRef[id];
@@ -2435,7 +2609,6 @@
       listEl.innerHTML = '';
 
       const total = stores.length;
-      // 依當前視角統計打卡數量
       const visitedCount = stores.filter(s => isStoreUnlockedForCurrentView(s)).length;
       const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
 
@@ -2537,7 +2710,6 @@
       openDetailSheet(id);
     };
 
-    // ─── 個人獨立打卡切換 ───
     window.toggleVisited = async function(id) {
       if (!currentUser) return alert('請先登入！');
       const target = stores.find(s => s.id === id);
@@ -2673,6 +2845,7 @@
       renderConstellation(filtered);
       renderMarkers(filtered);
       updateSidebar(filtered);
+      updateDockCapsuleUI();
     }
 
     refreshAll();
