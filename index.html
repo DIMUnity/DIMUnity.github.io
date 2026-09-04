@@ -480,8 +480,9 @@
       overflow: hidden;
     }
 
+    /* ─── 📸 Instagram 風格精緻頂部 Header 與按鈕列 ─── */
     .sidebar-desktop-header {
-      padding: 14px 16px 10px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -498,25 +499,42 @@
       align-items: center;
       gap: 6px;
     }
-    .desktop-action-group {
+
+    /* IG 限動圓角膠囊操作列 */
+    .ig-action-group {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
-    .btn-icon {
-      background: var(--ig-surface);
-      border: 1px solid var(--ig-border);
-      color: var(--ig-text-main);
-      padding: 5px 8px;
-      border-radius: 8px;
-      font-size: 11px;
+    .ig-action-btn {
+      background: #18181b;
+      border: 1px solid #333336;
+      color: #f4f4f5;
+      padding: 6px 11px;
+      border-radius: 10px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 5px;
+      transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
-    .btn-icon:hover { background: var(--ig-card-hover); }
+    .ig-action-btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+    }
+    .ig-action-btn:hover {
+      background: #27272a;
+      border-color: #52525b;
+      color: #fff;
+    }
+    .ig-action-btn:active {
+      transform: scale(0.95);
+    }
 
     .sheet-header-touch-zone {
       width: 100%;
@@ -561,27 +579,14 @@
       font-weight: 600;
     }
 
+    /* 手機版抽屜內按鈕列 */
     .actions-bar {
       padding: 8px 14px;
       display: flex;
-      gap: 6px;
+      gap: 8px;
       border-bottom: 1px solid var(--ig-border);
       overflow-x: auto;
       flex-shrink: 0;
-    }
-    .btn-action-pill {
-      background: var(--ig-surface);
-      border: 1px solid var(--ig-border);
-      color: var(--ig-text-main);
-      padding: 5px 10px;
-      border-radius: 10px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
     }
 
     .quick-add-wrap {
@@ -907,7 +912,7 @@
       border: 1px solid var(--ig-border);
     }
 
-    /* ─── 🪐 右下角 IG 膠囊氣泡 (修復誤觸問題：純點擊觸發) ─── */
+    /* ─── 🪐 右下角 IG 膠囊氣泡 (純點擊展開，內建星圖排行) ─── */
     .ig-dock-capsule-container {
       position: fixed;
       right: 24px;
@@ -916,7 +921,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      pointer-events: none; /* 容器平時不阻擋點擊 */
+      pointer-events: none;
     }
 
     .ig-dock-capsule {
@@ -932,7 +937,7 @@
       cursor: pointer;
       user-select: none;
       transition: all 0.2s ease;
-      pointer-events: auto; /* 按鈕可被點擊 */
+      pointer-events: auto;
     }
     .ig-dock-capsule:hover {
       background: #26262a;
@@ -986,22 +991,21 @@
       object-fit: cover;
     }
 
-    /* 彈出朋友頭像卡片：僅在 active 時 display: flex，杜絕誤碰感應 */
     .ig-dock-popover {
       background: rgba(24, 24, 27, 0.98);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border: 1px solid #363636;
       border-radius: 18px;
-      padding: 8px;
+      padding: 10px;
       margin-bottom: 12px;
-      width: 250px;
-      max-height: 320px;
+      width: 270px;
+      max-height: 360px;
       overflow-y: auto;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.95);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
       display: none;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       pointer-events: auto;
       animation: igDockPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
     }
@@ -1012,6 +1016,17 @@
 
     .ig-dock-capsule-container.active .ig-dock-popover {
       display: flex;
+    }
+
+    .dock-popover-header {
+      padding: 4px 6px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--ig-text-sub);
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .dock-friend-item {
@@ -1028,12 +1043,13 @@
       background: rgba(255, 255, 255, 0.1);
     }
     .dock-friend-avatar {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background: var(--ig-gradient);
       padding: 1.5px;
       flex-shrink: 0;
+      position: relative;
     }
     .dock-friend-avatar-inner {
       width: 100%;
@@ -1051,6 +1067,12 @@
       height: 100%;
       object-fit: cover;
     }
+    .dock-rank-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -3px;
+      font-size: 10px;
+    }
     .dock-friend-info {
       display: flex;
       flex-direction: column;
@@ -1066,15 +1088,16 @@
       text-overflow: ellipsis;
     }
     .dock-friend-bio {
-      font-size: 10px;
+      font-size: 10.5px;
       color: #38bdf8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .dock-friend-sub {
-      font-size: 10px;
-      color: var(--ig-text-sub);
+    .dock-friend-stat {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--ig-heart);
     }
     .dock-friend-active-dot {
       width: 7px;
@@ -1088,16 +1111,17 @@
       display: block;
     }
 
+    /* ─── 👤 IG 官方質感個人選單 ─── */
     .ig-user-sheet {
-      background: var(--ig-surface);
+      background: #18181b;
       border: 1px solid var(--ig-border);
-      border-radius: 20px;
+      border-radius: 24px;
       width: 100%;
-      max-width: 320px;
+      max-width: 330px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.95);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
       animation: igSheetPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.2);
     }
     @keyframes igSheetPop {
@@ -1106,18 +1130,18 @@
     }
 
     .ig-user-sheet-header {
-      padding: 24px 20px 18px;
+      padding: 26px 20px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      border-bottom: 1px solid var(--ig-border);
+      border-bottom: 1px solid #27272a;
       text-align: center;
     }
 
     .ig-sheet-avatar-ring {
-      width: 68px;
-      height: 68px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
       background: var(--ig-gradient);
       padding: 2.5px;
@@ -1137,7 +1161,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      font-size: 26px;
+      font-size: 28px;
     }
     .ig-sheet-avatar-inner img {
       width: 100%;
@@ -1150,16 +1174,16 @@
     .ig-user-sheet-info {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       align-items: center;
     }
     .ig-user-sheet-name {
-      font-size: 15.5px;
+      font-size: 16px;
       font-weight: 800;
       color: #fff;
     }
     .ig-user-sheet-bio {
-      font-size: 11.5px;
+      font-size: 12px;
       color: #38bdf8;
       max-width: 250px;
       white-space: nowrap;
@@ -1177,7 +1201,7 @@
       background: rgba(0, 149, 246, 0.12);
       color: var(--ig-blue);
       font-weight: 700;
-      margin-top: 2px;
+      margin-top: 4px;
       border: 1px solid rgba(0, 149, 246, 0.25);
     }
 
@@ -1189,8 +1213,8 @@
     .ig-user-sheet-btn {
       background: transparent;
       border: none;
-      border-bottom: 1px solid var(--ig-border);
-      padding: 14px;
+      border-bottom: 1px solid #27272a;
+      padding: 15px 20px;
       font-size: 13.5px;
       font-weight: 600;
       color: #fff;
@@ -1201,8 +1225,15 @@
       gap: 8px;
       transition: background 0.15s;
     }
+    .ig-user-sheet-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+    }
     .ig-user-sheet-btn:last-child { border-bottom: none; }
-    .ig-user-sheet-btn:active { background: rgba(255, 255, 255, 0.08); }
+    .ig-user-sheet-btn:active { background: rgba(255, 255, 255, 0.06); }
     .ig-user-sheet-btn.danger {
       color: var(--ig-heart);
       font-weight: 700;
@@ -1390,7 +1421,7 @@
     </div>
   </div>
 
-  <!-- 👤 IG 風格帳號管理選單 -->
+  <!-- 👤 IG 風格帳號管理選單 (優化精簡版) -->
   <div class="modal-overlay" id="user-menu-modal" onclick="closeUserMenu()">
     <div class="ig-user-sheet" onclick="event.stopPropagation()">
       <div class="ig-user-sheet-header">
@@ -1405,19 +1436,21 @@
         </div>
       </div>
       <div class="ig-user-sheet-actions">
-        <!-- ✏️ 新增：編輯個人檔案 (改名字、新增介紹) -->
+        <!-- ✏️ 編輯個人檔案 -->
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
-          ✏️ 編輯個人檔案 (改名字/介紹)
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          編輯個人檔案 (改暱稱/介紹)
         </button>
-        <button class="ig-user-sheet-btn" id="btn-open-whitelist" onclick="openWhitelistModal()">
-          👥 成員解鎖排行榜與管理
+
+        <!-- 🛡️ 授權成員管理 (僅留管理增刪功能) -->
+        <button class="ig-user-sheet-btn" id="btn-open-whitelist" style="display:none;" onclick="openWhitelistModal()">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          授權成員管理名單
         </button>
+
+        <!-- 登出 -->
         <button class="ig-user-sheet-btn danger" onclick="confirmLogout()">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           登出 Google 帳號
         </button>
         <button class="ig-user-sheet-btn" onclick="closeUserMenu()">取消</button>
@@ -1425,7 +1458,7 @@
     </div>
   </div>
 
-  <!-- ✏️ 編輯個人檔案 Modal (改名字、自我介紹) -->
+  <!-- ✏️ 編輯個人檔案 Modal -->
   <div class="modal-overlay" id="profile-edit-modal" onclick="closeProfileEditModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div style="font-size: 16px; font-weight: 800; color: #fff; display:flex; justify-content:space-between; align-items:center;">
@@ -1450,23 +1483,21 @@
     </div>
   </div>
 
-  <!-- 👥 成員解鎖進度榜與白名單管理彈窗 -->
+  <!-- 🛡️ 授權成員名單維護彈窗 (純管理功能) -->
   <div class="modal-overlay" id="whitelist-modal" onclick="closeWhitelistModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div style="font-size: 16px; font-weight: 800; color: #fff; display:flex; justify-content:space-between; align-items:center;">
-        <span>👥 成員星圖進度榜</span>
+        <span>🛡️ 授權成員名單管理</span>
         <button class="detail-close-btn" onclick="closeWhitelistModal()">✕</button>
       </div>
 
       <div style="font-size: 11.5px; color: var(--ig-text-sub);">
-        點擊成員即可切換視角，查看他點亮的星圖軌跡！
+        新增或移除可登入訪問此星圖的 Google 帳號 Email。
       </div>
 
-      <div id="admin-add-section" style="display: none; flex-direction:column; gap:6px; margin-top: 4px;">
-        <div style="display:flex; gap:8px;">
-          <input type="email" id="new-whitelist-email" class="form-control" placeholder="輸入好友的 Gmail 授權訪問" style="flex:1;" />
-          <button class="btn-primary" onclick="addWhitelistMember()">新增成員</button>
-        </div>
+      <div id="admin-add-section" style="display: flex; gap: 8px; margin-top: 4px;">
+        <input type="email" id="new-whitelist-email" class="form-control" placeholder="輸入好友的 Gmail 授權訪問" style="flex:1;" />
+        <button class="btn-primary" onclick="addWhitelistMember()">新增授權</button>
       </div>
 
       <div id="whitelist-members-box" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
@@ -1525,13 +1556,22 @@
   <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
   <div id="sidebar" class="sheet-collapsed">
     
+    <!-- 💻 電腦端頂部 Header：IG 風格操作按鈕群 -->
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
-      <div class="desktop-action-group">
-        <button class="btn-icon" onclick="openWhitelistModal()" title="查看成員解鎖排行榜">👥 成員榜</button>
-        <button class="btn-icon" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">📥 匯入</button>
-        <button class="btn-icon" onclick="exportData()" title="備份名單">📤 匯出</button>
-        <button class="btn-icon" onclick="clearAllStores()" title="清空名單">🗑️ 清空</button>
+      <div class="ig-action-group">
+        <button class="ig-action-btn" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          匯入
+        </button>
+        <button class="ig-action-btn" onclick="exportData()" title="備份名單">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          匯出
+        </button>
+        <button class="ig-action-btn" onclick="clearAllStores()" title="清空名單" style="color: #a1a1aa;">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          清空
+        </button>
       </div>
     </div>
 
@@ -1617,12 +1657,21 @@
       </div>
     </div>
 
+    <!-- 手機版抽屜內按鈕列 (更新為 IG 膠囊風) -->
     <div class="actions-bar">
-      <button class="btn-action-pill" onclick="openWhitelistModal()">👥 成員榜</button>
-      <button class="btn-action-pill" onclick="document.getElementById('import-file').click()">📥 匯入</button>
+      <button class="ig-action-btn" onclick="document.getElementById('import-file').click()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        匯入 JSON
+      </button>
       <input type="file" id="import-file" style="display:none" onchange="importData(event)" accept=".json" />
-      <button class="btn-action-pill" onclick="exportData()">📤 匯出</button>
-      <button class="btn-action-pill" onclick="clearAllStores()">🗑️ 清空</button>
+      <button class="ig-action-btn" onclick="exportData()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        匯出備份
+      </button>
+      <button class="ig-action-btn" onclick="clearAllStores()" style="color:#a1a1aa;">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        清空
+      </button>
     </div>
 
     <div class="quick-add-wrap">
@@ -1690,9 +1739,17 @@
     </div>
   </div>
 
-  <!-- 🪐 右下角 IG 膠囊氣泡視角切換器 (純點擊展開，防誤觸) -->
+  <!-- 🪐 右下角 IG 膠囊氣泡 (純點擊展開，整併成員排行榜) -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
-    <div class="ig-dock-popover" id="dock-popover-list"></div>
+    <div class="ig-dock-popover" id="dock-popover-list">
+      <!-- 標題欄與排行 -->
+      <div class="dock-popover-header">
+        <span>👥 星圖視角排行榜</span>
+        <span style="font-size: 10px; color:#a1a1aa;">點擊切換</span>
+      </div>
+      <div id="dock-friend-list-items" style="display:flex; flex-direction:column; gap:4px;"></div>
+    </div>
+
     <div class="ig-dock-capsule" onclick="toggleCapsulePopup(event)">
       <div class="dock-left-info">
         <svg class="dock-paper-plane-icon" viewBox="0 0 24 24">
@@ -1792,7 +1849,7 @@
     let sortableInstance = null;
 
     let allMembersList = [];
-    let userProfilesMap = {}; // 存放所有成員的暱稱與自介
+    let userProfilesMap = {};
     let viewingTargetEmail = "mine";
 
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
@@ -1836,9 +1893,10 @@
             currentUser = user;
             lockScreen.style.display = 'none';
 
-            const adminAddSection = document.getElementById('admin-add-section');
-            if (adminAddSection) {
-              adminAddSection.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
+            // 只有主管理員顯示「授權成員管理」按鈕
+            const adminWhitelistBtn = document.getElementById('btn-open-whitelist');
+            if (adminWhitelistBtn) {
+              adminWhitelistBtn.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
             }
 
             avatarSyncEls.forEach(el => {
@@ -1849,9 +1907,7 @@
               }
             });
 
-            // 讀取當前使用者在資料庫的自訂檔案
             await loadUserProfile(userEmail);
-
             await loadAllMembers();
 
             if (!unsubscribeFirestore) {
@@ -1895,7 +1951,6 @@
 
     let stores = [];
 
-    // ─── 讀取個別個人檔案 ───
     async function loadUserProfile(userEmail) {
       try {
         const profileDoc = await getDoc(doc(db, "user_profiles", userEmail));
@@ -1914,7 +1969,6 @@
       }
     }
 
-    // ─── 讀取全體成員清單與自訂檔案 ───
     async function loadAllMembers() {
       try {
         const snap = await getDocs(collection(db, "whitelist_users"));
@@ -1922,7 +1976,6 @@
         snap.forEach(d => set.add(d.id.toLowerCase()));
         allMembersList = Array.from(set);
 
-        // 同步讀取所有成員 profiles
         const profilesSnap = await getDocs(collection(db, "user_profiles"));
         profilesSnap.forEach(d => {
           userProfilesMap[d.id.toLowerCase()] = d.data();
@@ -1960,7 +2013,6 @@
       refreshAll();
     };
 
-    // ─── 右下角膠囊點擊開關 (防誤觸) ───
     window.toggleCapsulePopup = function(e) {
       if (e) e.stopPropagation();
       document.getElementById('ig-dock-container').classList.toggle('active');
@@ -1971,11 +2023,12 @@
       document.getElementById('ig-dock-container')?.classList.remove('active');
     };
 
+    /* ─── 右下角膠囊與排行榜整合 ─── */
     function updateDockCapsuleUI() {
-      const popover = document.getElementById('dock-popover-list');
+      const container = document.getElementById('dock-friend-list-items');
       const stack = document.getElementById('dock-avatar-stack');
       const title = document.getElementById('dock-current-view-title');
-      if (!popover || !stack || !currentUser) return;
+      if (!container || !stack || !currentUser) return;
 
       const myEmail = currentUser.email.toLowerCase();
       const currentView = getActiveViewEmail();
@@ -1986,6 +2039,7 @@
         title.innerText = `${getMemberDisplayName(currentView)} 的星圖`;
       }
 
+      // 重疊小頭像
       let stackHtml = '';
       allMembersList.slice(0, 3).forEach((m, idx) => {
         const name = getMemberDisplayName(m);
@@ -1996,50 +2050,50 @@
       });
       stack.innerHTML = stackHtml;
 
-      const myDisplayName = getMemberDisplayName(myEmail);
-      const myBio = getMemberBio(myEmail);
-
-      let listHtml = `
-        <div class="dock-friend-item ${(viewingTargetEmail === 'mine' || currentView === myEmail) ? 'active' : ''}" onclick="selectViewTarget('mine')">
-          <div class="dock-friend-avatar">
-            <div class="dock-friend-avatar-inner">🌱</div>
-          </div>
-          <div class="dock-friend-info">
-            <div class="dock-friend-name">${myDisplayName} (我)</div>
-            ${myBio ? `<div class="dock-friend-bio">${myBio}</div>` : ''}
-            <div class="dock-friend-sub">${myEmail}</div>
-          </div>
-          <div class="dock-friend-active-dot"></div>
-        </div>
-      `;
-
-      allMembersList.forEach(email => {
-        if (email === myEmail) return;
-        const isTarget = (currentView === email);
-        const friendName = getMemberDisplayName(email);
-        const friendBio = getMemberBio(email);
-        const initial = friendName[0].toUpperCase();
+      // 計算各成員排行榜數據
+      const totalStores = stores.length;
+      const memberStats = allMembersList.map(email => {
         const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(email)).length;
+        const pct = totalStores > 0 ? Math.round((visitedCount / totalStores) * 100) : 0;
+        return {
+          email,
+          displayName: getMemberDisplayName(email),
+          bio: getMemberBio(email),
+          visitedCount,
+          pct
+        };
+      });
+
+      // 由解鎖多到少排序
+      memberStats.sort((a, b) => b.visitedCount - a.visitedCount);
+
+      let listHtml = '';
+      memberStats.forEach(({ email, displayName, bio, visitedCount, pct }, idx) => {
+        const isMe = email === myEmail;
+        const isTarget = (viewingTargetEmail === 'mine' && isMe) || (currentView === email);
+        const initial = displayName[0].toUpperCase();
+        const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '✨'));
 
         listHtml += `
-          <div class="dock-friend-item ${isTarget ? 'active' : ''}" onclick="selectViewTarget('${email}')">
+          <div class="dock-friend-item ${isTarget ? 'active' : ''}" onclick="selectViewTarget('${isMe ? 'mine' : email}')">
             <div class="dock-friend-avatar">
               <div class="dock-friend-avatar-inner">${initial}</div>
+              <span class="dock-rank-badge">${medal}</span>
             </div>
             <div class="dock-friend-info">
-              <div class="dock-friend-name">${friendName}</div>
-              ${friendBio ? `<div class="dock-friend-bio">${friendBio}</div>` : ''}
-              <div class="dock-friend-sub">點亮 ${visitedCount} 間 ｜ ${email.split('@')[0]}</div>
+              <div class="dock-friend-name">${displayName} ${isMe ? '(我)' : ''}</div>
+              ${bio ? `<div class="dock-friend-bio">${bio}</div>` : ''}
+              <div class="dock-friend-stat">❤️ ${visitedCount}/${totalStores} (${pct}%)</div>
             </div>
             <div class="dock-friend-active-dot"></div>
           </div>
         `;
       });
 
-      popover.innerHTML = listHtml;
+      container.innerHTML = listHtml;
     }
 
-    // ─── 個人檔案編輯 (改名 / 自介) ───
+    /* ─── 編輯個人檔案 ─── */
     window.openProfileEditModal = function() {
       closeUserMenu();
       const myEmail = currentUser.email.toLowerCase();
@@ -2065,14 +2119,12 @@
       btn.disabled = true;
 
       try {
-        // 儲存到 Firestore user_profiles 集合
         await setDoc(doc(db, "user_profiles", myEmail), {
           displayName: newName,
           bio: newBio,
           updatedAt: serverTimestamp ? serverTimestamp() : Date.now()
         }, { merge: true });
 
-        // 同步更新 Firebase Auth Profile
         try {
           await updateProfile(currentUser, { displayName: newName });
         } catch (e) {}
@@ -2089,6 +2141,85 @@
       } finally {
         btn.innerText = '儲存更新';
         btn.disabled = false;
+      }
+    };
+
+    /* ─── 授權成員管理名單 (純管理功能) ─── */
+    window.openWhitelistModal = async function() {
+      closeUserMenu();
+      document.getElementById('whitelist-modal').classList.add('active');
+      await renderWhitelistMembers();
+    };
+
+    window.closeWhitelistModal = function() {
+      document.getElementById('whitelist-modal').classList.remove('active');
+    };
+
+    async function renderWhitelistMembers() {
+      const box = document.getElementById('whitelist-members-box');
+      box.innerHTML = '<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">讀取成員名單中...</div>';
+
+      try {
+        await loadAllMembers();
+
+        let html = '';
+        const myEmail = currentUser.email.toLowerCase();
+        const isSuperAdmin = myEmail === SUPER_ADMIN_EMAIL.toLowerCase();
+
+        allMembersList.forEach(email => {
+          const isOwner = email === SUPER_ADMIN_EMAIL.toLowerCase();
+          const displayName = getMemberDisplayName(email);
+
+          html += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#1c1c1e; padding:9px 12px; border-radius:10px; font-size:12.5px; border:1px solid #27272a;">
+              <div style="display:flex; flex-direction:column; overflow:hidden;">
+                <span style="font-weight:700; color:#fff;">${displayName}</span>
+                <span style="font-size:11px; color:#a1a1aa;">${email}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                ${isOwner ? '<span style="font-size:10px; background:#333; color:#a1a1aa; padding:2px 6px; border-radius:6px;">創始擁有者</span>' : ''}
+                ${(isSuperAdmin && !isOwner) ? `<button onclick="removeWhitelistMember('${email}')" style="background:transparent; border:none; color:#ff453a; cursor:pointer; font-weight:700; font-size:12px;">移除授權</button>` : ''}
+              </div>
+            </div>
+          `;
+        });
+
+        box.innerHTML = html;
+      } catch (e) {
+        box.innerHTML = '<div style="color: #ff453a; font-size: 12px; text-align: center; padding: 10px;">讀取名單失敗</div>';
+      }
+    }
+
+    window.addWhitelistMember = async function() {
+      const input = document.getElementById('new-whitelist-email');
+      const email = input.value.trim().toLowerCase();
+      
+      if (!email || !email.includes('@')) {
+        return alert('請輸入正確的 Email 地址！');
+      }
+      if (email === SUPER_ADMIN_EMAIL.toLowerCase()) {
+        return alert('該帳號已經是創始管理員！');
+      }
+
+      try {
+        await setDoc(doc(db, "whitelist_users", email), {
+          addedAt: serverTimestamp ? serverTimestamp() : Date.now(),
+          addedBy: currentUser.email
+        });
+        input.value = '';
+        await renderWhitelistMembers();
+      } catch (e) {
+        alert(`新增授權成員失敗：${e.message}`);
+      }
+    };
+
+    window.removeWhitelistMember = async function(email) {
+      if (!confirm(`確定要取消【${email}】的授權訪問嗎？`)) return;
+      try {
+        await deleteDoc(doc(db, "whitelist_users", email));
+        await renderWhitelistMembers();
+      } catch (e) {
+        alert(`移除失敗：${e.message}`);
       }
     };
 
@@ -2430,108 +2561,6 @@
         await signInWithPopup(auth, googleProvider);
       } catch (err) {
         alert(`登入失敗：${err.message}`);
-      }
-    };
-
-    window.openWhitelistModal = async function() {
-      closeUserMenu();
-      document.getElementById('whitelist-modal').classList.add('active');
-      await renderWhitelistMembers();
-    };
-
-    window.closeWhitelistModal = function() {
-      document.getElementById('whitelist-modal').classList.remove('active');
-    };
-
-    async function renderWhitelistMembers() {
-      const box = document.getElementById('whitelist-members-box');
-      box.innerHTML = '<div style="color: #888; font-size: 12px; text-align: center; padding: 10px;">讀取排行榜中...</div>';
-
-      try {
-        await loadAllMembers();
-
-        const totalStores = stores.length;
-        const memberStats = allMembersList.map(email => {
-          const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(email)).length;
-          const pct = totalStores > 0 ? Math.round((visitedCount / totalStores) * 100) : 0;
-          return { email, visitedCount, pct };
-        });
-
-        memberStats.sort((a, b) => b.visitedCount - a.visitedCount);
-
-        let html = '';
-        const myEmail = currentUser.email.toLowerCase();
-        const isSuperAdmin = myEmail === SUPER_ADMIN_EMAIL.toLowerCase();
-
-        memberStats.forEach(({ email, visitedCount, pct }, idx) => {
-          const isMe = email === myEmail;
-          const isOwner = email === SUPER_ADMIN_EMAIL.toLowerCase();
-          const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '✨'));
-          const displayName = getMemberDisplayName(email);
-          const bio = getMemberBio(email);
-
-          html += `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#18181b; padding:8px 12px; border-radius:10px; font-size:12.5px; border:1px solid #27272a; gap:8px;">
-              <div style="display:flex; flex-direction:column; overflow:hidden; cursor:pointer;" onclick="viewMemberFromModal('${email}')" title="點擊切換查看該星圖">
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span>${medal}</span>
-                  <span style="font-weight:700; color:${isMe ? 'var(--ig-blue)' : '#fff'}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
-                    ${displayName} ${isMe ? '(我)' : ''}
-                  </span>
-                  ${isOwner ? '<span style="font-size:9px; background:#333; color:#aaa; padding:1px 5px; border-radius:4px;">創始人</span>' : ''}
-                </div>
-                ${bio ? `<div style="font-size:10px; color:#38bdf8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;">${bio}</div>` : ''}
-              </div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:11.5px; font-weight:800; color:#ff3040;">❤️ ${visitedCount}/${totalStores} (${pct}%)</span>
-                <button onclick="viewMemberFromModal('${email}')" style="background:#27272a; border:1px solid #3f3f46; color:#fff; border-radius:6px; padding:3px 7px; font-size:10.5px; cursor:pointer;">查看</button>
-                ${(isSuperAdmin && !isOwner) ? `<button onclick="removeWhitelistMember('${email}')" style="background:transparent; border:none; color:#ff453a; cursor:pointer; font-weight:700; font-size:11px;">移除</button>` : ''}
-              </div>
-            </div>
-          `;
-        });
-
-        box.innerHTML = html;
-      } catch (e) {
-        box.innerHTML = '<div style="color: #ff453a; font-size: 12px; text-align: center; padding: 10px;">讀取名單失敗</div>';
-      }
-    }
-
-    window.viewMemberFromModal = function(email) {
-      closeWhitelistModal();
-      changeViewingTarget(email === currentUser.email.toLowerCase() ? "mine" : email);
-    };
-
-    window.addWhitelistMember = async function() {
-      const input = document.getElementById('new-whitelist-email');
-      const email = input.value.trim().toLowerCase();
-      
-      if (!email || !email.includes('@')) {
-        return alert('請輸入正確的 Email 地址！');
-      }
-      if (email === SUPER_ADMIN_EMAIL.toLowerCase()) {
-        return alert('該帳號已經是創始管理員！');
-      }
-
-      try {
-        await setDoc(doc(db, "whitelist_users", email), {
-          addedAt: serverTimestamp ? serverTimestamp() : Date.now(),
-          addedBy: currentUser.email
-        });
-        input.value = '';
-        await renderWhitelistMembers();
-      } catch (e) {
-        alert(`新增授權成員失敗：${e.message}`);
-      }
-    };
-
-    window.removeWhitelistMember = async function(email) {
-      if (!confirm(`確定要取消【${email}】的授權訪問嗎？`)) return;
-      try {
-        await deleteDoc(doc(db, "whitelist_users", email));
-        await renderWhitelistMembers();
-      } catch (e) {
-        alert(`移除失敗：${e.message}`);
       }
     };
 
