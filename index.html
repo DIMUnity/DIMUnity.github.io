@@ -349,6 +349,7 @@
       transition: width 0.4s ease;
     }
 
+    /* ─── 🗺️ 左下角圖層 Dock（含避開店家詳細卡片動畫） ─── */
     .gmaps-layer-dock {
       position: absolute;
       display: flex;
@@ -356,6 +357,14 @@
       gap: 12px;
       z-index: 1200;
       pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+
+    body:has(#gmaps-detail-sheet.active) .gmaps-layer-dock {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(16px);
     }
 
     #gmaps-layer-box {
@@ -480,7 +489,6 @@
       overflow: hidden;
     }
 
-    /* ─── 📸 Instagram 風格精緻頂部 Header 與按鈕列 ─── */
     .sidebar-desktop-header {
       padding: 14px 16px;
       display: flex;
@@ -500,7 +508,6 @@
       gap: 6px;
     }
 
-    /* IG 限動圓角膠囊操作列 */
     .ig-action-group {
       display: flex;
       align-items: center;
@@ -579,7 +586,6 @@
       font-weight: 600;
     }
 
-    /* 手機版抽屜內按鈕列 */
     .actions-bar {
       padding: 8px 14px;
       display: flex;
@@ -912,7 +918,7 @@
       border: 1px solid var(--ig-border);
     }
 
-    /* ─── 🪐 右下角 IG 膠囊氣泡 (純點擊展開，內建星圖排行) ─── */
+    /* ─── 🪐 右下角 IG 膠囊氣泡 ─── */
     .ig-dock-capsule-container {
       position: fixed;
       right: 24px;
@@ -1436,19 +1442,16 @@
         </div>
       </div>
       <div class="ig-user-sheet-actions">
-        <!-- ✏️ 編輯個人檔案 -->
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
           編輯個人檔案 (改暱稱/介紹)
         </button>
 
-        <!-- 🛡️ 授權成員管理 (僅留管理增刪功能) -->
         <button class="ig-user-sheet-btn" id="btn-open-whitelist" style="display:none;" onclick="openWhitelistModal()">
           <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
           授權成員管理名單
         </button>
 
-        <!-- 登出 -->
         <button class="ig-user-sheet-btn danger" onclick="confirmLogout()">
           <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           登出 Google 帳號
@@ -1657,7 +1660,7 @@
       </div>
     </div>
 
-    <!-- 手機版抽屜內按鈕列 (更新為 IG 膠囊風) -->
+    <!-- 手機版抽屜內按鈕列 (IG 膠囊風) -->
     <div class="actions-bar">
       <button class="ig-action-btn" onclick="document.getElementById('import-file').click()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -1742,7 +1745,6 @@
   <!-- 🪐 右下角 IG 膠囊氣泡 (純點擊展開，整併成員排行榜) -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
     <div class="ig-dock-popover" id="dock-popover-list">
-      <!-- 標題欄與排行 -->
       <div class="dock-popover-header">
         <span>👥 星圖視角排行榜</span>
         <span style="font-size: 10px; color:#a1a1aa;">點擊切換</span>
@@ -1893,7 +1895,6 @@
             currentUser = user;
             lockScreen.style.display = 'none';
 
-            // 只有主管理員顯示「授權成員管理」按鈕
             const adminWhitelistBtn = document.getElementById('btn-open-whitelist');
             if (adminWhitelistBtn) {
               adminWhitelistBtn.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
@@ -2023,7 +2024,6 @@
       document.getElementById('ig-dock-container')?.classList.remove('active');
     };
 
-    /* ─── 右下角膠囊與排行榜整合 ─── */
     function updateDockCapsuleUI() {
       const container = document.getElementById('dock-friend-list-items');
       const stack = document.getElementById('dock-avatar-stack');
@@ -2039,7 +2039,6 @@
         title.innerText = `${getMemberDisplayName(currentView)} 的星圖`;
       }
 
-      // 重疊小頭像
       let stackHtml = '';
       allMembersList.slice(0, 3).forEach((m, idx) => {
         const name = getMemberDisplayName(m);
@@ -2050,7 +2049,6 @@
       });
       stack.innerHTML = stackHtml;
 
-      // 計算各成員排行榜數據
       const totalStores = stores.length;
       const memberStats = allMembersList.map(email => {
         const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(email)).length;
@@ -2064,7 +2062,6 @@
         };
       });
 
-      // 由解鎖多到少排序
       memberStats.sort((a, b) => b.visitedCount - a.visitedCount);
 
       let listHtml = '';
@@ -2093,7 +2090,6 @@
       container.innerHTML = listHtml;
     }
 
-    /* ─── 編輯個人檔案 ─── */
     window.openProfileEditModal = function() {
       closeUserMenu();
       const myEmail = currentUser.email.toLowerCase();
@@ -2144,7 +2140,6 @@
       }
     };
 
-    /* ─── 授權成員管理名單 (純管理功能) ─── */
     window.openWhitelistModal = async function() {
       closeUserMenu();
       document.getElementById('whitelist-modal').classList.add('active');
