@@ -907,7 +907,7 @@
       border: 1px solid var(--ig-border);
     }
 
-    /* ─── 🪐 右下角 IG 膠囊氣泡懸浮視角切換器 ─── */
+    /* ─── 🪐 右下角 IG 膠囊氣泡 (修復誤觸問題：純點擊觸發) ─── */
     .ig-dock-capsule-container {
       position: fixed;
       right: 24px;
@@ -916,6 +916,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
+      pointer-events: none; /* 容器平時不阻擋點擊 */
     }
 
     .ig-dock-capsule {
@@ -930,7 +931,8 @@
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
       cursor: pointer;
       user-select: none;
-      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+      transition: all 0.2s ease;
+      pointer-events: auto; /* 按鈕可被點擊 */
     }
     .ig-dock-capsule:hover {
       background: #26262a;
@@ -984,34 +986,32 @@
       object-fit: cover;
     }
 
+    /* 彈出朋友頭像卡片：僅在 active 時 display: flex，杜絕誤碰感應 */
     .ig-dock-popover {
-      background: rgba(24, 24, 27, 0.97);
+      background: rgba(24, 24, 27, 0.98);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid #363636;
       border-radius: 18px;
       padding: 8px;
       margin-bottom: 12px;
-      width: 240px;
-      max-height: 300px;
+      width: 250px;
+      max-height: 320px;
       overflow-y: auto;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.9);
-      display: flex;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.95);
+      display: none;
       flex-direction: column;
       gap: 4px;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(12px) scale(0.96);
-      transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.2);
-      pointer-events: none;
+      pointer-events: auto;
+      animation: igDockPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+    }
+    @keyframes igDockPop {
+      0% { transform: translateY(12px) scale(0.95); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-    .ig-dock-capsule-container:hover .ig-dock-popover,
     .ig-dock-capsule-container.active .ig-dock-popover {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
+      display: flex;
     }
 
     .dock-friend-item {
@@ -1028,8 +1028,8 @@
       background: rgba(255, 255, 255, 0.1);
     }
     .dock-friend-avatar {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       background: var(--ig-gradient);
       padding: 1.5px;
@@ -1058,9 +1058,16 @@
       flex: 1;
     }
     .dock-friend-name {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
       color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dock-friend-bio {
+      font-size: 10px;
+      color: #38bdf8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1070,8 +1077,8 @@
       color: var(--ig-text-sub);
     }
     .dock-friend-active-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--ig-blue);
       box-shadow: 0 0 6px var(--ig-blue);
@@ -1151,6 +1158,14 @@
       font-weight: 800;
       color: #fff;
     }
+    .ig-user-sheet-bio {
+      font-size: 11.5px;
+      color: #38bdf8;
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .ig-user-sheet-email {
       font-size: 12px;
       color: var(--ig-text-sub);
@@ -1227,7 +1242,7 @@
       font-size: 12px;
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-    .btn-secondary { background: #27272a; color: #fff; padding: 6px 12px; border: none; border-radius: 8px; font-size: 12px; }
+    .btn-secondary { background: #27272a; color: #fff; padding: 6px 12px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; }
     .btn-primary { background: var(--ig-blue); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
     @media (min-width: 769px) {
@@ -1384,11 +1399,16 @@
         </div>
         <div class="ig-user-sheet-info">
           <div class="ig-user-sheet-name" id="menu-user-name">蔬食探索者</div>
+          <div class="ig-user-sheet-bio" id="menu-user-bio">尚未填寫個人介紹</div>
           <div class="ig-user-sheet-email" id="menu-user-email">user@gmail.com</div>
           <div class="ig-user-sheet-badge">🛡️ 授權探索成員</div>
         </div>
       </div>
       <div class="ig-user-sheet-actions">
+        <!-- ✏️ 新增：編輯個人檔案 (改名字、新增介紹) -->
+        <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
+          ✏️ 編輯個人檔案 (改名字/介紹)
+        </button>
         <button class="ig-user-sheet-btn" id="btn-open-whitelist" onclick="openWhitelistModal()">
           👥 成員解鎖排行榜與管理
         </button>
@@ -1401,6 +1421,31 @@
           登出 Google 帳號
         </button>
         <button class="ig-user-sheet-btn" onclick="closeUserMenu()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✏️ 編輯個人檔案 Modal (改名字、自我介紹) -->
+  <div class="modal-overlay" id="profile-edit-modal" onclick="closeProfileEditModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div style="font-size: 16px; font-weight: 800; color: #fff; display:flex; justify-content:space-between; align-items:center;">
+        <span>✏️ 編輯個人檔案</span>
+        <button class="detail-close-btn" onclick="closeProfileEditModal()">✕</button>
+      </div>
+      
+      <div class="form-group">
+        <label>自訂暱稱 (顯示名稱)</label>
+        <input type="text" id="edit-profile-name" class="form-control" placeholder="輸入你想在星圖顯示的名稱" />
+      </div>
+
+      <div class="form-group">
+        <label>個人介紹 (一句話或飲食理念)</label>
+        <input type="text" id="edit-profile-bio" class="form-control" placeholder="例如：純素推廣者、無肉無酒新竹日常" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeProfileEditModal()">取消</button>
+        <button class="btn-primary" id="btn-save-profile" onclick="saveUserProfile()">儲存更新</button>
       </div>
     </div>
   </div>
@@ -1645,10 +1690,10 @@
     </div>
   </div>
 
-  <!-- 🪐 右下角 IG 膠囊氣泡視角切換器 -->
+  <!-- 🪐 右下角 IG 膠囊氣泡視角切換器 (純點擊展開，防誤觸) -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
     <div class="ig-dock-popover" id="dock-popover-list"></div>
-    <div class="ig-dock-capsule" onclick="toggleCapsulePopup()">
+    <div class="ig-dock-capsule" onclick="toggleCapsulePopup(event)">
       <div class="dock-left-info">
         <svg class="dock-paper-plane-icon" viewBox="0 0 24 24">
           <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -1712,7 +1757,7 @@
       deleteDoc, 
       doc, 
       setDoc,
-      getDoc,
+      getDoc, 
       getDocs,
       writeBatch, 
       serverTimestamp 
@@ -1722,6 +1767,7 @@
       signInWithPopup, 
       GoogleAuthProvider, 
       signOut, 
+      updateProfile,
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -1746,6 +1792,7 @@
     let sortableInstance = null;
 
     let allMembersList = [];
+    let userProfilesMap = {}; // 存放所有成員的暱稱與自介
     let viewingTargetEmail = "mine";
 
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
@@ -1802,8 +1849,8 @@
               }
             });
 
-            document.getElementById('menu-user-name').innerText = user.displayName || '蔬食探索者';
-            document.getElementById('menu-user-email').innerText = user.email;
+            // 讀取當前使用者在資料庫的自訂檔案
+            await loadUserProfile(userEmail);
 
             await loadAllMembers();
 
@@ -1848,16 +1895,54 @@
 
     let stores = [];
 
+    // ─── 讀取個別個人檔案 ───
+    async function loadUserProfile(userEmail) {
+      try {
+        const profileDoc = await getDoc(doc(db, "user_profiles", userEmail));
+        if (profileDoc.exists()) {
+          const data = profileDoc.data();
+          userProfilesMap[userEmail] = data;
+          document.getElementById('menu-user-name').innerText = data.displayName || currentUser.displayName || '蔬食探索者';
+          document.getElementById('menu-user-bio').innerText = data.bio || '尚未填寫個人介紹';
+        } else {
+          document.getElementById('menu-user-name').innerText = currentUser.displayName || '蔬食探索者';
+          document.getElementById('menu-user-bio').innerText = '尚未填寫個人介紹';
+        }
+        document.getElementById('menu-user-email').innerText = userEmail;
+      } catch (e) {
+        console.error("讀取個人檔案失敗", e);
+      }
+    }
+
+    // ─── 讀取全體成員清單與自訂檔案 ───
     async function loadAllMembers() {
       try {
         const snap = await getDocs(collection(db, "whitelist_users"));
         const set = new Set([SUPER_ADMIN_EMAIL.toLowerCase()]);
         snap.forEach(d => set.add(d.id.toLowerCase()));
         allMembersList = Array.from(set);
+
+        // 同步讀取所有成員 profiles
+        const profilesSnap = await getDocs(collection(db, "user_profiles"));
+        profilesSnap.forEach(d => {
+          userProfilesMap[d.id.toLowerCase()] = d.data();
+        });
+
         updateDockCapsuleUI();
       } catch (e) {
         console.error("載入成員清單失敗", e);
       }
+    }
+
+    function getMemberDisplayName(email) {
+      const p = userProfilesMap[email.toLowerCase()];
+      if (p && p.displayName) return p.displayName;
+      return email.split('@')[0];
+    }
+
+    function getMemberBio(email) {
+      const p = userProfilesMap[email.toLowerCase()];
+      return (p && p.bio) ? p.bio : '';
     }
 
     function getActiveViewEmail() {
@@ -1875,7 +1960,9 @@
       refreshAll();
     };
 
-    window.toggleCapsulePopup = function() {
+    // ─── 右下角膠囊點擊開關 (防誤觸) ───
+    window.toggleCapsulePopup = function(e) {
+      if (e) e.stopPropagation();
       document.getElementById('ig-dock-container').classList.toggle('active');
     };
 
@@ -1896,17 +1983,21 @@
       if (viewingTargetEmail === "mine" || currentView === myEmail) {
         title.innerText = "我的星圖";
       } else {
-        title.innerText = `${currentView.split('@')[0]} 的星圖`;
+        title.innerText = `${getMemberDisplayName(currentView)} 的星圖`;
       }
 
       let stackHtml = '';
       allMembersList.slice(0, 3).forEach((m, idx) => {
-        const initial = m[0].toUpperCase();
+        const name = getMemberDisplayName(m);
+        const initial = name[0].toUpperCase();
         const colors = ['#f09433', '#dc2743', '#0095f6', '#10b981'];
         const bg = colors[idx % colors.length];
         stackHtml += `<div class="dock-stack-avatar" style="background: ${bg};">${initial}</div>`;
       });
       stack.innerHTML = stackHtml;
+
+      const myDisplayName = getMemberDisplayName(myEmail);
+      const myBio = getMemberBio(myEmail);
 
       let listHtml = `
         <div class="dock-friend-item ${(viewingTargetEmail === 'mine' || currentView === myEmail) ? 'active' : ''}" onclick="selectViewTarget('mine')">
@@ -1914,8 +2005,9 @@
             <div class="dock-friend-avatar-inner">🌱</div>
           </div>
           <div class="dock-friend-info">
-            <div class="dock-friend-name">我的星圖</div>
-            <div class="dock-friend-sub">${myEmail.split('@')[0]} (自己)</div>
+            <div class="dock-friend-name">${myDisplayName} (我)</div>
+            ${myBio ? `<div class="dock-friend-bio">${myBio}</div>` : ''}
+            <div class="dock-friend-sub">${myEmail}</div>
           </div>
           <div class="dock-friend-active-dot"></div>
         </div>
@@ -1924,7 +2016,9 @@
       allMembersList.forEach(email => {
         if (email === myEmail) return;
         const isTarget = (currentView === email);
-        const initial = email[0].toUpperCase();
+        const friendName = getMemberDisplayName(email);
+        const friendBio = getMemberBio(email);
+        const initial = friendName[0].toUpperCase();
         const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(email)).length;
 
         listHtml += `
@@ -1933,8 +2027,9 @@
               <div class="dock-friend-avatar-inner">${initial}</div>
             </div>
             <div class="dock-friend-info">
-              <div class="dock-friend-name">${email.split('@')[0]}</div>
-              <div class="dock-friend-sub">點亮 ${visitedCount} 間店家</div>
+              <div class="dock-friend-name">${friendName}</div>
+              ${friendBio ? `<div class="dock-friend-bio">${friendBio}</div>` : ''}
+              <div class="dock-friend-sub">點亮 ${visitedCount} 間 ｜ ${email.split('@')[0]}</div>
             </div>
             <div class="dock-friend-active-dot"></div>
           </div>
@@ -1943,6 +2038,59 @@
 
       popover.innerHTML = listHtml;
     }
+
+    // ─── 個人檔案編輯 (改名 / 自介) ───
+    window.openProfileEditModal = function() {
+      closeUserMenu();
+      const myEmail = currentUser.email.toLowerCase();
+      document.getElementById('edit-profile-name').value = getMemberDisplayName(myEmail);
+      document.getElementById('edit-profile-bio').value = getMemberBio(myEmail);
+      document.getElementById('profile-edit-modal').classList.add('active');
+    };
+
+    window.closeProfileEditModal = function() {
+      document.getElementById('profile-edit-modal').classList.remove('active');
+    };
+
+    window.saveUserProfile = async function() {
+      if (!currentUser) return;
+      const myEmail = currentUser.email.toLowerCase();
+      const newName = document.getElementById('edit-profile-name').value.trim();
+      const newBio = document.getElementById('edit-profile-bio').value.trim();
+
+      if (!newName) return alert('請填寫暱稱！');
+
+      const btn = document.getElementById('btn-save-profile');
+      btn.innerText = '儲存中...';
+      btn.disabled = true;
+
+      try {
+        // 儲存到 Firestore user_profiles 集合
+        await setDoc(doc(db, "user_profiles", myEmail), {
+          displayName: newName,
+          bio: newBio,
+          updatedAt: serverTimestamp ? serverTimestamp() : Date.now()
+        }, { merge: true });
+
+        // 同步更新 Firebase Auth Profile
+        try {
+          await updateProfile(currentUser, { displayName: newName });
+        } catch (e) {}
+
+        userProfilesMap[myEmail] = { displayName: newName, bio: newBio };
+        document.getElementById('menu-user-name').innerText = newName;
+        document.getElementById('menu-user-bio').innerText = newBio || '尚未填寫個人介紹';
+
+        closeProfileEditModal();
+        refreshAll();
+        alert('✅ 個人檔案更新成功！');
+      } catch (err) {
+        alert(`更新失敗：${err.message}`);
+      } finally {
+        btn.innerText = '儲存更新';
+        btn.disabled = false;
+      }
+    };
 
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
@@ -2319,15 +2467,20 @@
           const isMe = email === myEmail;
           const isOwner = email === SUPER_ADMIN_EMAIL.toLowerCase();
           const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '✨'));
+          const displayName = getMemberDisplayName(email);
+          const bio = getMemberBio(email);
 
           html += `
             <div style="display:flex; justify-content:space-between; align-items:center; background:#18181b; padding:8px 12px; border-radius:10px; font-size:12.5px; border:1px solid #27272a; gap:8px;">
-              <div style="display:flex; align-items:center; gap:6px; overflow:hidden; cursor:pointer;" onclick="viewMemberFromModal('${email}')" title="點擊切換查看該星圖">
-                <span>${medal}</span>
-                <span style="font-weight:700; color:${isMe ? 'var(--ig-blue)' : '#fff'}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
-                  ${email.split('@')[0]} ${isMe ? '(我)' : ''}
-                </span>
-                ${isOwner ? '<span style="font-size:9px; background:#333; color:#aaa; padding:1px 5px; border-radius:4px;">創始人</span>' : ''}
+              <div style="display:flex; flex-direction:column; overflow:hidden; cursor:pointer;" onclick="viewMemberFromModal('${email}')" title="點擊切換查看該星圖">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span>${medal}</span>
+                  <span style="font-weight:700; color:${isMe ? 'var(--ig-blue)' : '#fff'}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
+                    ${displayName} ${isMe ? '(我)' : ''}
+                  </span>
+                  ${isOwner ? '<span style="font-size:9px; background:#333; color:#aaa; padding:1px 5px; border-radius:4px;">創始人</span>' : ''}
+                </div>
+                ${bio ? `<div style="font-size:10px; color:#38bdf8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;">${bio}</div>` : ''}
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:11.5px; font-weight:800; color:#ff3040;">❤️ ${visitedCount}/${totalStores} (${pct}%)</span>
@@ -2612,7 +2765,7 @@
       const visitedCount = stores.filter(s => isStoreUnlockedForCurrentView(s)).length;
       const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
 
-      const activeViewName = viewingTargetEmail === "mine" ? "我" : viewingTargetEmail.split('@')[0];
+      const activeViewName = viewingTargetEmail === "mine" ? "我" : getMemberDisplayName(viewingTargetEmail);
       document.getElementById('peek-stats-text').innerText = `${activeViewName}已點亮 ${visitedCount} / ${total}`;
 
       const desktopTotal = document.getElementById('desktop-stat-total');
