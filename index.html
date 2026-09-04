@@ -1242,7 +1242,7 @@
       font-weight: 700;
     }
 
-    /* ─── 📸 Instagram「編輯個人檔案」面板（已隱藏原生白條捲軸） ─── */
+    /* ─── 📸 Instagram「編輯個人檔案」面板（全面移除捲軸） ─── */
     .ig-edit-profile-sheet {
       position: fixed;
       inset: 0;
@@ -1252,11 +1252,11 @@
       flex-direction: column;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* Firefox 隱藏捲軸 */
+      scrollbar-width: none;
       animation: igSheetSlideUp 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
     }
     .ig-edit-profile-sheet::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Edge 徹底隱藏白色捲軸 */
+      display: none;
     }
     .ig-edit-profile-sheet.active { display: flex; }
     @keyframes igSheetSlideUp {
@@ -1370,22 +1370,27 @@
       gap: 16px;
     }
     .ig-row-label {
-      width: 95px;
+      width: 105px;
       font-size: 14.5px;
       color: #fff;
       font-weight: 500;
       flex-shrink: 0;
     }
-    .ig-row-input {
+    .ig-row-input, .ig-row-select {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
       color: #fff;
       font-size: 14.5px;
+      font-family: inherit;
     }
     .ig-row-input::placeholder {
       color: #71717a;
+    }
+    .ig-row-select option {
+      background: #1c1c1e;
+      color: #fff;
     }
 
     .modal-overlay {
@@ -1474,9 +1479,9 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) !important;
-        width: 420px;
-        height: 80vh;
-        max-height: 700px;
+        width: 430px;
+        height: 82vh;
+        max-height: 750px;
         border-radius: 28px;
         border: 1px solid #333;
         box-shadow: 0 24px 60px rgba(0,0,0,0.95);
@@ -1591,20 +1596,20 @@
   <div class="modal-overlay" id="user-menu-modal" onclick="closeUserMenu()">
     <div class="ig-user-sheet" onclick="event.stopPropagation()">
       <div class="ig-user-sheet-header">
-        <div class="ig-sheet-avatar-ring">
+        <div class="ig-sheet-avatar-ring" id="menu-avatar-ring">
           <div class="ig-sheet-avatar-inner user-avatar-sync">🌱</div>
         </div>
         <div class="ig-user-sheet-info">
-          <div class="ig-user-sheet-name" id="menu-user-name">蔬食探索者</div>
+          <div class="ig-user-sheet-name" id="menu-user-name">OneDimMan</div>
           <div class="ig-user-sheet-bio" id="menu-user-bio">尚未填寫個人介紹</div>
           <div class="ig-user-sheet-email" id="menu-user-email">user@gmail.com</div>
-          <div class="ig-user-sheet-badge">🛡️ 授權探索成員</div>
+          <div class="ig-user-sheet-badge" id="menu-user-badge">🛡️ 授權探索成員</div>
         </div>
       </div>
       <div class="ig-user-sheet-actions">
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-          編輯個人檔案 (改暱稱/照片/介紹)
+          編輯個人檔案 (照片/光圈/偏好)
         </button>
 
         <button class="ig-user-sheet-btn" id="btn-open-whitelist" style="display:none;" onclick="openWhitelistModal()">
@@ -1621,9 +1626,8 @@
     </div>
   </div>
 
-  <!-- 📸 復刻截圖：Instagram「編輯個人檔案」精簡版（已隱藏右側原生白捲軸，刪除多餘項目） -->
+  <!-- 📸 編輯個人檔案介面（無多餘白條與空項目，保留實用 IG 設定） -->
   <div class="ig-edit-profile-sheet" id="profile-edit-modal">
-    <!-- 頂部導航 -->
     <div class="ig-edit-nav">
       <button class="ig-nav-back-btn" onclick="closeProfileEditModal()">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1648,7 +1652,7 @@
       <span class="ig-edit-avatar-text" onclick="document.getElementById('avatar-file-input').click()">編輯大頭貼照或虛擬替身</span>
     </div>
 
-    <!-- 僅保留必備核心欄位 -->
+    <!-- 表單欄位 -->
     <div class="ig-form-rows-container">
       <div class="ig-form-row">
         <span class="ig-row-label">姓名</span>
@@ -1659,8 +1663,28 @@
         <input type="text" id="edit-profile-username" class="ig-row-input" placeholder="用戶名稱" />
       </div>
       <div class="ig-form-row">
-        <span class="ig-row-label">性別認同代名詞</span>
-        <input type="text" id="edit-profile-pronouns" class="ig-row-input" placeholder="性別認同代名詞" />
+        <span class="ig-row-label">飲食認同標籤</span>
+        <select id="edit-profile-badge" class="ig-row-select">
+          <option value="🛡️ 授權探索成員">🛡️ 授權探索成員 (預設)</option>
+          <option value="🌱 純素推廣者">🌱 純素推廣者 (Vegan)</option>
+          <option value="🍳 蛋奶素達人">🍳 蛋奶素達人 (Vegetarian)</option>
+          <option value="🍰 甜點探索家">🍰 甜點探索家</option>
+          <option value="🍕 異國獵手">🍕 異國綠食獵手</option>
+          <option value="👑 星圖主宰">👑 蔬食星圖主宰</option>
+        </select>
+      </div>
+      <div class="ig-form-row">
+        <span class="ig-row-label">限動光圈配色</span>
+        <select id="edit-profile-ring" class="ig-row-select">
+          <option value="default">🌈 Instagram 經典橘紅紫漸層</option>
+          <option value="gold">👑 VIP 曜石純金光圈</option>
+          <option value="mint">🌿 清新薄荷綠光圈</option>
+          <option value="cyber">⚡ 霓虹科技藍光圈</option>
+        </select>
+      </div>
+      <div class="ig-form-row">
+        <span class="ig-row-label">社群或個人連結</span>
+        <input type="text" id="edit-profile-link" class="ig-row-input" placeholder="https://instagram.com/..." />
       </div>
       <div class="ig-form-row">
         <span class="ig-row-label">個人簡介</span>
@@ -1923,7 +1947,7 @@
     </div>
   </div>
 
-  <!-- 🪐 右下角 IG 膠囊氣泡 -->
+  <!-- 🪐 右下角 IG 膠囊氣泡 (純點擊展開，整併成員排行榜) -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
     <div class="ig-dock-popover" id="dock-popover-list">
       <div class="dock-popover-header">
@@ -2036,6 +2060,13 @@
     let viewingTargetEmail = "mine";
     let pendingAvatarBase64 = null;
 
+    const RING_GRADIENTS = {
+      default: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+      gold: 'linear-gradient(45deg, #ffe066 0%, #d4af37 50%, #aa7c11 100%)',
+      mint: 'linear-gradient(45deg, #10b981 0%, #059669 50%, #047857 100%)',
+      cyber: 'linear-gradient(45deg, #00f2fe 0%, #4facfe 100%)'
+    };
+
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
       try {
         const app = initializeApp(firebaseConfig);
@@ -2137,10 +2168,18 @@
         const displayName = data.displayName || currentUser.displayName || 'OneDimMan';
         const bio = data.bio || '現實生活很累，隨便放放，隨便看看';
         const photo = data.photoURL || currentUser.photoURL || '';
+        const badge = data.badge || '🛡️ 授權探索成員';
+        const ring = data.ringStyle || 'default';
 
         document.getElementById('menu-user-name').innerText = displayName;
         document.getElementById('menu-user-bio').innerText = bio;
         document.getElementById('menu-user-email').innerText = userEmail;
+        document.getElementById('menu-user-badge').innerText = badge;
+
+        const avatarRing = document.getElementById('menu-avatar-ring');
+        if (avatarRing) {
+          avatarRing.style.background = RING_GRADIENTS[ring] || RING_GRADIENTS.default;
+        }
 
         updateAvatarElements(photo);
       } catch (e) {
@@ -2191,6 +2230,11 @@
     function getMemberPhoto(email) {
       const p = userProfilesMap[email.toLowerCase()];
       return (p && p.photoURL) ? p.photoURL : '';
+    }
+
+    function getMemberRing(email) {
+      const p = userProfilesMap[email.toLowerCase()];
+      return (p && p.ringStyle) ? p.ringStyle : 'default';
     }
 
     function getActiveViewEmail() {
@@ -2257,6 +2301,7 @@
           displayName: getMemberDisplayName(email),
           bio: getMemberBio(email),
           photo: getMemberPhoto(email),
+          ring: getMemberRing(email),
           visitedCount,
           pct
         };
@@ -2265,15 +2310,16 @@
       memberStats.sort((a, b) => b.visitedCount - a.visitedCount);
 
       let listHtml = '';
-      memberStats.forEach(({ email, displayName, bio, photo, visitedCount, pct }, idx) => {
+      memberStats.forEach(({ email, displayName, bio, photo, ring, visitedCount, pct }, idx) => {
         const isMe = email === myEmail;
         const isTarget = (viewingTargetEmail === 'mine' && isMe) || (currentView === email);
         const initial = displayName[0].toUpperCase();
         const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '✨'));
+        const ringBg = RING_GRADIENTS[ring] || RING_GRADIENTS.default;
 
         listHtml += `
           <div class="dock-friend-item ${isTarget ? 'active' : ''}" onclick="selectViewTarget('${isMe ? 'mine' : email}')">
-            <div class="dock-friend-avatar">
+            <div class="dock-friend-avatar" style="background: ${ringBg};">
               <div class="dock-friend-avatar-inner">
                 ${photo ? `<img src="${photo}" />` : initial}
               </div>
@@ -2299,7 +2345,9 @@
 
       document.getElementById('edit-profile-name').value = profile.displayName || currentUser.displayName || 'OneDimMan';
       document.getElementById('edit-profile-username').value = profile.username || myEmail.split('@')[0];
-      document.getElementById('edit-profile-pronouns').value = profile.pronouns || '';
+      document.getElementById('edit-profile-badge').value = profile.badge || '🛡️ 授權探索成員';
+      document.getElementById('edit-profile-ring').value = profile.ringStyle || 'default';
+      document.getElementById('edit-profile-link').value = profile.link || '';
       document.getElementById('edit-profile-bio').value = profile.bio || '現實生活很累，隨便放放，隨便看看';
 
       pendingAvatarBase64 = profile.photoURL || currentUser.photoURL || null;
@@ -2347,7 +2395,9 @@
 
       const newName = document.getElementById('edit-profile-name').value.trim() || 'OneDimMan';
       const newUsername = document.getElementById('edit-profile-username').value.trim();
-      const newPronouns = document.getElementById('edit-profile-pronouns').value.trim();
+      const newBadge = document.getElementById('edit-profile-badge').value;
+      const newRing = document.getElementById('edit-profile-ring').value;
+      const newLink = document.getElementById('edit-profile-link').value.trim();
       const newBio = document.getElementById('edit-profile-bio').value.trim();
 
       const btn = document.getElementById('btn-save-profile');
@@ -2358,7 +2408,9 @@
         const updateData = {
           displayName: newName,
           username: newUsername,
-          pronouns: newPronouns,
+          badge: newBadge,
+          ringStyle: newRing,
+          link: newLink,
           bio: newBio,
           updatedAt: serverTimestamp ? serverTimestamp() : Date.now()
         };
@@ -2383,6 +2435,12 @@
 
         document.getElementById('menu-user-name').innerText = newName;
         document.getElementById('menu-user-bio').innerText = newBio || '尚未填寫個人介紹';
+        document.getElementById('menu-user-badge').innerText = newBadge;
+
+        const avatarRing = document.getElementById('menu-avatar-ring');
+        if (avatarRing) {
+          avatarRing.style.background = RING_GRADIENTS[newRing] || RING_GRADIENTS.default;
+        }
 
         updateAvatarElements(pendingAvatarBase64);
         closeProfileEditModal();
