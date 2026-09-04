@@ -799,6 +799,7 @@
       opacity: 0.55;
     }
 
+    /* ─── 📍 Google Maps 風格底部店家詳細卡片 (徹底隱藏) ─── */
     #gmaps-detail-sheet {
       position: fixed;
       left: 0;
@@ -812,13 +813,49 @@
       padding: 12px 18px 24px;
       z-index: 2500;
       box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.95);
-      transform: translateY(105%);
-      transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+      
+      /* 關鍵修復：平時徹底不渲染、不可見，避免露出一截黑邊 */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(120%);
+      transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease, visibility 0.28s;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-    #gmaps-detail-sheet.active { transform: translateY(0); }
+    
+    #gmaps-detail-sheet.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    
+    /* 電腦版時的詳細卡片定位 */
+    @media (min-width: 769px) {
+      #gmaps-detail-sheet {
+        left: calc(var(--sidebar-width) + 20px);
+        right: auto;
+        bottom: 20px;
+        width: 440px;
+        max-width: calc(100vw - var(--sidebar-width) - 40px);
+        border-radius: 20px;
+        border: 1px solid #3f3f46;
+        transform: translateY(40px) scale(0.96);
+      }
+      #gmaps-detail-sheet.active {
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* 手機版適配：避開底部抽屜 */
+    @media (max-width: 768px) {
+      .gmaps-layer-dock {
+        left: 14px;
+        bottom: 74px; /* 緊貼收合的 64px 抽屜上方 */
+      }
+    }
 
     .detail-sheet-pill {
       width: 40px;
@@ -2390,7 +2427,10 @@
     };
 
     window.closeDetailSheet = function() {
-      document.getElementById('gmaps-detail-sheet').classList.remove('active');
+      const sheet = document.getElementById('gmaps-detail-sheet');
+      if (sheet) {
+        sheet.classList.remove('active');
+      }
       selectedStoreId = null;
     };
 
