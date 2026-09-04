@@ -349,7 +349,6 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 🗺️ 左下角圖層 Dock（含避開店家詳細卡片動畫） ─── */
     .gmaps-layer-dock {
       position: absolute;
       display: flex;
@@ -357,14 +356,6 @@
       gap: 12px;
       z-index: 1200;
       pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-    }
-
-    body:has(#gmaps-detail-sheet.active) .gmaps-layer-dock {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transform: translateY(16px);
     }
 
     #gmaps-layer-box {
@@ -539,9 +530,7 @@
       border-color: #52525b;
       color: #fff;
     }
-    .ig-action-btn:active {
-      transform: scale(0.95);
-    }
+    .ig-action-btn:active { transform: scale(0.95); }
 
     .sheet-header-touch-zone {
       width: 100%;
@@ -799,7 +788,7 @@
       opacity: 0.55;
     }
 
-    /* ─── 📍 Google Maps 風格底部店家詳細卡片 (徹底隱藏) ─── */
+    /* ─── 📍 Google Maps 風格底部店家詳細卡片 (修正：徹底隱藏) ─── */
     #gmaps-detail-sheet {
       position: fixed;
       left: 0;
@@ -814,7 +803,6 @@
       z-index: 2500;
       box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.95);
       
-      /* 關鍵修復：平時徹底不渲染、不可見，避免露出一截黑邊 */
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -824,37 +812,12 @@
       flex-direction: column;
       gap: 12px;
     }
-    
+
     #gmaps-detail-sheet.active {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
       transform: translateY(0);
-    }
-    
-    /* 電腦版時的詳細卡片定位 */
-    @media (min-width: 769px) {
-      #gmaps-detail-sheet {
-        left: calc(var(--sidebar-width) + 20px);
-        right: auto;
-        bottom: 20px;
-        width: 440px;
-        max-width: calc(100vw - var(--sidebar-width) - 40px);
-        border-radius: 20px;
-        border: 1px solid #3f3f46;
-        transform: translateY(40px) scale(0.96);
-      }
-      #gmaps-detail-sheet.active {
-        transform: translateY(0) scale(1);
-      }
-    }
-    
-    /* 手機版適配：避開底部抽屜 */
-    @media (max-width: 768px) {
-      .gmaps-layer-dock {
-        left: 14px;
-        bottom: 74px; /* 緊貼收合的 64px 抽屜上方 */
-      }
     }
 
     .detail-sheet-pill {
@@ -955,7 +918,7 @@
       border: 1px solid var(--ig-border);
     }
 
-    /* ─── 🪐 右下角 IG 膠囊氣泡 ─── */
+    /* ─── 🪐 右下角 IG 膠囊氣泡 (純點擊展開，內建星圖排行) ─── */
     .ig-dock-capsule-container {
       position: fixed;
       right: 24px;
@@ -1282,6 +1245,244 @@
       font-weight: 700;
     }
 
+    /* ─── 📸 復刻截圖：Instagram「編輯個人檔案」全螢幕/滿版面板 ─── */
+    .ig-edit-profile-sheet {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 5000;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      animation: igSheetSlideUp 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .ig-edit-profile-sheet.active { display: flex; }
+    @keyframes igSheetSlideUp {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(0); }
+    }
+
+    .ig-edit-nav {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 0.5px solid #262626;
+      position: sticky;
+      top: 0;
+      background: #000000;
+      z-index: 10;
+    }
+    .ig-nav-back-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+    .ig-nav-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .ig-nav-save-btn {
+      background: transparent;
+      border: none;
+      color: var(--ig-blue);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ig-avatar-edit-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0 18px;
+    }
+    .ig-dual-avatar-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 140px;
+      height: 90px;
+    }
+    .ig-avatar-circle-main {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      border: 3px solid #000;
+      overflow: hidden;
+      background: #27272a;
+      position: absolute;
+      left: 10px;
+      z-index: 2;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .ig-avatar-circle-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .ig-avatar-circle-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid #333;
+      background: #18181b;
+      position: absolute;
+      right: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      z-index: 1;
+    }
+    .ig-edit-avatar-text {
+      color: var(--ig-blue);
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .ig-form-rows-container {
+      display: flex;
+      flex-direction: column;
+      padding-top: 6px;
+    }
+    .ig-form-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 14px 18px;
+      border-bottom: 0.5px solid #262626;
+      gap: 16px;
+    }
+    .ig-row-label {
+      width: 90px;
+      font-size: 14.5px;
+      color: #fff;
+      font-weight: 500;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .ig-row-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 14.5px;
+    }
+    .ig-row-input::placeholder {
+      color: #71717a;
+    }
+    .ig-row-value-text {
+      flex: 1;
+      font-size: 14.5px;
+      color: #71717a;
+    }
+
+    .ig-link-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 18px;
+      border-bottom: 0.5px solid #262626;
+      cursor: pointer;
+    }
+    .ig-link-label {
+      font-size: 14.5px;
+      color: #fff;
+    }
+    .ig-link-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      color: #71717a;
+    }
+
+    .ig-badge-new {
+      background: var(--ig-blue);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .ig-switch-row {
+      padding: 16px 18px 12px;
+      border-bottom: 0.5px solid #262626;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ig-switch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ig-switch-label-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ig-switch-subtext {
+      font-size: 12px;
+      color: #71717a;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+    .ig-switch-subtext a {
+      color: var(--ig-blue);
+      text-decoration: none;
+    }
+
+    .ig-toggle-btn {
+      width: 44px;
+      height: 26px;
+      border-radius: 999px;
+      background: #27272a;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .ig-toggle-btn::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+    }
+    .ig-toggle-btn.active {
+      background: #fff;
+    }
+    .ig-toggle-btn.active::after {
+      transform: translateX(18px);
+      background: #000;
+    }
+
+    .ig-bottom-link-item {
+      padding: 16px 18px;
+      font-size: 14.5px;
+      color: var(--ig-blue);
+      border-bottom: 0.5px solid #262626;
+      cursor: pointer;
+    }
+
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -1357,6 +1558,24 @@
         max-width: calc(100vw - var(--sidebar-width) - 40px);
         border-radius: 20px;
         border: 1px solid #3f3f46;
+        transform: translateY(40px) scale(0.96);
+      }
+      #gmaps-detail-sheet.active {
+        transform: translateY(0) scale(1);
+      }
+
+      /* 電腦版居中編輯檔案視窗 */
+      .ig-edit-profile-sheet {
+        inset: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) !important;
+        width: 420px;
+        height: 85vh;
+        max-height: 800px;
+        border-radius: 28px;
+        border: 1px solid #333;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.95);
       }
     }
 
@@ -1402,7 +1621,7 @@
 
       .gmaps-layer-dock {
         left: 14px;
-        bottom: 80px;
+        bottom: 74px;
       }
 
       .ig-dock-capsule-container {
@@ -1464,7 +1683,7 @@
     </div>
   </div>
 
-  <!-- 👤 IG 風格帳號管理選單 (優化精簡版) -->
+  <!-- 👤 IG 風格個人選單 -->
   <div class="modal-overlay" id="user-menu-modal" onclick="closeUserMenu()">
     <div class="ig-user-sheet" onclick="event.stopPropagation()">
       <div class="ig-user-sheet-header">
@@ -1481,7 +1700,7 @@
       <div class="ig-user-sheet-actions">
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-          編輯個人檔案 (改暱稱/介紹)
+          編輯個人檔案 (改暱稱/照片/介紹)
         </button>
 
         <button class="ig-user-sheet-btn" id="btn-open-whitelist" style="display:none;" onclick="openWhitelistModal()">
@@ -1498,32 +1717,108 @@
     </div>
   </div>
 
-  <!-- ✏️ 編輯個人檔案 Modal -->
-  <div class="modal-overlay" id="profile-edit-modal" onclick="closeProfileEditModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div style="font-size: 16px; font-weight: 800; color: #fff; display:flex; justify-content:space-between; align-items:center;">
-        <span>✏️ 編輯個人檔案</span>
-        <button class="detail-close-btn" onclick="closeProfileEditModal()">✕</button>
+  <!-- 📸 復刻截圖：Instagram「編輯個人檔案」完整頁面 -->
+  <div class="ig-edit-profile-sheet" id="profile-edit-modal">
+    <!-- 頂部導航 -->
+    <div class="ig-edit-nav">
+      <button class="ig-nav-back-btn" onclick="closeProfileEditModal()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <span class="ig-nav-title">編輯個人檔案</span>
+      <button class="ig-nav-save-btn" id="btn-save-profile" onclick="saveUserProfile()">完成</button>
+    </div>
+
+    <!-- 大頭貼更換區 (雙圓形) -->
+    <div class="ig-avatar-edit-section">
+      <div class="ig-dual-avatar-container" onclick="document.getElementById('avatar-file-input').click()">
+        <!-- 主大頭貼 -->
+        <div class="ig-avatar-circle-main user-avatar-sync">
+          🌱
+        </div>
+        <!-- 虛擬替身圓形 (裝飾) -->
+        <div class="ig-avatar-circle-avatar">
+          🐻
+        </div>
       </div>
-      
-      <div class="form-group">
-        <label>自訂暱稱 (顯示名稱)</label>
-        <input type="text" id="edit-profile-name" class="form-control" placeholder="輸入你想在星圖顯示的名稱" />
+      <input type="file" id="avatar-file-input" style="display:none;" accept="image/*" onchange="handleAvatarFileSelect(event)" />
+      <span class="ig-edit-avatar-text" onclick="document.getElementById('avatar-file-input').click()">編輯大頭貼照或虛擬替身</span>
+    </div>
+
+    <!-- 表單欄位 -->
+    <div class="ig-form-rows-container">
+      <div class="ig-form-row">
+        <span class="ig-row-label">姓名</span>
+        <input type="text" id="edit-profile-name" class="ig-row-input" placeholder="姓名" />
+      </div>
+      <div class="ig-form-row">
+        <span class="ig-row-label">用戶名稱</span>
+        <input type="text" id="edit-profile-username" class="ig-row-input" placeholder="用戶名稱" />
+      </div>
+      <div class="ig-form-row">
+        <span class="ig-row-label">性別認同代名詞</span>
+        <input type="text" id="edit-profile-pronouns" class="ig-row-input" placeholder="性別認同代名詞" />
+      </div>
+      <div class="ig-form-row">
+        <span class="ig-row-label">個人簡介</span>
+        <input type="text" id="edit-profile-bio" class="ig-row-input" placeholder="個人簡介" />
       </div>
 
-      <div class="form-group">
-        <label>個人介紹 (一句話或飲食理念)</label>
-        <input type="text" id="edit-profile-bio" class="form-control" placeholder="例如：純素推廣者、無肉無酒新竹日常" />
+      <!-- 連結與次要設定項 -->
+      <div class="ig-link-row">
+        <span class="ig-link-label">連結</span>
+        <div class="ig-link-right">
+          <span>新增連結</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
       </div>
 
-      <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeProfileEditModal()">取消</button>
-        <button class="btn-primary" id="btn-save-profile" onclick="saveUserProfile()">儲存更新</button>
+      <div class="ig-link-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+          <span class="ig-link-label">橫幅</span>
+          <div class="ig-link-right">
+            <span>1</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+        <span style="font-size:12px; color:#71717a;">新增音樂、個人檔案等內容。</span>
       </div>
+
+      <div class="ig-link-row">
+        <span class="ig-link-label">重新排序網格</span>
+        <div class="ig-link-right">
+          <span class="ig-badge-new">最新</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <div class="ig-link-row">
+        <span class="ig-link-label">性別</span>
+        <div class="ig-link-right">
+          <span>性別</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- AI 創作者開關 -->
+      <div class="ig-switch-row">
+        <div class="ig-switch-header">
+          <div class="ig-switch-label-group">
+            <span class="ig-link-label">AI 創作者</span>
+            <span class="ig-badge-new">最新</span>
+          </div>
+          <div class="ig-toggle-btn" id="ai-creator-toggle" onclick="this.classList.toggle('active')"></div>
+        </div>
+        <span class="ig-switch-subtext">如果你的內容經常使用 AI，請為個人檔案加上此標籤。<a href="#">瞭解詳情</a></span>
+      </div>
+
+      <div class="ig-bottom-link-item">切換為專業帳號</div>
+      <div class="ig-bottom-link-item" style="margin-bottom: 40px;">個人資料設定</div>
     </div>
   </div>
 
-  <!-- 🛡️ 授權成員名單維護彈窗 (純管理功能) -->
+  <!-- 🛡️ 授權成員名單維護彈窗 -->
   <div class="modal-overlay" id="whitelist-modal" onclick="closeWhitelistModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div style="font-size: 16px; font-weight: 800; color: #fff; display:flex; justify-content:space-between; align-items:center;">
@@ -1596,7 +1891,6 @@
   <!-- 側邊欄 (電腦) / 底部抽屜 (手機) -->
   <div id="sidebar" class="sheet-collapsed">
     
-    <!-- 💻 電腦端頂部 Header：IG 風格操作按鈕群 -->
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="ig-action-group">
@@ -1697,7 +1991,6 @@
       </div>
     </div>
 
-    <!-- 手機版抽屜內按鈕列 (IG 膠囊風) -->
     <div class="actions-bar">
       <button class="ig-action-btn" onclick="document.getElementById('import-file').click()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -1852,9 +2145,9 @@
       updateDoc, 
       deleteDoc, 
       doc, 
-      setDoc,
+      setDoc, 
       getDoc, 
-      getDocs,
+      getDocs, 
       writeBatch, 
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -1863,7 +2156,7 @@
       signInWithPopup, 
       GoogleAuthProvider, 
       signOut, 
-      updateProfile,
+      updateProfile, 
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -1890,6 +2183,7 @@
     let allMembersList = [];
     let userProfilesMap = {};
     let viewingTargetEmail = "mine";
+    let pendingAvatarBase64 = null; // 暫存使用者挑選的新大頭貼
 
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
       try {
@@ -1902,7 +2196,6 @@
 
         onAuthStateChanged(auth, async (user) => {
           const lockScreen = document.getElementById('auth-lock-screen');
-          const avatarSyncEls = document.querySelectorAll('.user-avatar-sync');
 
           if (user) {
             const userEmail = (user.email || "").toLowerCase().trim();
@@ -1936,14 +2229,6 @@
             if (adminWhitelistBtn) {
               adminWhitelistBtn.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
             }
-
-            avatarSyncEls.forEach(el => {
-              if (user.photoURL) {
-                el.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
-              } else {
-                el.innerText = '👤';
-              }
-            });
 
             await loadUserProfile(userEmail);
             await loadAllMembers();
@@ -1989,22 +2274,39 @@
 
     let stores = [];
 
+    // ─── 讀取自訂 Profile ───
     async function loadUserProfile(userEmail) {
       try {
         const profileDoc = await getDoc(doc(db, "user_profiles", userEmail));
+        let data = {};
         if (profileDoc.exists()) {
-          const data = profileDoc.data();
+          data = profileDoc.data();
           userProfilesMap[userEmail] = data;
-          document.getElementById('menu-user-name').innerText = data.displayName || currentUser.displayName || '蔬食探索者';
-          document.getElementById('menu-user-bio').innerText = data.bio || '尚未填寫個人介紹';
-        } else {
-          document.getElementById('menu-user-name').innerText = currentUser.displayName || '蔬食探索者';
-          document.getElementById('menu-user-bio').innerText = '尚未填寫個人介紹';
         }
+
+        const displayName = data.displayName || currentUser.displayName || 'OneDimMan';
+        const bio = data.bio || '現實生活很累，隨便放放，隨便看看';
+        const photo = data.photoURL || currentUser.photoURL || '';
+
+        document.getElementById('menu-user-name').innerText = displayName;
+        document.getElementById('menu-user-bio').innerText = bio;
         document.getElementById('menu-user-email').innerText = userEmail;
+
+        updateAvatarElements(photo);
       } catch (e) {
         console.error("讀取個人檔案失敗", e);
       }
+    }
+
+    function updateAvatarElements(photoURL) {
+      const avatarSyncEls = document.querySelectorAll('.user-avatar-sync');
+      avatarSyncEls.forEach(el => {
+        if (photoURL) {
+          el.innerHTML = `<img src="${photoURL}" alt="avatar" />`;
+        } else {
+          el.innerText = '🌱';
+        }
+      });
     }
 
     async function loadAllMembers() {
@@ -2034,6 +2336,11 @@
     function getMemberBio(email) {
       const p = userProfilesMap[email.toLowerCase()];
       return (p && p.bio) ? p.bio : '';
+    }
+
+    function getMemberPhoto(email) {
+      const p = userProfilesMap[email.toLowerCase()];
+      return (p && p.photoURL) ? p.photoURL : '';
     }
 
     function getActiveViewEmail() {
@@ -2076,13 +2383,19 @@
         title.innerText = `${getMemberDisplayName(currentView)} 的星圖`;
       }
 
+      // 重疊小頭像（有照片就顯示照片，無照片顯示英文字母）
       let stackHtml = '';
       allMembersList.slice(0, 3).forEach((m, idx) => {
+        const photo = getMemberPhoto(m);
         const name = getMemberDisplayName(m);
         const initial = name[0].toUpperCase();
-        const colors = ['#f09433', '#dc2743', '#0095f6', '#10b981'];
-        const bg = colors[idx % colors.length];
-        stackHtml += `<div class="dock-stack-avatar" style="background: ${bg};">${initial}</div>`;
+        if (photo) {
+          stackHtml += `<div class="dock-stack-avatar"><img src="${photo}" /></div>`;
+        } else {
+          const colors = ['#f09433', '#dc2743', '#0095f6', '#10b981'];
+          const bg = colors[idx % colors.length];
+          stackHtml += `<div class="dock-stack-avatar" style="background: ${bg};">${initial}</div>`;
+        }
       });
       stack.innerHTML = stackHtml;
 
@@ -2094,6 +2407,7 @@
           email,
           displayName: getMemberDisplayName(email),
           bio: getMemberBio(email),
+          photo: getMemberPhoto(email),
           visitedCount,
           pct
         };
@@ -2102,7 +2416,7 @@
       memberStats.sort((a, b) => b.visitedCount - a.visitedCount);
 
       let listHtml = '';
-      memberStats.forEach(({ email, displayName, bio, visitedCount, pct }, idx) => {
+      memberStats.forEach(({ email, displayName, bio, photo, visitedCount, pct }, idx) => {
         const isMe = email === myEmail;
         const isTarget = (viewingTargetEmail === 'mine' && isMe) || (currentView === email);
         const initial = displayName[0].toUpperCase();
@@ -2111,7 +2425,9 @@
         listHtml += `
           <div class="dock-friend-item ${isTarget ? 'active' : ''}" onclick="selectViewTarget('${isMe ? 'mine' : email}')">
             <div class="dock-friend-avatar">
-              <div class="dock-friend-avatar-inner">${initial}</div>
+              <div class="dock-friend-avatar-inner">
+                ${photo ? `<img src="${photo}" />` : initial}
+              </div>
               <span class="dock-rank-badge">${medal}</span>
             </div>
             <div class="dock-friend-info">
@@ -2127,11 +2443,20 @@
       container.innerHTML = listHtml;
     }
 
+    // ─── 📸 復刻截圖：打開編輯個人檔案介面 ───
     window.openProfileEditModal = function() {
       closeUserMenu();
       const myEmail = currentUser.email.toLowerCase();
-      document.getElementById('edit-profile-name').value = getMemberDisplayName(myEmail);
-      document.getElementById('edit-profile-bio').value = getMemberBio(myEmail);
+      const profile = userProfilesMap[myEmail] || {};
+
+      document.getElementById('edit-profile-name').value = profile.displayName || currentUser.displayName || 'OneDimMan';
+      document.getElementById('edit-profile-username').value = profile.username || myEmail.split('@')[0];
+      document.getElementById('edit-profile-pronouns').value = profile.pronouns || '';
+      document.getElementById('edit-profile-bio').value = profile.bio || '現實生活很累，隨便放放，隨便看看';
+
+      pendingAvatarBase64 = profile.photoURL || currentUser.photoURL || null;
+      updateAvatarElements(pendingAvatarBase64);
+
       document.getElementById('profile-edit-modal').classList.add('active');
     };
 
@@ -2139,40 +2464,88 @@
       document.getElementById('profile-edit-modal').classList.remove('active');
     };
 
+    // ─── 🖼️ 選擇並智慧壓縮大頭貼圖片 (HTML5 Canvas Base64) ───
+    window.handleAvatarFileSelect = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 200; // 壓縮為 200x200 極佳大頭貼尺寸
+          let w = img.width, h = img.height;
+          if (w > h) {
+            if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+          } else {
+            if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          // 壓縮為輕量 WebP/JPEG 格式，直接存入 Firestore
+          pendingAvatarBase64 = canvas.toDataURL('image/webp', 0.82);
+          updateAvatarElements(pendingAvatarBase64);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // ─── 儲存更新個人檔案 ───
     window.saveUserProfile = async function() {
       if (!currentUser) return;
       const myEmail = currentUser.email.toLowerCase();
-      const newName = document.getElementById('edit-profile-name').value.trim();
-      const newBio = document.getElementById('edit-profile-bio').value.trim();
 
-      if (!newName) return alert('請填寫暱稱！');
+      const newName = document.getElementById('edit-profile-name').value.trim() || 'OneDimMan';
+      const newUsername = document.getElementById('edit-profile-username').value.trim();
+      const newPronouns = document.getElementById('edit-profile-pronouns').value.trim();
+      const newBio = document.getElementById('edit-profile-bio').value.trim();
 
       const btn = document.getElementById('btn-save-profile');
       btn.innerText = '儲存中...';
       btn.disabled = true;
 
       try {
-        await setDoc(doc(db, "user_profiles", myEmail), {
+        const updateData = {
           displayName: newName,
+          username: newUsername,
+          pronouns: newPronouns,
           bio: newBio,
           updatedAt: serverTimestamp ? serverTimestamp() : Date.now()
-        }, { merge: true });
+        };
+
+        if (pendingAvatarBase64) {
+          updateData.photoURL = pendingAvatarBase64;
+        }
+
+        await setDoc(doc(db, "user_profiles", myEmail), updateData, { merge: true });
 
         try {
-          await updateProfile(currentUser, { displayName: newName });
+          await updateProfile(currentUser, { 
+            displayName: newName,
+            ...(pendingAvatarBase64 ? { photoURL: pendingAvatarBase64 } : {})
+          });
         } catch (e) {}
 
-        userProfilesMap[myEmail] = { displayName: newName, bio: newBio };
+        userProfilesMap[myEmail] = {
+          ...userProfilesMap[myEmail],
+          ...updateData
+        };
+
         document.getElementById('menu-user-name').innerText = newName;
         document.getElementById('menu-user-bio').innerText = newBio || '尚未填寫個人介紹';
 
+        updateAvatarElements(pendingAvatarBase64);
         closeProfileEditModal();
         refreshAll();
-        alert('✅ 個人檔案更新成功！');
       } catch (err) {
         alert(`更新失敗：${err.message}`);
       } finally {
-        btn.innerText = '儲存更新';
+        btn.innerText = '完成';
         btn.disabled = false;
       }
     };
@@ -2427,10 +2800,7 @@
     };
 
     window.closeDetailSheet = function() {
-      const sheet = document.getElementById('gmaps-detail-sheet');
-      if (sheet) {
-        sheet.classList.remove('active');
-      }
+      document.getElementById('gmaps-detail-sheet').classList.remove('active');
       selectedStoreId = null;
     };
 
