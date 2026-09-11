@@ -26,7 +26,7 @@
   </script>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Leaflet Routing Machine 樣式與核心 -->
+  <!-- Leaflet Routing Machine 導航樣式與核心 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
@@ -970,7 +970,7 @@
       border: 1px solid var(--app-border);
     }
 
-    /* ─── 🛣️ 站內懸浮路線控制欄與暗黑樣式 ─── */
+    /* ─── 🛣️ 懸浮多模式路線控制器 ─── */
     #route-indicator-bar {
       position: fixed;
       top: 20px;
@@ -978,41 +978,72 @@
       transform: translateX(-50%);
       z-index: 2200;
       background: rgba(20, 20, 24, 0.94);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid var(--app-accent);
-      box-shadow: 0 8px 30px var(--star-gradient-glow);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--app-border-light);
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.9);
       border-radius: 999px;
-      padding: 6px 14px 6px 16px;
+      padding: 6px 8px 6px 12px;
       display: none;
       align-items: center;
-      gap: 12px;
-      font-size: 12.5px;
-      font-weight: 700;
-      color: #fff;
-      animation: igDockPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+      gap: 10px;
+      animation: igDockPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.2);
     }
-    .btn-clear-route {
-      background: rgba(244, 63, 94, 0.2);
-      border: 1px solid var(--app-heart);
-      color: #fff;
-      padding: 4px 10px;
+    
+    .route-mode-pill-group {
+      display: flex;
+      align-items: center;
+      background: #000;
       border-radius: 999px;
-      font-size: 11px;
+      padding: 2px;
+      border: 1px solid var(--app-border);
+      gap: 2px;
+    }
+    .btn-route-mode {
+      background: transparent;
+      border: none;
+      color: var(--app-text-sub);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-route-mode:hover { color: #fff; }
+    .btn-route-mode.active {
+      background: var(--star-gradient);
+      color: #ffffff;
+      box-shadow: 0 0 12px var(--star-gradient-glow);
+    }
+
+    .btn-clear-route {
+      background: rgba(244, 63, 94, 0.18);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: var(--app-heart);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11.5px;
       font-weight: 800;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: all 0.15s;
     }
-    .btn-clear-route:hover { background: var(--app-heart); }
+    .btn-clear-route:hover {
+      background: var(--app-heart);
+      color: #fff;
+    }
 
-    /* Leaflet Routing Machine 暗黑玻璃主題覆蓋 */
+    /* Leaflet Routing Machine 暗黑星空主題面板覆蓋 */
     .leaflet-routing-container {
-      background: rgba(18, 18, 22, 0.95) !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
+      background: rgba(18, 18, 22, 0.96) !important;
+      backdrop-filter: blur(24px) !important;
+      -webkit-backdrop-filter: blur(24px) !important;
       border: 1px solid var(--app-border-light) !important;
-      border-radius: 16px !important;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9) !important;
+      border-radius: 18px !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.92) !important;
       color: #fafafa !important;
       max-width: 310px !important;
       max-height: 380px !important;
@@ -1556,6 +1587,11 @@
       #gmaps-detail-sheet.active {
         transform: translateY(0) scale(1);
       }
+
+      #route-indicator-bar {
+        left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
+        top: 24px;
+      }
     }
 
     @media (max-width: 768px) {
@@ -1645,10 +1681,16 @@
         display: none !important;
       }
 
+      #route-indicator-bar {
+        top: 125px;
+        width: calc(100vw - 28px);
+        justify-content: space-between;
+      }
+
       .leaflet-routing-container {
         max-width: 250px !important;
-        max-height: 240px !important;
-        top: 80px !important;
+        max-height: 220px !important;
+        top: 180px !important;
       }
     }
   </style>
@@ -1689,10 +1731,14 @@
     </div>
   </div>
 
-  <!-- 🛣️ 懸浮路線控制面板 -->
+  <!-- 🛣️ 懸浮路線控制器 (汽車 / 機車 / 行人 模式切換) -->
   <div id="route-indicator-bar">
-    <span id="route-bar-text">🛣️ 路線規劃模式</span>
-    <button class="btn-clear-route" onclick="clearRoute()">✕ 清除路線</button>
+    <div class="route-mode-pill-group">
+      <button class="btn-route-mode" id="btn-mode-car" onclick="switchRouteMode('car')">🚗 汽車</button>
+      <button class="btn-route-mode active" id="btn-mode-moto" onclick="switchRouteMode('moto')">🛵 機車</button>
+      <button class="btn-route-mode" id="btn-mode-foot" onclick="switchRouteMode('foot')">🚶 行人</button>
+    </div>
+    <button class="btn-clear-route" onclick="clearRoute()">✕ 結束導航</button>
   </div>
 
   <!-- 👤 原創社群風格個人選單 -->
@@ -1840,9 +1886,6 @@
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="ig-action-group">
-        <button class="ig-action-btn" onclick="planTourRoute()" title="依目前清單順序規劃巡航路線" style="border-color: var(--app-accent); color: #fff;">
-          🛣️ 路線巡航
-        </button>
         <button class="ig-action-btn" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           匯入
@@ -1941,9 +1984,6 @@
     </div>
 
     <div class="actions-bar">
-      <button class="ig-action-btn" onclick="planTourRoute()" style="border-color: var(--app-accent);">
-        🛣️ 路線巡航
-      </button>
       <button class="ig-action-btn" onclick="document.getElementById('import-file').click()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         匯入 JSON
@@ -2008,7 +2048,7 @@
     </div>
     <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
     <div class="detail-actions-row">
-      <button id="sheet-btn-route-here" class="btn-gmaps-action primary">🛣️ 站內路線</button>
+      <button id="sheet-btn-route-here" class="btn-gmaps-action primary">🛣️ 站內導航</button>
       <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action secondary">🧭 Google App</a>
       <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary">❤️ 我的打卡</button>
       <button id="sheet-btn-edit" class="btn-gmaps-action secondary">✏️ 編輯</button>
@@ -2140,19 +2180,19 @@
     let viewingTargetEmail = "mine";
     let pendingAvatarBase64 = null;
 
-    // ─── 🛣️ 站內路線引擎狀態變數 ───
+    // ─── 🛣️ 站內導航與星鏈狀態 ───
     let routingControl = null;
+    let isNavigating = false;
+    let activeNavStoreId = null;
+    let currentRouteMode = 'moto'; // 預設機車模式
     let userCurrentLocation = null;
 
-    // 嘗試預先取得使用者 GPS 位置
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           userCurrentLocation = [pos.coords.latitude, pos.coords.longitude];
         },
-        (err) => {
-          console.log("未取得使用者位置授權，規劃時將預設以市中心為起點");
-        },
+        () => {},
         { enableHighAccuracy: true, timeout: 8000 }
       );
     }
@@ -2709,7 +2749,7 @@
 
     let selectedStoreId = null;
 
-    // ─── 🛣️ 核心路線規劃實作 (方案一：Leaflet Routing Machine + OSRM) ───
+    // ─── 🛣️ 站內多模式真實道路導航 (汽車 / 機車 / 行人) ───
     window.clearRoute = function() {
       if (routingControl) {
         try {
@@ -2717,26 +2757,79 @@
         } catch (e) {}
         routingControl = null;
       }
+      isNavigating = false;
+      activeNavStoreId = null;
       const bar = document.getElementById('route-indicator-bar');
       if (bar) bar.style.display = 'none';
+
+      // 結束導航，將星鏈連線重新繪製點亮
+      renderConstellation(getFilteredStores());
     };
 
-    function showRouteControlBar(titleText) {
-      const bar = document.getElementById('route-indicator-bar');
-      const textEl = document.getElementById('route-bar-text');
-      if (bar && textEl) {
-        textEl.innerText = titleText || '🛣️ 路線已就緒';
-        bar.style.display = 'flex';
+    // 取得指定交通工具模式對應的 OSRM Router 與專屬路徑顏色
+    function getRouterConfig(mode) {
+      if (mode === 'foot') {
+        return {
+          router: L.Routing.osrmv1({
+            serviceUrl: 'https://routing.openstreetmap.de/routed-foot/route/v1',
+            profile: 'driving'
+          }),
+          styles: [
+            { color: '#f59e0b', opacity: 0.45, weight: 8 },
+            { color: '#fbbf24', opacity: 0.95, weight: 4.5, dashArray: '6, 8' }
+          ]
+        };
+      } else if (mode === 'moto') {
+        // 機車/摩托車：以自行車與街道專用路網精準計算穿梭小路捷徑
+        return {
+          router: L.Routing.osrmv1({
+            serviceUrl: 'https://routing.openstreetmap.de/routed-bike/route/v1',
+            profile: 'driving'
+          }),
+          styles: [
+            { color: '#059669', opacity: 0.45, weight: 8 },
+            { color: '#10b981', opacity: 0.95, weight: 4.5 }
+          ]
+        };
+      } else {
+        // 汽車：官方行車引擎
+        return {
+          router: L.Routing.osrmv1({
+            serviceUrl: 'https://router.project-osrm.org/route/v1',
+            profile: 'car'
+          }),
+          styles: [
+            { color: '#0284c7', opacity: 0.45, weight: 8 },
+            { color: '#38bdf8', opacity: 0.95, weight: 4.5 }
+          ]
+        };
       }
     }
 
-    // 規劃由「我的位置（或起點）」前往該店家
-    window.planRouteToStore = function(storeId) {
+    // 啟動並繪製導航路線 (導航中自動隱藏星鏈)
+    window.planRouteToStore = function(storeId, mode = currentRouteMode) {
       const store = stores.find(s => s.id === storeId);
       if (!store) return;
 
-      clearRoute();
+      activeNavStoreId = storeId;
+      currentRouteMode = mode;
+      isNavigating = true;
+
+      // 導航期間隱藏星鏈連線
+      constellationLayer.clearLayers();
+
+      if (routingControl) {
+        try { map.removeControl(routingControl); } catch (e) {}
+        routingControl = null;
+      }
+
       closeDetailSheet();
+
+      // 更新按鈕 active 樣式
+      ['car', 'moto', 'foot'].forEach(m => {
+        const btn = document.getElementById(`btn-mode-${m}`);
+        if (btn) btn.classList.toggle('active', m === mode);
+      });
 
       const startCoord = userCurrentLocation || [24.805, 120.975];
       const waypoints = [
@@ -2744,65 +2837,29 @@
         L.latLng(store.lat, store.lng)
       ];
 
+      const cfg = getRouterConfig(mode);
+
       routingControl = L.Routing.control({
         waypoints: waypoints,
-        router: L.Routing.osrmv1({
-          serviceUrl: 'https://router.project-osrm.org/route/v1',
-          profile: 'car'
-        }),
-        lineOptions: {
-          styles: [
-            { color: '#06b6d4', opacity: 0.5, weight: 8 },
-            { color: '#10b981', opacity: 0.9, weight: 4.5 }
-          ]
-        },
-        createMarker: function(i, wp, nWps) {
-          // 不額外產生 Leaflet Routing Machine 預設粗糙標記，維持地圖乾淨度
-          return null;
-        },
+        router: cfg.router,
+        lineOptions: { styles: cfg.styles },
+        createMarker: function() { return null; }, // 不產生 LRM 內建粗糙圖示，保持極簡
         showAlternatives: false,
         addWaypoints: false,
         fitSelectedRoutes: true
       }).addTo(map);
 
-      showRouteControlBar(`導航至：${store.name}`);
+      routingControl.on('routingerror', function(err) {
+        console.warn("路由請求失敗或逾時:", err);
+      });
+
+      const bar = document.getElementById('route-indicator-bar');
+      if (bar) bar.style.display = 'flex';
     };
 
-    // 依目前清單排序串連「前 6~8 間」店家的真實巡航馬路路線
-    window.planTourRoute = function() {
-      const filtered = getFilteredStores();
-      if (filtered.length < 2) {
-        return alert("請至少讓地圖上有 2 間以上符合條件的店家，以進行巡航路線規劃！");
-      }
-
-      clearRoute();
-
-      // 為避免免費公開 OSRM 伺服器負擔，最多取前 8 個站點進行連續沿路規劃
-      const tourStores = filtered.slice(0, 8);
-      const waypoints = tourStores.map(s => L.latLng(s.lat, s.lng));
-
-      routingControl = L.Routing.control({
-        waypoints: waypoints,
-        router: L.Routing.osrmv1({
-          serviceUrl: 'https://router.project-osrm.org/route/v1',
-          profile: 'car'
-        }),
-        lineOptions: {
-          styles: [
-            { color: '#8b5cf6', opacity: 0.45, weight: 8 },
-            { color: '#38bdf8', opacity: 0.9, weight: 4.5 }
-          ]
-        },
-        createMarker: function() { return null; },
-        addWaypoints: false,
-        fitSelectedRoutes: true
-      }).addTo(map);
-
-      showRouteControlBar(`已串聯 ${tourStores.length} 間店家巡航`);
-
-      if (window.innerWidth <= 768) {
-        setMobileSheetState('collapsed');
-      }
+    window.switchRouteMode = function(mode) {
+      if (!activeNavStoreId) return;
+      planRouteToStore(activeNavStoreId, mode);
     };
 
     window.openDetailSheet = function(id) {
@@ -2831,7 +2888,7 @@
 
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
 
-      // 綁定站內路線規劃按鈕
+      // 站內導航觸發
       document.getElementById('sheet-btn-route-here').onclick = () => planRouteToStore(store.id);
 
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
@@ -3157,8 +3214,11 @@
       }
     };
 
+    // ─── 繪製星鏈連線 (導航狀態下會自動阻斷不渲染) ───
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
+      if (isNavigating) return; // 導航中隱藏星鏈
+
       const visited = filteredStores.filter(s => isStoreUnlockedForCurrentView(s));
       if (visited.length < 2) return;
 
