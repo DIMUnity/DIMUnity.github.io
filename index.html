@@ -26,7 +26,6 @@
   </script>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Leaflet Routing Machine 導航樣式與核心 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
@@ -970,7 +969,7 @@
       border: 1px solid var(--app-border);
     }
 
-    /* ─── 🛣️ 懸浮多模式路線控制器 ─── */
+    /* ─── 🛣️ 路線規劃模式預覽 Bar (含 ▶ 開始 按鈕) ─── */
     #route-indicator-bar {
       position: fixed;
       top: 20px;
@@ -1020,13 +1019,30 @@
       box-shadow: 0 0 12px var(--star-gradient-glow);
     }
 
+    .btn-start-nav-primary {
+      background: #10b981;
+      border: none;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+      transition: opacity 0.15s;
+    }
+    .btn-start-nav-primary:hover { opacity: 0.9; }
+
     .btn-clear-route {
       background: rgba(244, 63, 94, 0.18);
       border: 1px solid rgba(244, 63, 94, 0.4);
       color: var(--app-heart);
-      padding: 5px 12px;
+      padding: 5px 10px;
       border-radius: 999px;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 800;
       cursor: pointer;
       transition: all 0.15s;
@@ -1036,63 +1052,232 @@
       color: #fff;
     }
 
-    /* Leaflet Routing Machine 暗黑星空主題面板覆蓋 */
-    .leaflet-routing-container {
-      background: rgba(18, 18, 22, 0.96) !important;
-      backdrop-filter: blur(24px) !important;
-      -webkit-backdrop-filter: blur(24px) !important;
-      border: 1px solid var(--app-border-light) !important;
-      border-radius: 18px !important;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.92) !important;
-      color: #fafafa !important;
-      max-width: 310px !important;
-      max-height: 380px !important;
-      padding: 10px 12px !important;
-      font-size: 12px !important;
-      line-height: 1.4 !important;
-      overflow-y: auto !important;
-      scrollbar-width: thin;
-      scrollbar-color: #3f3f46 transparent;
+    /* ─── 🧭 正式沉浸式導航 HUD (對標 Google Maps 畫面) ─── */
+    #nav-top-banner {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      z-index: 5000;
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      pointer-events: auto;
+      animation: navSlideDown 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
     }
-    .leaflet-routing-alt {
-      background: transparent !important;
-      padding: 0 !important;
-      border-bottom: 1px solid var(--app-border) !important;
+    @keyframes navSlideDown {
+      0% { transform: translateY(-30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
     }
-    .leaflet-routing-alt h2 {
-      font-size: 13.5px !important;
-      color: var(--app-accent) !important;
-      font-weight: 800 !important;
-      margin-bottom: 4px !important;
+
+    .nav-top-main-card {
+      width: 100%;
+      background: #005953;
+      border-radius: 20px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
-    .leaflet-routing-alt h3 {
-      font-size: 11.5px !important;
-      color: var(--app-text-sub) !important;
-      margin-bottom: 6px !important;
+    .nav-top-left-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
-    .leaflet-routing-alt table {
-      width: 100% !important;
-      border-collapse: collapse !important;
+    .nav-maneuver-icon {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .leaflet-routing-alt tr {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    .nav-maneuver-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
     }
-    .leaflet-routing-alt tr:hover {
-      background: rgba(255, 255, 255, 0.06) !important;
+    .nav-maneuver-dist {
+      font-size: 12px;
+      opacity: 0.85;
+      font-weight: 600;
     }
-    .leaflet-routing-alt td {
-      padding: 6px 4px !important;
-      color: #d4d4d8 !important;
-      font-size: 11.5px !important;
+    .nav-maneuver-main {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
     }
-    .leaflet-routing-icon {
-      filter: invert(1) brightness(1.8);
-      margin-right: 6px;
+    .nav-top-sparkle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #0284c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .leaflet-routing-collapse-btn {
-      color: #fff !important;
-      top: 6px !important;
-      right: 6px !important;
+
+    .nav-next-step-chip {
+      background: #004540;
+      border-radius: 12px;
+      padding: 6px 14px;
+      margin-top: 4px;
+      margin-left: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #e6fffa;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+
+    /* 右側懸浮控制按鈕組 (指北針、音量) */
+    #nav-right-controls {
+      position: fixed;
+      right: 16px;
+      bottom: 120px;
+      z-index: 5000;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: auto;
+    }
+    .nav-floating-circle-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #111827;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s;
+    }
+    .nav-floating-circle-btn:active { transform: scale(0.92); }
+
+    /* 底部時間與結束導航面板 (對標白底卡片) */
+    #nav-bottom-card {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 5000;
+      background: #ffffff;
+      border-radius: 24px 24px 0 0;
+      padding: 12px 20px 24px;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.3);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      color: #111827;
+      animation: navSlideUp 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    @keyframes navSlideUp {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(0); }
+    }
+
+    .nav-bottom-drag-pill {
+      width: 40px;
+      height: 4px;
+      background: #d1d5db;
+      border-radius: 999px;
+      margin: 0 auto;
+    }
+    .nav-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-stats-left {
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-time-large {
+      font-size: 28px;
+      font-weight: 800;
+      color: #10b981; /* 綠色行車時間 */
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+    .nav-meta-sub {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #4b5563;
+      margin-top: 3px;
+    }
+    .nav-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-btn-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #f3f4f6;
+      border: none;
+      font-size: 19px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .nav-btn-end-pill {
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 800;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+      transition: background 0.15s, transform 0.1s;
+    }
+    .nav-btn-end-pill:active { transform: scale(0.95); }
+
+    /* 隱藏 Leaflet Routing Machine 原生文字列表，由自訂 HUD 接管 */
+    .leaflet-routing-container { display: none !important; }
+
+    /* 自訂導航真實位置藍色箭頭標記 */
+    .nav-user-heading-cone {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .nav-user-circle {
+      width: 22px;
+      height: 22px;
+      background: #2563eb;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 16px rgba(37, 99, 235, 0.8);
+      position: relative;
+    }
+    .nav-user-heading-pointer {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 12px solid #2563eb;
     }
 
     /* ─── 右下角星圖視角膠囊 ─── */
@@ -1423,7 +1608,7 @@
       font-weight: 700;
     }
 
-    /* ─── 📸 編輯個人檔案 Card 視窗 ─── */
+    /* ─── 📸 編輯個人檔案 Card 彈窗 ─── */
     .ig-edit-card {
       background: #18181b;
       border: 1px solid var(--app-border);
@@ -1592,6 +1777,19 @@
         left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
         top: 24px;
       }
+
+      #nav-top-banner {
+        left: calc(var(--sidebar-width) + 20px);
+        right: 20px;
+        max-width: 500px;
+      }
+      #nav-bottom-card {
+        left: calc(var(--sidebar-width) + 20px);
+        right: 20px;
+        bottom: 20px;
+        max-width: 500px;
+        border-radius: 24px;
+      }
     }
 
     @media (max-width: 768px) {
@@ -1686,12 +1884,6 @@
         width: calc(100vw - 28px);
         justify-content: space-between;
       }
-
-      .leaflet-routing-container {
-        max-width: 250px !important;
-        max-height: 220px !important;
-        top: 180px !important;
-      }
     }
   </style>
 </head>
@@ -1731,14 +1923,60 @@
     </div>
   </div>
 
-  <!-- 🛣️ 懸浮路線控制器 (汽車 / 機車 / 行人 模式切換) -->
+  <!-- 🛣️ 路線規劃模式控制條 (切換汽車/機車/行人 + ▶ 開始導航) -->
   <div id="route-indicator-bar">
     <div class="route-mode-pill-group">
       <button class="btn-route-mode" id="btn-mode-car" onclick="switchRouteMode('car')">🚗 汽車</button>
       <button class="btn-route-mode active" id="btn-mode-moto" onclick="switchRouteMode('moto')">🛵 機車</button>
       <button class="btn-route-mode" id="btn-mode-foot" onclick="switchRouteMode('foot')">🚶 行人</button>
     </div>
-    <button class="btn-clear-route" onclick="clearRoute()">✕ 結束導航</button>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <button class="btn-start-nav-primary" onclick="startActiveNavigation()">▶ 開始</button>
+      <button class="btn-clear-route" onclick="clearRoute()">✕</button>
+    </div>
+  </div>
+
+  <!-- 🧭 沉浸式實時導航 HUD (對標 Google Maps 畫面) -->
+  <!-- 頂部指引卡 -->
+  <div id="nav-top-banner">
+    <div class="nav-top-main-card">
+      <div class="nav-top-left-info">
+        <div class="nav-maneuver-icon" id="nav-maneuver-icon">↑</div>
+        <div class="nav-maneuver-text">
+          <div class="nav-maneuver-dist" id="nav-maneuver-dist">250 公尺後</div>
+          <div class="nav-maneuver-main" id="nav-maneuver-main">往東</div>
+        </div>
+      </div>
+      <div class="nav-top-sparkle">✦</div>
+    </div>
+    <div class="nav-next-step-chip" id="nav-next-step-chip">
+      <span>接下來</span> <span id="nav-next-arrow">↰</span>
+    </div>
+  </div>
+
+  <!-- 右側控制鈕群 (置中、聲音) -->
+  <div id="nav-right-controls">
+    <button class="nav-floating-circle-btn" onclick="recenterNavCamera()" title="重新置中視角">🧭</button>
+    <button class="nav-floating-circle-btn" onclick="toggleNavSound()" id="btn-nav-sound" title="切換提示音">🔊</button>
+  </div>
+
+  <!-- 底部時間、里程與結束按鈕 -->
+  <div id="nav-bottom-card">
+    <div class="nav-bottom-drag-pill"></div>
+    <div class="nav-bottom-row">
+      <div class="nav-stats-left">
+        <div class="nav-time-large" id="nav-summary-time">-- 分鐘</div>
+        <div class="nav-meta-sub" id="nav-summary-meta">-- 公里 · --:--</div>
+      </div>
+      <div class="nav-actions-right">
+        <button class="nav-btn-icon-circle" title="路線選項">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path d="M6 3v12"></path><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path>
+          </svg>
+        </button>
+        <button class="nav-btn-end-pill" onclick="exitActiveNavigation()">結束</button>
+      </div>
+    </div>
   </div>
 
   <!-- 👤 原創社群風格個人選單 -->
@@ -2048,7 +2286,7 @@
     </div>
     <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
     <div class="detail-actions-row">
-      <button id="sheet-btn-route-here" class="btn-gmaps-action primary">🛣️ 站內導航</button>
+      <button id="sheet-btn-route-here" class="btn-gmaps-action primary">🛣️ 規劃路線</button>
       <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action secondary">🧭 Google App</a>
       <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary">❤️ 我的打卡</button>
       <button id="sheet-btn-edit" class="btn-gmaps-action secondary">✏️ 編輯</button>
@@ -2127,7 +2365,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Leaflet Routing Machine JS -->
   <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
   <script type="module">
@@ -2180,12 +2417,17 @@
     let viewingTargetEmail = "mine";
     let pendingAvatarBase64 = null;
 
-    // ─── 🛣️ 站內導航與星鏈狀態 ───
+    // ─── 🛣️ 路線規劃與沉浸式導航狀態 ───
     let routingControl = null;
     let isNavigating = false;
+    let isActiveNavigationMode = false;
     let activeNavStoreId = null;
-    let currentRouteMode = 'moto'; // 預設機車模式
+    let currentRouteMode = 'moto'; // 預設機車
     let userCurrentLocation = null;
+    let navGeoWatcherId = null;
+    let navUserMarker = null;
+    let currentRouteData = null;
+    let isNavMuted = false;
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -2749,24 +2991,7 @@
 
     let selectedStoreId = null;
 
-    // ─── 🛣️ 站內多模式真實道路導航 (汽車 / 機車 / 行人) ───
-    window.clearRoute = function() {
-      if (routingControl) {
-        try {
-          map.removeControl(routingControl);
-        } catch (e) {}
-        routingControl = null;
-      }
-      isNavigating = false;
-      activeNavStoreId = null;
-      const bar = document.getElementById('route-indicator-bar');
-      if (bar) bar.style.display = 'none';
-
-      // 結束導航，將星鏈連線重新繪製點亮
-      renderConstellation(getFilteredStores());
-    };
-
-    // 取得指定交通工具模式對應的 OSRM Router 與專屬路徑顏色
+    // ─── 🛣️ 站內多模式真實道路規劃 (汽車 / 機車 / 行人) ───
     function getRouterConfig(mode) {
       if (mode === 'foot') {
         return {
@@ -2775,38 +3000,36 @@
             profile: 'driving'
           }),
           styles: [
-            { color: '#f59e0b', opacity: 0.45, weight: 8 },
-            { color: '#fbbf24', opacity: 0.95, weight: 4.5, dashArray: '6, 8' }
+            { color: '#1e40af', opacity: 0.45, weight: 8 },
+            { color: '#3b82f6', opacity: 0.95, weight: 5, dashArray: '4, 8' }
           ]
         };
       } else if (mode === 'moto') {
-        // 機車/摩托車：以自行車與街道專用路網精準計算穿梭小路捷徑
         return {
           router: L.Routing.osrmv1({
             serviceUrl: 'https://routing.openstreetmap.de/routed-bike/route/v1',
             profile: 'driving'
           }),
           styles: [
-            { color: '#059669', opacity: 0.45, weight: 8 },
-            { color: '#10b981', opacity: 0.95, weight: 4.5 }
+            { color: '#1d4ed8', opacity: 0.45, weight: 9 },
+            { color: '#2563eb', opacity: 0.95, weight: 5 }
           ]
         };
       } else {
-        // 汽車：官方行車引擎
         return {
           router: L.Routing.osrmv1({
             serviceUrl: 'https://router.project-osrm.org/route/v1',
             profile: 'car'
           }),
           styles: [
-            { color: '#0284c7', opacity: 0.45, weight: 8 },
-            { color: '#38bdf8', opacity: 0.95, weight: 4.5 }
+            { color: '#1e3a8a', opacity: 0.45, weight: 9 },
+            { color: '#3b82f6', opacity: 0.95, weight: 5 }
           ]
         };
       }
     }
 
-    // 啟動並繪製導航路線 (導航中自動隱藏星鏈)
+    // 1. 觸發「規劃路線」
     window.planRouteToStore = function(storeId, mode = currentRouteMode) {
       const store = stores.find(s => s.id === storeId);
       if (!store) return;
@@ -2815,7 +3038,7 @@
       currentRouteMode = mode;
       isNavigating = true;
 
-      // 導航期間隱藏星鏈連線
+      // 導航與規劃期間隱藏星鏈連線
       constellationLayer.clearLayers();
 
       if (routingControl) {
@@ -2825,7 +3048,6 @@
 
       closeDetailSheet();
 
-      // 更新按鈕 active 樣式
       ['car', 'moto', 'foot'].forEach(m => {
         const btn = document.getElementById(`btn-mode-${m}`);
         if (btn) btn.classList.toggle('active', m === mode);
@@ -2843,14 +3065,17 @@
         waypoints: waypoints,
         router: cfg.router,
         lineOptions: { styles: cfg.styles },
-        createMarker: function() { return null; }, // 不產生 LRM 內建粗糙圖示，保持極簡
+        createMarker: function() { return null; },
         showAlternatives: false,
         addWaypoints: false,
         fitSelectedRoutes: true
       }).addTo(map);
 
-      routingControl.on('routingerror', function(err) {
-        console.warn("路由請求失敗或逾時:", err);
+      routingControl.on('routesfound', function(e) {
+        if (e.routes && e.routes[0]) {
+          currentRouteData = e.routes[0];
+          updateNavDataDisplay(currentRouteData);
+        }
       });
 
       const bar = document.getElementById('route-indicator-bar');
@@ -2860,6 +3085,182 @@
     window.switchRouteMode = function(mode) {
       if (!activeNavStoreId) return;
       planRouteToStore(activeNavStoreId, mode);
+    };
+
+    // 2. 按下「▶ 開始」進入擬真 Google 導航介面
+    window.startActiveNavigation = function() {
+      if (!activeNavStoreId || !currentRouteData) return;
+
+      isActiveNavigationMode = true;
+
+      // 隱藏一般模式下的所有干擾元素
+      document.getElementById('route-indicator-bar').style.display = 'none';
+      document.getElementById('mobile-floating-top').style.display = 'none';
+      document.getElementById('sidebar').style.display = 'none';
+      document.getElementById('ig-dock-container').style.display = 'none';
+      document.querySelector('.gmaps-layer-dock').style.display = 'none';
+
+      // 展開 HUD
+      document.getElementById('nav-top-banner').style.display = 'flex';
+      document.getElementById('nav-right-controls').style.display = 'flex';
+      document.getElementById('nav-bottom-card').style.display = 'flex';
+
+      // 建立導航用自身位置 Cone Marker
+      const startCoord = userCurrentLocation || [24.805, 120.975];
+      if (!navUserMarker) {
+        const iconHtml = `
+          <div class="nav-user-heading-cone" id="nav-user-cone">
+            <div class="nav-user-heading-pointer"></div>
+            <div class="nav-user-circle"></div>
+          </div>
+        `;
+        navUserMarker = L.marker(startCoord, {
+          icon: L.divIcon({ html: iconHtml, className: '', iconSize: [44, 44], iconAnchor: [22, 22] }),
+          zIndexOffset: 1000
+        }).addTo(map);
+      } else {
+        navUserMarker.setLatLng(startCoord);
+      }
+
+      // 置中並放大至實時導航視角 (Zoom 17.8)
+      map.setView(startCoord, 17.8, { animate: true });
+
+      // 啟動實時 GPS 定位跟蹤
+      if (navigator.geolocation) {
+        navGeoWatcherId = navigator.geolocation.watchPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const heading = pos.coords.heading;
+            userCurrentLocation = [lat, lng];
+
+            if (navUserMarker) {
+              navUserMarker.setLatLng([lat, lng]);
+              if (heading !== null && heading !== undefined) {
+                const cone = document.getElementById('nav-user-cone');
+                if (cone) cone.style.transform = `rotate(${heading}deg)`;
+              }
+            }
+
+            if (isActiveNavigationMode) {
+              map.panTo([lat, lng], { animate: true });
+            }
+          },
+          () => {},
+          { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
+        );
+      }
+    };
+
+    // 格式化解析 OSRM 指令並更新畫面 HUD
+    function updateNavDataDisplay(route) {
+      if (!route) return;
+
+      const totalDistMeters = route.summary.totalDistance;
+      const totalSecs = route.summary.totalTime;
+
+      // 1. 計算時間與抵達時間
+      const minutes = Math.max(1, Math.round(totalSecs / 60));
+      const distKm = (totalDistMeters / 1000).toFixed(1);
+      
+      const etaDate = new Date(Date.now() + totalSecs * 1000);
+      const hours = etaDate.getHours();
+      const period = hours >= 12 ? '下午' : '上午';
+      const h12 = hours % 12 || 12;
+      const mStr = etaDate.getMinutes().toString().padStart(2, '0');
+      const etaFormatted = `${period}${h12}:${mStr}`;
+
+      document.getElementById('nav-summary-time').innerText = `${minutes} 分鐘`;
+      document.getElementById('nav-summary-meta').innerText = `${distKm} 公里 · ${etaFormatted}`;
+
+      // 2. 解析第一段與第二段指引指令
+      const instructions = route.instructions || [];
+      if (instructions.length > 0) {
+        const first = instructions[0];
+        const distStr = first.distance > 1000 ? `${(first.distance / 1000).toFixed(1)}公里後` : `${Math.round(first.distance)} 公尺後`;
+        document.getElementById('nav-maneuver-dist').innerText = distStr;
+        document.getElementById('nav-maneuver-main').innerText = parseTurnText(first.text || '往東');
+        document.getElementById('nav-maneuver-icon').innerText = getTurnArrow(first.type, first.modifier);
+      }
+
+      if (instructions.length > 1) {
+        const second = instructions[1];
+        document.getElementById('nav-next-step-chip').style.display = 'inline-flex';
+        document.getElementById('nav-next-arrow').innerText = getTurnArrow(second.type, second.modifier);
+      } else {
+        document.getElementById('nav-next-step-chip').style.display = 'none';
+      }
+    }
+
+    function parseTurnText(text) {
+      if (!text) return '往東';
+      if (text.includes('Head') || text.includes('straight')) return '繼續直行';
+      if (text.includes('left')) return '向左轉';
+      if (text.includes('right')) return '向右轉';
+      if (text.includes('destination')) return '抵達目的地';
+      return text;
+    }
+
+    function getTurnArrow(type, modifier) {
+      if (modifier && modifier.includes('left')) return '↰';
+      if (modifier && modifier.includes('right')) return '↱';
+      if (type && type.includes('Destination')) return '🏁';
+      return '↑';
+    }
+
+    // 退出沉浸導航
+    window.exitActiveNavigation = function() {
+      isActiveNavigationMode = false;
+      if (navGeoWatcherId !== null) {
+        navigator.geolocation.clearWatch(navGeoWatcherId);
+        navGeoWatcherId = null;
+      }
+      if (navUserMarker) {
+        map.removeLayer(navUserMarker);
+        navUserMarker = null;
+      }
+
+      // 關閉導航 HUD
+      document.getElementById('nav-top-banner').style.display = 'none';
+      document.getElementById('nav-right-controls').style.display = 'none';
+      document.getElementById('nav-bottom-card').style.display = 'none';
+
+      // 恢復原本各項介面
+      document.getElementById('sidebar').style.display = 'flex';
+      document.getElementById('ig-dock-container').style.display = 'flex';
+      document.querySelector('.gmaps-layer-dock').style.display = 'flex';
+      if (window.innerWidth <= 768) {
+        document.getElementById('mobile-floating-top').style.display = 'flex';
+      }
+
+      clearRoute();
+    };
+
+    window.clearRoute = function() {
+      if (routingControl) {
+        try { map.removeControl(routingControl); } catch (e) {}
+        routingControl = null;
+      }
+      isNavigating = false;
+      activeNavStoreId = null;
+      currentRouteData = null;
+      const bar = document.getElementById('route-indicator-bar');
+      if (bar) bar.style.display = 'none';
+
+      // 結束導航，恢復點亮星鏈連線
+      renderConstellation(getFilteredStores());
+    };
+
+    window.recenterNavCamera = function() {
+      if (userCurrentLocation) {
+        map.setView(userCurrentLocation, 17.8, { animate: true });
+      }
+    };
+
+    window.toggleNavSound = function() {
+      isNavMuted = !isNavMuted;
+      const btn = document.getElementById('btn-nav-sound');
+      if (btn) btn.innerText = isNavMuted ? '🔇' : '🔊';
     };
 
     window.openDetailSheet = function(id) {
@@ -2888,7 +3289,7 @@
 
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
 
-      // 站內導航觸發
+      // 更改為「規劃路線」觸發
       document.getElementById('sheet-btn-route-here').onclick = () => planRouteToStore(store.id);
 
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
@@ -3214,10 +3615,10 @@
       }
     };
 
-    // ─── 繪製星鏈連線 (導航狀態下會自動阻斷不渲染) ───
+    // ─── 繪製星鏈連線 ───
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
-      if (isNavigating) return; // 導航中隱藏星鏈
+      if (isNavigating) return; // 規劃或導航中隱藏星鏈
 
       const visited = filteredStores.filter(s => isStoreUnlockedForCurrentView(s));
       if (visited.length < 2) return;
