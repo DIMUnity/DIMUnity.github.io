@@ -26,6 +26,8 @@
   </script>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Routing Machine 樣式與核心 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
   <style>
@@ -41,7 +43,6 @@
       --app-accent: #10b981;
       --app-accent-blue: #38bdf8;
       --app-heart: #f43f5e;
-      /* 自創極光星域漸層 (兼具蔬食綠意與深空星雲質感) */
       --star-gradient: linear-gradient(135deg, #10b981 0%, #06b6d4 40%, #8b5cf6 80%, #ec4899 100%);
       --star-gradient-glow: rgba(16, 185, 129, 0.35);
       --sidebar-width: 390px;
@@ -66,7 +67,7 @@
       position: relative;
     }
 
-    /* ─── 原創全螢幕授權登入畫面 (零商標侵權風險) ─── */
+    /* ─── 原創全螢幕授權登入畫面 ─── */
     #auth-lock-screen {
       position: fixed;
       inset: 0;
@@ -969,6 +970,100 @@
       border: 1px solid var(--app-border);
     }
 
+    /* ─── 🛣️ 站內懸浮路線控制欄與暗黑樣式 ─── */
+    #route-indicator-bar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2200;
+      background: rgba(20, 20, 24, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--app-accent);
+      box-shadow: 0 8px 30px var(--star-gradient-glow);
+      border-radius: 999px;
+      padding: 6px 14px 6px 16px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fff;
+      animation: igDockPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+    }
+    .btn-clear-route {
+      background: rgba(244, 63, 94, 0.2);
+      border: 1px solid var(--app-heart);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-clear-route:hover { background: var(--app-heart); }
+
+    /* Leaflet Routing Machine 暗黑玻璃主題覆蓋 */
+    .leaflet-routing-container {
+      background: rgba(18, 18, 22, 0.95) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border: 1px solid var(--app-border-light) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9) !important;
+      color: #fafafa !important;
+      max-width: 310px !important;
+      max-height: 380px !important;
+      padding: 10px 12px !important;
+      font-size: 12px !important;
+      line-height: 1.4 !important;
+      overflow-y: auto !important;
+      scrollbar-width: thin;
+      scrollbar-color: #3f3f46 transparent;
+    }
+    .leaflet-routing-alt {
+      background: transparent !important;
+      padding: 0 !important;
+      border-bottom: 1px solid var(--app-border) !important;
+    }
+    .leaflet-routing-alt h2 {
+      font-size: 13.5px !important;
+      color: var(--app-accent) !important;
+      font-weight: 800 !important;
+      margin-bottom: 4px !important;
+    }
+    .leaflet-routing-alt h3 {
+      font-size: 11.5px !important;
+      color: var(--app-text-sub) !important;
+      margin-bottom: 6px !important;
+    }
+    .leaflet-routing-alt table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+    }
+    .leaflet-routing-alt tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+    .leaflet-routing-alt tr:hover {
+      background: rgba(255, 255, 255, 0.06) !important;
+    }
+    .leaflet-routing-alt td {
+      padding: 6px 4px !important;
+      color: #d4d4d8 !important;
+      font-size: 11.5px !important;
+    }
+    .leaflet-routing-icon {
+      filter: invert(1) brightness(1.8);
+      margin-right: 6px;
+    }
+    .leaflet-routing-collapse-btn {
+      color: #fff !important;
+      top: 6px !important;
+      right: 6px !important;
+    }
+
     /* ─── 右下角星圖視角膠囊 ─── */
     .ig-dock-capsule-container {
       position: fixed;
@@ -1297,7 +1392,7 @@
       font-weight: 700;
     }
 
-    /* ─── 編輯個人檔案 Card 視窗 ─── */
+    /* ─── 📸 編輯個人檔案 Card 視窗 ─── */
     .ig-edit-card {
       background: #18181b;
       border: 1px solid var(--app-border);
@@ -1549,15 +1644,20 @@
       #sidebar.sheet-half .actions-bar {
         display: none !important;
       }
+
+      .leaflet-routing-container {
+        max-width: 250px !important;
+        max-height: 240px !important;
+        top: 80px !important;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- 🌟 原創授權認證全螢幕登入畫面 (零商標爭議) -->
+  <!-- 🌟 原創授權認證全螢幕登入畫面 -->
   <div id="auth-lock-screen">
     <div class="auth-center-panel">
-      
       <div class="auth-glass-box">
         <div class="brand-glow-ring">
           <div class="brand-glow-inner">🌱</div>
@@ -1581,14 +1681,18 @@
           以 Google 授權帳號登入
         </button>
       </div>
-
     </div>
 
-    <!-- 乾淨原創頁尾宣告 -->
     <div class="auth-footer-clean">
       <div>蔬食探索星圖專案 · 專屬社群地圖平台</div>
       <div>© 2026 Vegan Star Map Project. All Rights Reserved.</div>
     </div>
+  </div>
+
+  <!-- 🛣️ 懸浮路線控制面板 -->
+  <div id="route-indicator-bar">
+    <span id="route-bar-text">🛣️ 路線規劃模式</span>
+    <button class="btn-clear-route" onclick="clearRoute()">✕ 清除路線</button>
   </div>
 
   <!-- 👤 原創社群風格個人選單 -->
@@ -1736,6 +1840,9 @@
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="ig-action-group">
+        <button class="ig-action-btn" onclick="planTourRoute()" title="依目前清單順序規劃巡航路線" style="border-color: var(--app-accent); color: #fff;">
+          🛣️ 路線巡航
+        </button>
         <button class="ig-action-btn" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           匯入
@@ -1834,6 +1941,9 @@
     </div>
 
     <div class="actions-bar">
+      <button class="ig-action-btn" onclick="planTourRoute()" style="border-color: var(--app-accent);">
+        🛣️ 路線巡航
+      </button>
       <button class="ig-action-btn" onclick="document.getElementById('import-file').click()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         匯入 JSON
@@ -1859,7 +1969,7 @@
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
-  <!-- 🪐 右下角星圖視角膠囊 (移入自然展開，展開側邊欄時自動隱藏) -->
+  <!-- 🪐 右下角星圖視角膠囊 -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
     <div class="ig-dock-popover" id="dock-popover-list">
       <div class="dock-popover-header">
@@ -1898,7 +2008,8 @@
     </div>
     <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
     <div class="detail-actions-row">
-      <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action primary">🧭 Google 導航</a>
+      <button id="sheet-btn-route-here" class="btn-gmaps-action primary">🛣️ 站內路線</button>
+      <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action secondary">🧭 Google App</a>
       <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary">❤️ 我的打卡</button>
       <button id="sheet-btn-edit" class="btn-gmaps-action secondary">✏️ 編輯</button>
       <button id="sheet-btn-delete" class="btn-gmaps-action secondary" style="color:#ff453a;">🗑️</button>
@@ -1976,6 +2087,8 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Routing Machine JS -->
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -2026,6 +2139,23 @@
     let userProfilesMap = {};
     let viewingTargetEmail = "mine";
     let pendingAvatarBase64 = null;
+
+    // ─── 🛣️ 站內路線引擎狀態變數 ───
+    let routingControl = null;
+    let userCurrentLocation = null;
+
+    // 嘗試預先取得使用者 GPS 位置
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userCurrentLocation = [pos.coords.latitude, pos.coords.longitude];
+        },
+        (err) => {
+          console.log("未取得使用者位置授權，規劃時將預設以市中心為起點");
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
 
     if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
       try {
@@ -2579,6 +2709,102 @@
 
     let selectedStoreId = null;
 
+    // ─── 🛣️ 核心路線規劃實作 (方案一：Leaflet Routing Machine + OSRM) ───
+    window.clearRoute = function() {
+      if (routingControl) {
+        try {
+          map.removeControl(routingControl);
+        } catch (e) {}
+        routingControl = null;
+      }
+      const bar = document.getElementById('route-indicator-bar');
+      if (bar) bar.style.display = 'none';
+    };
+
+    function showRouteControlBar(titleText) {
+      const bar = document.getElementById('route-indicator-bar');
+      const textEl = document.getElementById('route-bar-text');
+      if (bar && textEl) {
+        textEl.innerText = titleText || '🛣️ 路線已就緒';
+        bar.style.display = 'flex';
+      }
+    }
+
+    // 規劃由「我的位置（或起點）」前往該店家
+    window.planRouteToStore = function(storeId) {
+      const store = stores.find(s => s.id === storeId);
+      if (!store) return;
+
+      clearRoute();
+      closeDetailSheet();
+
+      const startCoord = userCurrentLocation || [24.805, 120.975];
+      const waypoints = [
+        L.latLng(startCoord[0], startCoord[1]),
+        L.latLng(store.lat, store.lng)
+      ];
+
+      routingControl = L.Routing.control({
+        waypoints: waypoints,
+        router: L.Routing.osrmv1({
+          serviceUrl: 'https://router.project-osrm.org/route/v1',
+          profile: 'car'
+        }),
+        lineOptions: {
+          styles: [
+            { color: '#06b6d4', opacity: 0.5, weight: 8 },
+            { color: '#10b981', opacity: 0.9, weight: 4.5 }
+          ]
+        },
+        createMarker: function(i, wp, nWps) {
+          // 不額外產生 Leaflet Routing Machine 預設粗糙標記，維持地圖乾淨度
+          return null;
+        },
+        showAlternatives: false,
+        addWaypoints: false,
+        fitSelectedRoutes: true
+      }).addTo(map);
+
+      showRouteControlBar(`導航至：${store.name}`);
+    };
+
+    // 依目前清單排序串連「前 6~8 間」店家的真實巡航馬路路線
+    window.planTourRoute = function() {
+      const filtered = getFilteredStores();
+      if (filtered.length < 2) {
+        return alert("請至少讓地圖上有 2 間以上符合條件的店家，以進行巡航路線規劃！");
+      }
+
+      clearRoute();
+
+      // 為避免免費公開 OSRM 伺服器負擔，最多取前 8 個站點進行連續沿路規劃
+      const tourStores = filtered.slice(0, 8);
+      const waypoints = tourStores.map(s => L.latLng(s.lat, s.lng));
+
+      routingControl = L.Routing.control({
+        waypoints: waypoints,
+        router: L.Routing.osrmv1({
+          serviceUrl: 'https://router.project-osrm.org/route/v1',
+          profile: 'car'
+        }),
+        lineOptions: {
+          styles: [
+            { color: '#8b5cf6', opacity: 0.45, weight: 8 },
+            { color: '#38bdf8', opacity: 0.9, weight: 4.5 }
+          ]
+        },
+        createMarker: function() { return null; },
+        addWaypoints: false,
+        fitSelectedRoutes: true
+      }).addTo(map);
+
+      showRouteControlBar(`已串聯 ${tourStores.length} 間店家巡航`);
+
+      if (window.innerWidth <= 768) {
+        setMobileSheetState('collapsed');
+      }
+    };
+
     window.openDetailSheet = function(id) {
       const store = stores.find(s => s.id === id);
       if (!store) return;
@@ -2604,6 +2830,9 @@
       document.getElementById('sheet-store-whovisited').innerText = `👥 ${count}人打卡`;
 
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
+
+      // 綁定站內路線規劃按鈕
+      document.getElementById('sheet-btn-route-here').onclick = () => planRouteToStore(store.id);
 
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
       document.getElementById('sheet-btn-navigate').href = navUrl;
