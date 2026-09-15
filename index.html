@@ -202,9 +202,7 @@
       justify-content: center;
       transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.3, 1), visibility 0.4s;
     }
-    #app-loading-screen.active {
-      display: flex;
-    }
+    #app-loading-screen.active { display: flex; }
     #app-loading-screen.fade-out {
       opacity: 0;
       visibility: hidden;
@@ -853,19 +851,6 @@
       padding-left: 18px;
     }
 
-    .store-recommended-chip {
-      font-size: 10px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
-      border-radius: 6px;
-      padding: 1px 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      margin-bottom: 6px;
-      margin-left: 18px;
-    }
-
     .card-bottom {
       display: flex;
       justify-content: space-between;
@@ -978,6 +963,162 @@
       pointer-events: none;
     }
 
+    /* ─── 🌠 星圖脈衝打卡/取消打卡專屬粒子收束爆發系統 ─── */
+    .star-pulse-portal {
+      position: fixed;
+      pointer-events: none;
+      z-index: 100000;
+      transform: translate(-50%, -50%);
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 點亮：外向內聚束 -> 猛烈向外爆發 */
+    .pulse-ring-ignite-1 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 3px solid #10b981;
+      box-shadow: 0 0 25px #06b6d4, inset 0 0 20px #10b981;
+      animation: pulseIgniteSequence 0.75s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+    }
+    .pulse-ring-ignite-2 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px dashed #38bdf8;
+      box-shadow: 0 0 35px #8b5cf6;
+      animation: pulseIgniteSequence 0.75s 0.06s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+    }
+    .pulse-core-flash {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 30px #ffffff, 0 0 60px #10b981;
+      animation: coreFlashSequence 0.75s ease-out forwards;
+    }
+
+    @keyframes pulseIgniteSequence {
+      0% {
+        transform: scale(2.8);
+        opacity: 0;
+      }
+      35% {
+        transform: scale(0.12);
+        opacity: 1;
+        border-color: #ffffff;
+      }
+      45% {
+        transform: scale(0.08);
+        opacity: 1;
+      }
+      70% {
+        transform: scale(2.2);
+        opacity: 0.9;
+        border-width: 4px;
+      }
+      100% {
+        transform: scale(3.5);
+        opacity: 0;
+        border-width: 1px;
+      }
+    }
+
+    @keyframes coreFlashSequence {
+      0%, 30% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      38% {
+        transform: scale(2.2);
+        opacity: 1;
+      }
+      55% {
+        transform: scale(1.5);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* 取消打卡：能量發散後急速收縮湮滅 (黑洞收斂) */
+    .pulse-ring-extinguish-1 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 3px solid #f43f5e;
+      box-shadow: 0 0 30px #be123c, inset 0 0 15px #f43f5e;
+      animation: pulseExtinguishSequence 0.7s cubic-bezier(0.15, 0.9, 0.3, 1) forwards;
+    }
+    .pulse-ring-extinguish-2 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px dashed #9333ea;
+      box-shadow: 0 0 25px #000;
+      animation: pulseExtinguishSequence 0.7s 0.05s cubic-bezier(0.15, 0.9, 0.3, 1) forwards;
+    }
+    .pulse-extinguish-core {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #000;
+      border: 2px solid #f43f5e;
+      box-shadow: 0 0 20px #000;
+      animation: coreExtinguishSequence 0.7s ease-in forwards;
+    }
+
+    @keyframes pulseExtinguishSequence {
+      0% {
+        transform: scale(0.6);
+        opacity: 0;
+      }
+      25% {
+        transform: scale(1.8);
+        opacity: 0.95;
+      }
+      75% {
+        transform: scale(0.08);
+        opacity: 1;
+        border-color: #f43f5e;
+      }
+      100% {
+        transform: scale(0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes coreExtinguishSequence {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      30% {
+        transform: scale(1.6);
+        opacity: 1;
+      }
+      70% {
+        transform: scale(0.3);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0);
+        opacity: 0;
+      }
+    }
+
     #gmaps-detail-sheet {
       position: fixed;
       left: 0;
@@ -1071,18 +1212,6 @@
       display: flex;
       align-items: center;
       gap: 4px;
-    }
-
-    .detail-recommended-box {
-      background: rgba(56, 189, 248, 0.08);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 10px;
-      padding: 6px 10px;
-      font-size: 12px;
-      color: #38bdf8;
-      display: none;
-      align-items: center;
-      gap: 6px;
     }
 
     .detail-actions-row {
@@ -1886,30 +2015,6 @@
       border-right: 1px solid #27272a;
     }
 
-    /* ─── 🌌 IG 成就限動海報彈窗 ─── */
-    .poster-modal-content {
-      background: #141416;
-      border: 1px solid var(--app-border);
-      padding: 18px;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 360px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
-    }
-
-    #poster-canvas {
-      width: 100%;
-      max-height: 460px;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9);
-      object-fit: contain;
-      background: #09090b;
-    }
-
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -2264,11 +2369,6 @@
         </div>
       </div>
       <div class="ig-user-sheet-actions">
-        <button class="ig-user-sheet-btn" onclick="generateSharePoster()">
-          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          生成星圖成就限動海報
-        </button>
-
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
           編輯個人檔案
@@ -2399,9 +2499,6 @@
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="ig-action-group">
-        <button class="ig-action-btn" onclick="generateSharePoster()" title="生成星圖成就海報">
-          ✨ 海報
-        </button>
         <button class="ig-action-btn" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           匯入
@@ -2420,7 +2517,7 @@
     <div class="desktop-sidebar-content">
       <div class="search-pill-box">
         <span style="font-size: 15px;">🔍</span>
-        <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、私房菜..." oninput="handleSearchSync(this.value)" autocomplete="off" />
+        <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
         <button class="user-avatar-btn" onclick="openUserMenu()" title="查看帳號設定">
           <div class="user-avatar-img user-avatar-sync">🌱</div>
         </button>
@@ -2500,9 +2597,6 @@
     </div>
 
     <div class="actions-bar">
-      <button class="ig-action-btn" onclick="generateSharePoster()">
-        ✨ 限動卡
-      </button>
       <button class="ig-action-btn" onclick="document.getElementById('import-file').click()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         匯入 JSON
@@ -2567,7 +2661,6 @@
       <button class="detail-close-btn" onclick="closeDetailSheet()" title="關閉">✕</button>
     </div>
     <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
-    <div class="detail-recommended-box" id="sheet-store-recommended">✨ 私房必點：<span></span></div>
     
     <div class="detail-actions-row">
       <button id="sheet-btn-route-here" class="btn-gmaps-action primary" title="規劃路線">🛣️</button>
@@ -2625,11 +2718,6 @@
       </div>
 
       <div class="form-group">
-        <label>私房推薦菜色（選填）</label>
-        <input type="text" id="form-recommended" class="form-control" placeholder="例：招牌未來肉漢堡、松露野菇燉飯" />
-      </div>
-
-      <div class="form-group">
         <label>詳細地址或位置</label>
         <input type="text" id="form-address" class="form-control" placeholder="輸入中文地址" />
       </div>
@@ -2670,22 +2758,6 @@
         </button>
         <button id="btn-execute-delete" style="flex: 1; padding: 10px 0; font-weight: 800; background: linear-gradient(135deg, #ef4444 0%, #be123c 100%); color: #fff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);" onclick="executeDeleteStore()">
           確定刪除
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🌌 IG 成就限動海報彈窗 -->
-  <div class="modal-overlay" id="poster-modal" onclick="closeSharePoster()">
-    <div class="poster-modal-content" onclick="event.stopPropagation()">
-      <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 15px; font-weight: 800; color: #fff;">✨ 星圖成就分享卡</span>
-        <button class="detail-close-btn" onclick="closeSharePoster()">✕</button>
-      </div>
-      <canvas id="poster-canvas" width="720" height="1280"></canvas>
-      <div style="display: flex; gap: 8px; width: 100%;">
-        <button class="btn-primary" style="flex: 1; padding: 10px 0; font-weight: 800; border-radius: 12px;" onclick="downloadPoster()">
-          💾 儲存限動圖片
         </button>
       </div>
     </div>
@@ -3241,33 +3313,6 @@
     let currentBaseLayer = layers.taiwan;
     currentBaseLayer.addTo(map);
 
-    // ─── 📍 地圖長按插旗 (Long-press / ContextMenu) ───
-    map.on('contextmenu', async (e) => {
-      if (!currentUser) return alert('請先登入後再進行長按插旗！');
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
-      const addr = await reverseGeocode(lat, lng);
-      
-      const newName = prompt(`📍 在此座標插旗新蔬食店家：\n${addr}\n\n請輸入餐廳名稱：`);
-      if (newName && newName.trim()) {
-        const recommended = prompt('✨ （選填）私房推薦必點菜色：', '') || '';
-        await addDoc(storesCollection, {
-          name: newName.trim(),
-          address: addr || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-          category: '純素',
-          recommended: recommended.trim(),
-          visitedBy: [],
-          lat,
-          lng,
-          order: stores.length,
-          createdAt: serverTimestamp ? serverTimestamp() : Date.now()
-        });
-        if (typeof confetti === 'function') {
-          confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
-        }
-      }
-    });
-
     function updateLayerBoxState(mainType) {
       const labelText = document.getElementById('layer-box-text');
       const iconPreview = document.getElementById('layer-box-preview-icon');
@@ -3737,14 +3782,6 @@
       document.getElementById('sheet-store-whovisited').innerText = `👥 ${count}人打卡`;
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
 
-      const recBox = document.getElementById('sheet-store-recommended');
-      if (store.recommended && store.recommended.trim()) {
-        recBox.style.display = 'flex';
-        recBox.querySelector('span').innerText = store.recommended;
-      } else {
-        recBox.style.display = 'none';
-      }
-
       document.getElementById('sheet-btn-route-here').onclick = () => planRouteToStore(store.id);
 
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
@@ -3753,8 +3790,8 @@
       const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
       toggleBtn.innerText = isMyVisited ? '❤️' : '🤍';
       toggleBtn.title = isMyVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
-      toggleBtn.onclick = () => {
-        toggleVisited(store.id);
+      toggleBtn.onclick = (e) => {
+        toggleVisited(store.id, e);
         openDetailSheet(store.id);
       };
 
@@ -3774,7 +3811,7 @@
       selectedStoreId = null;
     };
 
-    // ─── 🏃 手勢慣性速度 (Velocity-Based) BottomSheet ───
+    /* ─── 🏃 手勢慣性速度 BottomSheet ─── */
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
     let sheetState = 'collapsed';
@@ -3783,7 +3820,7 @@
     let startHeight = 0;
     let lastY = 0;
     let lastTime = 0;
-    let dragVelocity = 0; // 向上為正，向下為負
+    let dragVelocity = 0;
 
     window.setMobileSheetState = function(state) {
       sidebar.classList.remove('is-dragging');
@@ -3811,7 +3848,7 @@
       const now = performance.now();
       const dt = now - lastTime;
       if (dt > 12) {
-        dragVelocity = (lastY - currentY) / dt; // px / ms
+        dragVelocity = (lastY - currentY) / dt;
         lastY = currentY;
         lastTime = now;
       }
@@ -3825,7 +3862,6 @@
       isDragging = false;
       sidebar.classList.remove('is-dragging');
 
-      // 慣性快速彈射判斷
       if (dragVelocity > 0.45) {
         if (sheetState === 'collapsed') setMobileSheetState('half');
         else setMobileSheetState('full');
@@ -3876,8 +3912,7 @@
       const matches = stores.filter(s => 
         s.name.toLowerCase().includes(kw) || 
         (s.address && s.address.toLowerCase().includes(kw)) ||
-        (s.category && s.category.toLowerCase().includes(kw)) ||
-        (s.recommended && s.recommended.toLowerCase().includes(kw))
+        (s.category && s.category.toLowerCase().includes(kw))
       );
 
       if (matches.length > 0) {
@@ -3885,7 +3920,7 @@
           <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
             <div class="suggestion-info">
               <span class="suggestion-name">${s.name}</span>
-              <span class="suggestion-sub">📍 ${s.address || '地區店家'} ${s.recommended ? `· ✨${s.recommended}` : ''}</span>
+              <span class="suggestion-sub">📍 ${s.address || '地區店家'}</span>
             </div>
             <span class="suggestion-badge">${s.category || '蔬食'}</span>
           </div>
@@ -4093,7 +4128,6 @@
           name: finalName.trim(),
           address: address || '',
           category: '蛋奶素',
-          recommended: '',
           visitedBy: [],
           lat,
           lng,
@@ -4101,13 +4135,9 @@
           createdAt: serverTimestamp ? serverTimestamp() : Date.now()
         });
         document.getElementById('gmaps-input').value = '';
-        if (typeof confetti === 'function') {
-          confetti({ particleCount: 35, spread: 60, origin: { y: 0.6 } });
-        }
       }
     };
 
-    // ─── 🌌 視野裁切 + 光流動態星座連線 ───
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       if (isNavigating) return;
@@ -4257,7 +4287,7 @@
 
         card.addEventListener('dblclick', (e) => {
           e.stopPropagation();
-          toggleVisited(s.id);
+          toggleVisited(s.id, e);
         });
 
         card.innerHTML = `
@@ -4271,11 +4301,10 @@
             </span>
           </div>
           <div class="store-address">📍 ${s.address || `${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}`}</div>
-          ${s.recommended ? `<div class="store-recommended-chip">✨ ${s.recommended}</div>` : ''}
           <div class="card-bottom">
             <span class="tag-pill">${s.category || '蔬食'}</span>
             <div class="card-actions">
-              <button class="btn-heart" title="${isMyVisited ? '取消我的打卡' : '點亮我的打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
+              <button class="btn-heart" title="${isMyVisited ? '取消我的打卡' : '點亮我的打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}', event)">
                 ${isMyVisited ? '❤️' : '🤍'}
               </button>
               <button class="card-edit-btn" onclick="event.stopPropagation(); openEditModal('${s.id}')">✏️ 編輯</button>
@@ -4316,34 +4345,78 @@
       openDetailSheet(id);
     };
 
-    // ─── 💖 觸覺震動 + 超新星粒子噴發打卡 ───
-    window.toggleVisited = async function(id) {
+    // ─── 🌠 外向內脈衝收束 -> 猛烈向外爆發 / 取消時湮滅暗蝕 ───
+    function triggerPulseFX(x, y, isCheckIn) {
+      const container = document.createElement('div');
+      container.className = 'star-pulse-portal';
+      container.style.left = `${x}px`;
+      container.style.top = `${y}px`;
+
+      if (isCheckIn) {
+        container.innerHTML = `
+          <div class="pulse-ring-ignite-1"></div>
+          <div class="pulse-ring-ignite-2"></div>
+          <div class="pulse-core-flash"></div>
+        `;
+        // 超新星爆發向外衝擊瞬間觸發五彩粒子擴散
+        setTimeout(() => {
+          if (typeof confetti === 'function') {
+            confetti({
+              particleCount: 50,
+              spread: 75,
+              origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+              colors: ['#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#ffffff']
+            });
+          }
+        }, 270);
+      } else {
+        container.innerHTML = `
+          <div class="pulse-ring-extinguish-1"></div>
+          <div class="pulse-ring-extinguish-2"></div>
+          <div class="pulse-extinguish-core"></div>
+        `;
+      }
+
+      document.body.appendChild(container);
+      setTimeout(() => container.remove(), 850);
+    }
+
+    window.toggleVisited = async function(id, evt) {
       if (!currentUser) return alert('請先登入！');
       const target = stores.find(s => s.id === id);
       if (!target) return;
 
       const myEmail = currentUser.email.toLowerCase();
       let visitedBy = Array.isArray(target.visitedBy) ? [...target.visitedBy] : [];
+      const isCurrentlyVisited = visitedBy.includes(myEmail);
 
-      if (visitedBy.includes(myEmail)) {
+      // 動畫座標抓取
+      let fxX = window.innerWidth / 2;
+      let fxY = window.innerHeight / 2;
+
+      if (evt && (evt.clientX || evt.clientY)) {
+        fxX = evt.clientX;
+        fxY = evt.clientY;
+      } else if (evt && evt.touches && evt.touches[0]) {
+        fxX = evt.touches[0].clientX;
+        fxY = evt.touches[0].clientY;
+      } else {
+        const card = document.querySelector(`.store-card[data-id="${id}"]`);
+        if (card) {
+          const rect = card.getBoundingClientRect();
+          fxX = rect.left + rect.width / 2;
+          fxY = rect.top + rect.height / 2;
+        }
+      }
+
+      if (isCurrentlyVisited) {
         visitedBy = visitedBy.filter(e => e !== myEmail);
+        if (navigator.vibrate) navigator.vibrate([60, 40]);
+        triggerPulseFX(fxX, fxY, false);
       } else {
         visitedBy.push(myEmail);
-        
-        // 觸覺微幅震動 (Web Haptics API)
-        if (navigator.vibrate) {
-          navigator.vibrate([40, 50, 60]);
-        }
-
-        // 噴灑超新星五彩粒子
-        if (typeof confetti === 'function') {
-          confetti({
-            particleCount: 55,
-            spread: 70,
-            origin: { y: 0.65 },
-            colors: ['#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#fef08a']
-          });
-        }
+        if (navigator.vibrate) navigator.vibrate([40, 50, 60]);
+        triggerPulseFX(fxX, fxY, true);
       }
 
       await updateDoc(doc(db, "vegan_stores", id), { visitedBy });
@@ -4407,7 +4480,6 @@
       document.getElementById('form-id').value = store.id;
       document.getElementById('form-name').value = store.name;
       document.getElementById('form-address').value = store.address || '';
-      document.getElementById('form-recommended').value = store.recommended || '';
       document.getElementById('form-category').value = store.category || '蛋奶素';
       document.getElementById('form-lat').value = store.lat;
       document.getElementById('form-lng').value = store.lng;
@@ -4423,7 +4495,6 @@
       const editId = document.getElementById('form-id').value;
       const name = document.getElementById('form-name').value.trim();
       let address = document.getElementById('form-address').value.trim();
-      const recommended = document.getElementById('form-recommended').value.trim();
       const category = document.getElementById('form-category').value.trim() || '蛋奶素';
       let lat = parseFloat(document.getElementById('form-lat').value) || 24.805;
       let lng = parseFloat(document.getElementById('form-lng').value) || 120.975;
@@ -4438,7 +4509,7 @@
         if (realAddr) address = realAddr;
       }
 
-      const payload = { name, address, category, recommended, lat, lng };
+      const payload = { name, address, category, lat, lng };
 
       if (editId) {
         await updateDoc(doc(db, "vegan_stores", editId), payload);
@@ -4479,7 +4550,6 @@
                 name: item.name || '未命名',
                 address: item.address || '',
                 category: item.category || '蛋奶素',
-                recommended: item.recommended || '',
                 visitedBy: Array.isArray(item.visitedBy) ? item.visitedBy : (item.visited ? [currentUser.email.toLowerCase()] : []),
                 lat: typeof item.lat === 'number' ? item.lat : parseFloat(item.lat) || 24.805,
                 lng: typeof item.lng === 'number' ? item.lng : parseFloat(item.lng) || 120.975,
@@ -4496,140 +4566,6 @@
         event.target.value = '';
       };
       reader.readAsText(file, 'UTF-8');
-    };
-
-    // ─── 🌌 IG 成就限動海報產生器 (Canvas 渲染 720x1280) ───
-    window.generateSharePoster = function() {
-      closeUserMenu();
-      const canvas = document.getElementById('poster-canvas');
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width;
-      const H = canvas.height;
-
-      const myEmail = currentUser ? currentUser.email.toLowerCase() : "";
-      const profile = userProfilesMap[myEmail] || {};
-      const name = profile.displayName || currentUser?.displayName || '星圖探索者';
-      const total = stores.length;
-      const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(myEmail)).length;
-      const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
-      const rank = calculateRank(visitedCount, total);
-
-      // 漸層深空背景
-      const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-      bgGrad.addColorStop(0, '#09090b');
-      bgGrad.addColorStop(0.4, '#0d1527');
-      bgGrad.addColorStop(0.8, '#141420');
-      bgGrad.addColorStop(1, '#09090b');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, W, H);
-
-      // 極光光暈波浪
-      const auraGrad = ctx.createRadialGradient(W * 0.7, H * 0.35, 20, W * 0.7, H * 0.35, 450);
-      auraGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
-      auraGrad.addColorStop(0.5, 'rgba(6, 182, 212, 0.2)');
-      auraGrad.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = auraGrad;
-      ctx.beginPath();
-      ctx.arc(W * 0.7, H * 0.35, 450, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 隨機星光小點
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 70; i++) {
-        const sx = (Math.sin(i * 99) * 10000) % W;
-        const sy = (Math.cos(i * 33) * 10000) % H;
-        const r = (i % 3) + 1;
-        ctx.globalAlpha = (i % 5 + 3) / 10;
-        ctx.beginPath();
-        ctx.arc(Math.abs(sx), Math.abs(sy), r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1.0;
-
-      // 標題字樣
-      ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.letterSpacing = '2px';
-      ctx.fillText('VEGAN STAR MAP', 60, 110);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 48px sans-serif';
-      ctx.fillText('蔬食探索星圖', 60, 175);
-
-      // 個人玻璃擬態資訊卡
-      ctx.fillStyle = 'rgba(28, 28, 36, 0.75)';
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-      ctx.lineWidth = 2;
-      roundRect(ctx, 50, 240, W - 100, 360, 24, true, true);
-
-      // 稱號徽章
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 26px sans-serif';
-      ctx.fillText(rank, 85, 305);
-
-      // 探索者名稱
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 36px sans-serif';
-      ctx.fillText(name, 85, 360);
-
-      // 數據展示
-      ctx.fillStyle = '#a1a1aa';
-      ctx.font = '22px sans-serif';
-      ctx.fillText(`已點亮綠食聚落：${visitedCount} / ${total} 處`, 85, 430);
-
-      // 進度長條
-      ctx.fillStyle = '#1c1c20';
-      roundRect(ctx, 85, 460, W - 170, 16, 8, true, false);
-
-      const barGrad = ctx.createLinearGradient(85, 0, 85 + (W - 170) * (pct / 100), 0);
-      barGrad.addColorStop(0, '#10b981');
-      barGrad.addColorStop(1, '#06b6d4');
-      ctx.fillStyle = barGrad;
-      roundRect(ctx, 85, 460, Math.max(16, (W - 170) * (pct / 100)), 16, 8, true, false);
-
-      ctx.fillStyle = '#10b981';
-      ctx.font = '900 42px sans-serif';
-      ctx.fillText(`${pct}% 解鎖`, 85, 545);
-
-      // 經典座右銘
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.font = 'italic 24px sans-serif';
-      ctx.fillText('「每一顆點亮的星點，都是對地球最溫柔的探索。」', 60, 960);
-
-      // 頁尾標籤
-      ctx.fillStyle = '#52525b';
-      ctx.font = '20px sans-serif';
-      ctx.fillText('© 2026 Vegan Star Map Project', 60, 1190);
-
-      document.getElementById('poster-modal').classList.add('active');
-    };
-
-    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
-      if (fill) ctx.fill();
-      if (stroke) ctx.stroke();
-    }
-
-    window.closeSharePoster = function() {
-      document.getElementById('poster-modal').classList.remove('active');
-    };
-
-    window.downloadPoster = function() {
-      const canvas = document.getElementById('poster-canvas');
-      const link = document.createElement('a');
-      link.download = `vegan_star_map_${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
     };
 
     function refreshAll() {
