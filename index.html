@@ -202,7 +202,9 @@
       justify-content: center;
       transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.3, 1), visibility 0.4s;
     }
-    #app-loading-screen.active { display: flex; }
+    #app-loading-screen.active {
+      display: flex;
+    }
     #app-loading-screen.fade-out {
       opacity: 0;
       visibility: hidden;
@@ -851,6 +853,19 @@
       padding-left: 18px;
     }
 
+    .store-recommended-chip {
+      font-size: 10px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border-radius: 6px;
+      padding: 1px 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-bottom: 6px;
+      margin-left: 18px;
+    }
+
     .card-bottom {
       display: flex;
       justify-content: space-between;
@@ -963,160 +978,115 @@
       pointer-events: none;
     }
 
-    /* ─── 🌠 星圖脈衝打卡/取消打卡專屬粒子收束爆發系統 ─── */
-    .star-pulse-portal {
-      position: fixed;
+    /* ─── 🌟 超新星點亮星脈衝特效 (引力收束 ➔ 核心爆發) ─── */
+    .star-fx-container {
+      position: relative;
+      width: 0;
+      height: 0;
       pointer-events: none;
-      z-index: 100000;
-      transform: translate(-50%, -50%);
+    }
+    
+    /* 1. 外向內收束環 */
+    .fx-converge-ring {
+      position: absolute;
+      top: -70px;
+      left: -70px;
       width: 140px;
       height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border-radius: 50%;
+      border: 2.5px solid #10b981;
+      box-shadow: 0 0 24px #10b981, inset 0 0 24px #06b6d4;
+      animation: convergePulse 0.5s cubic-bezier(0.12, 0.9, 0.24, 1) forwards;
+    }
+    .fx-converge-ring:nth-child(2) {
+      top: -105px;
+      left: -105px;
+      width: 210px;
+      height: 210px;
+      border-color: #ec4899;
+      box-shadow: 0 0 28px #ec4899;
+      animation: convergePulse 0.55s cubic-bezier(0.18, 0.82, 0.28, 1) 0.06s forwards;
     }
 
-    /* 點亮：外向內聚束 -> 猛烈向外爆發 */
-    .pulse-ring-ignite-1 {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 3px solid #10b981;
-      box-shadow: 0 0 25px #06b6d4, inset 0 0 20px #10b981;
-      animation: pulseIgniteSequence 0.75s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
-    }
-    .pulse-ring-ignite-2 {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 2px dashed #38bdf8;
-      box-shadow: 0 0 35px #8b5cf6;
-      animation: pulseIgniteSequence 0.75s 0.06s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
-    }
-    .pulse-core-flash {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 0 30px #ffffff, 0 0 60px #10b981;
-      animation: coreFlashSequence 0.75s ease-out forwards;
+    @keyframes convergePulse {
+      0% { transform: scale(1.6); opacity: 0; }
+      40% { opacity: 0.95; }
+      100% { transform: scale(0.06); opacity: 1; }
     }
 
-    @keyframes pulseIgniteSequence {
-      0% {
-        transform: scale(2.8);
-        opacity: 0;
-      }
-      35% {
-        transform: scale(0.12);
-        opacity: 1;
-        border-color: #ffffff;
-      }
-      45% {
-        transform: scale(0.08);
-        opacity: 1;
-      }
-      70% {
-        transform: scale(2.2);
-        opacity: 0.9;
-        border-width: 4px;
-      }
-      100% {
-        transform: scale(3.5);
-        opacity: 0;
-        border-width: 1px;
-      }
+    /* 2. 核心引爆閃爍 */
+    .fx-burst-core {
+      position: absolute;
+      top: -30px;
+      left: -30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 15%, #10b981 55%, transparent 85%);
+      opacity: 0;
+      animation: burstCore 0.85s cubic-bezier(0.15, 0.9, 0.3, 1) 0.5s forwards;
     }
 
-    @keyframes coreFlashSequence {
-      0%, 30% {
-        transform: scale(0);
-        opacity: 0;
-      }
-      38% {
-        transform: scale(2.2);
-        opacity: 1;
-      }
-      55% {
-        transform: scale(1.5);
-        opacity: 0.8;
-      }
-      100% {
-        transform: scale(0);
-        opacity: 0;
-      }
+    /* 3. 瞬間向外脈衝衝擊波 */
+    .fx-burst-shockwave {
+      position: absolute;
+      top: -60px;
+      left: -60px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3.5px solid #38bdf8;
+      box-shadow: 0 0 32px #38bdf8;
+      opacity: 0;
+      animation: burstShockwave 0.75s cubic-bezier(0.1, 0.85, 0.25, 1) 0.52s forwards;
     }
 
-    /* 取消打卡：能量發散後急速收縮湮滅 (黑洞收斂) */
-    .pulse-ring-extinguish-1 {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 3px solid #f43f5e;
-      box-shadow: 0 0 30px #be123c, inset 0 0 15px #f43f5e;
-      animation: pulseExtinguishSequence 0.7s cubic-bezier(0.15, 0.9, 0.3, 1) forwards;
+    @keyframes burstCore {
+      0% { transform: scale(0.1); opacity: 0; }
+      25% { transform: scale(1.5); opacity: 1; filter: drop-shadow(0 0 24px #ffffff); }
+      100% { transform: scale(3.2); opacity: 0; }
     }
-    .pulse-ring-extinguish-2 {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 2px dashed #9333ea;
-      box-shadow: 0 0 25px #000;
-      animation: pulseExtinguishSequence 0.7s 0.05s cubic-bezier(0.15, 0.9, 0.3, 1) forwards;
+
+    @keyframes burstShockwave {
+      0% { transform: scale(0.15); opacity: 1; border-width: 4px; }
+      50% { opacity: 0.9; }
+      100% { transform: scale(2.8); opacity: 0; border-width: 1px; }
     }
-    .pulse-extinguish-core {
+
+    /* ─── 🌑 星象寂滅 / 取消打卡特效 (解體擴散 ➔ 黑洞收縮) ─── */
+    .fx-extinguish-pulse {
       position: absolute;
-      width: 20px;
-      height: 20px;
+      top: -35px;
+      left: -35px;
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
-      background: #000;
       border: 2px solid #f43f5e;
-      box-shadow: 0 0 20px #000;
-      animation: coreExtinguishSequence 0.7s ease-in forwards;
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.85);
+      animation: extinguishExpand 0.35s ease-out forwards;
+    }
+    .fx-extinguish-collapse {
+      position: absolute;
+      top: -75px;
+      left: -75px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,0,0,0.95) 0%, rgba(113, 113, 122, 0.45) 55%, transparent 80%);
+      border: 2px dashed #71717a;
+      opacity: 0;
+      animation: extinguishCollapse 0.65s cubic-bezier(0.2, 0.9, 0.3, 1) 0.18s forwards;
     }
 
-    @keyframes pulseExtinguishSequence {
-      0% {
-        transform: scale(0.6);
-        opacity: 0;
-      }
-      25% {
-        transform: scale(1.8);
-        opacity: 0.95;
-      }
-      75% {
-        transform: scale(0.08);
-        opacity: 1;
-        border-color: #f43f5e;
-      }
-      100% {
-        transform: scale(0);
-        opacity: 0;
-      }
+    @keyframes extinguishExpand {
+      0% { transform: scale(0.3); opacity: 1; }
+      100% { transform: scale(1.7); opacity: 0; }
     }
 
-    @keyframes coreExtinguishSequence {
-      0% {
-        transform: scale(0);
-        opacity: 0;
-      }
-      30% {
-        transform: scale(1.6);
-        opacity: 1;
-      }
-      70% {
-        transform: scale(0.3);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(0);
-        opacity: 0;
-      }
+    @keyframes extinguishCollapse {
+      0% { transform: scale(1.8) rotate(0deg); opacity: 0.95; }
+      75% { opacity: 0.85; }
+      100% { transform: scale(0.04) rotate(220deg); opacity: 0; }
     }
 
     #gmaps-detail-sheet {
@@ -1212,6 +1182,18 @@
       display: flex;
       align-items: center;
       gap: 4px;
+    }
+
+    .detail-recommended-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #38bdf8;
+      display: none;
+      align-items: center;
+      gap: 6px;
     }
 
     .detail-actions-row {
@@ -2449,7 +2431,7 @@
   <div id="mobile-floating-top">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
-      <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
+      <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、私房菜..." oninput="handleSearchSync(this.value)" autocomplete="off" />
       <button class="user-avatar-btn" onclick="openUserMenu()" title="查看帳號設定">
         <div class="user-avatar-img user-avatar-sync">🌱</div>
       </button>
@@ -2517,7 +2499,7 @@
     <div class="desktop-sidebar-content">
       <div class="search-pill-box">
         <span style="font-size: 15px;">🔍</span>
-        <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
+        <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、私房菜..." oninput="handleSearchSync(this.value)" autocomplete="off" />
         <button class="user-avatar-btn" onclick="openUserMenu()" title="查看帳號設定">
           <div class="user-avatar-img user-avatar-sync">🌱</div>
         </button>
@@ -2661,6 +2643,7 @@
       <button class="detail-close-btn" onclick="closeDetailSheet()" title="關閉">✕</button>
     </div>
     <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
+    <div class="detail-recommended-box" id="sheet-store-recommended">✨ 私房必點：<span></span></div>
     
     <div class="detail-actions-row">
       <button id="sheet-btn-route-here" class="btn-gmaps-action primary" title="規劃路線">🛣️</button>
@@ -2715,6 +2698,11 @@
       <div class="form-group">
         <label>餐廳名稱 *</label>
         <input type="text" id="form-name" class="form-control" placeholder="請輸入店名" />
+      </div>
+
+      <div class="form-group">
+        <label>私房推薦菜色（選填）</label>
+        <input type="text" id="form-recommended" class="form-control" placeholder="例：招牌未來肉漢堡、松露野菇燉飯" />
       </div>
 
       <div class="form-group">
@@ -3782,6 +3770,14 @@
       document.getElementById('sheet-store-whovisited').innerText = `👥 ${count}人打卡`;
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
 
+      const recBox = document.getElementById('sheet-store-recommended');
+      if (store.recommended && store.recommended.trim()) {
+        recBox.style.display = 'flex';
+        recBox.querySelector('span').innerText = store.recommended;
+      } else {
+        recBox.style.display = 'none';
+      }
+
       document.getElementById('sheet-btn-route-here').onclick = () => planRouteToStore(store.id);
 
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
@@ -3790,8 +3786,8 @@
       const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
       toggleBtn.innerText = isMyVisited ? '❤️' : '🤍';
       toggleBtn.title = isMyVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
-      toggleBtn.onclick = (e) => {
-        toggleVisited(store.id, e);
+      toggleBtn.onclick = () => {
+        toggleVisited(store.id);
         openDetailSheet(store.id);
       };
 
@@ -3811,7 +3807,6 @@
       selectedStoreId = null;
     };
 
-    /* ─── 🏃 手勢慣性速度 BottomSheet ─── */
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
     let sheetState = 'collapsed';
@@ -3912,7 +3907,8 @@
       const matches = stores.filter(s => 
         s.name.toLowerCase().includes(kw) || 
         (s.address && s.address.toLowerCase().includes(kw)) ||
-        (s.category && s.category.toLowerCase().includes(kw))
+        (s.category && s.category.toLowerCase().includes(kw)) ||
+        (s.recommended && s.recommended.toLowerCase().includes(kw))
       );
 
       if (matches.length > 0) {
@@ -3920,7 +3916,7 @@
           <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
             <div class="suggestion-info">
               <span class="suggestion-name">${s.name}</span>
-              <span class="suggestion-sub">📍 ${s.address || '地區店家'}</span>
+              <span class="suggestion-sub">📍 ${s.address || '地區店家'} ${s.recommended ? `· ✨${s.recommended}` : ''}</span>
             </div>
             <span class="suggestion-badge">${s.category || '蔬食'}</span>
           </div>
@@ -4128,6 +4124,7 @@
           name: finalName.trim(),
           address: address || '',
           category: '蛋奶素',
+          recommended: '',
           visitedBy: [],
           lat,
           lng,
@@ -4287,7 +4284,7 @@
 
         card.addEventListener('dblclick', (e) => {
           e.stopPropagation();
-          toggleVisited(s.id, e);
+          toggleVisited(s.id);
         });
 
         card.innerHTML = `
@@ -4301,10 +4298,11 @@
             </span>
           </div>
           <div class="store-address">📍 ${s.address || `${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}`}</div>
+          ${s.recommended ? `<div class="store-recommended-chip">✨ ${s.recommended}</div>` : ''}
           <div class="card-bottom">
             <span class="tag-pill">${s.category || '蔬食'}</span>
             <div class="card-actions">
-              <button class="btn-heart" title="${isMyVisited ? '取消我的打卡' : '點亮我的打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}', event)">
+              <button class="btn-heart" title="${isMyVisited ? '取消我的打卡' : '點亮我的打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
                 ${isMyVisited ? '❤️' : '🤍'}
               </button>
               <button class="card-edit-btn" onclick="event.stopPropagation(); openEditModal('${s.id}')">✏️ 編輯</button>
@@ -4345,79 +4343,76 @@
       openDetailSheet(id);
     };
 
-    // ─── 🌠 外向內脈衝收束 -> 猛烈向外爆發 / 取消時湮滅暗蝕 ───
-    function triggerPulseFX(x, y, isCheckIn) {
-      const container = document.createElement('div');
-      container.className = 'star-pulse-portal';
-      container.style.left = `${x}px`;
-      container.style.top = `${y}px`;
+    // ─── 🌟 超新星引力收束爆發 & 黑洞寂滅特效 ───
+    function playStarMapAnimation(lat, lng, isIgniting) {
+      if (!map.getBounds().contains([lat, lng])) {
+        map.panTo([lat, lng], { animate: true, duration: 0.35 });
+      }
 
-      if (isCheckIn) {
-        container.innerHTML = `
-          <div class="pulse-ring-ignite-1"></div>
-          <div class="pulse-ring-ignite-2"></div>
-          <div class="pulse-core-flash"></div>
+      let fxHtml = '';
+      if (isIgniting) {
+        fxHtml = `
+          <div class="star-fx-container">
+            <div class="fx-converge-ring"></div>
+            <div class="fx-converge-ring"></div>
+            <div class="fx-burst-core"></div>
+            <div class="fx-burst-shockwave"></div>
+          </div>
         `;
-        // 超新星爆發向外衝擊瞬間觸發五彩粒子擴散
-        setTimeout(() => {
-          if (typeof confetti === 'function') {
-            confetti({
-              particleCount: 50,
-              spread: 75,
-              origin: { x: x / window.innerWidth, y: y / window.innerHeight },
-              colors: ['#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#ffffff']
-            });
-          }
-        }, 270);
       } else {
-        container.innerHTML = `
-          <div class="pulse-ring-extinguish-1"></div>
-          <div class="pulse-ring-extinguish-2"></div>
-          <div class="pulse-extinguish-core"></div>
+        fxHtml = `
+          <div class="star-fx-container">
+            <div class="fx-extinguish-pulse"></div>
+            <div class="fx-extinguish-collapse"></div>
+          </div>
         `;
       }
 
-      document.body.appendChild(container);
-      setTimeout(() => container.remove(), 850);
+      const fxMarker = L.marker([lat, lng], {
+        icon: L.divIcon({ html: fxHtml, className: '', iconSize: [0, 0] }),
+        zIndexOffset: 4000
+      }).addTo(map);
+
+      if (isIgniting) {
+        if (navigator.vibrate) navigator.vibrate([30, 40, 50, 40, 90]);
+        setTimeout(() => {
+          if (typeof confetti === 'function') {
+            const pt = map.latLngToContainerPoint([lat, lng]);
+            confetti({
+              particleCount: 40,
+              spread: 60,
+              origin: { x: pt.x / window.innerWidth, y: pt.y / window.innerHeight },
+              colors: ['#10b981', '#06b6d4', '#8b5cf6', '#fef08a']
+            });
+          }
+        }, 500);
+      } else {
+        if (navigator.vibrate) navigator.vibrate([60, 30, 20]);
+      }
+
+      setTimeout(() => {
+        try { map.removeLayer(fxMarker); } catch (e) {}
+      }, 1400);
     }
 
-    window.toggleVisited = async function(id, evt) {
+    window.toggleVisited = async function(id) {
       if (!currentUser) return alert('請先登入！');
       const target = stores.find(s => s.id === id);
       if (!target) return;
 
       const myEmail = currentUser.email.toLowerCase();
       let visitedBy = Array.isArray(target.visitedBy) ? [...target.visitedBy] : [];
-      const isCurrentlyVisited = visitedBy.includes(myEmail);
+      let isNowVisited = false;
 
-      // 動畫座標抓取
-      let fxX = window.innerWidth / 2;
-      let fxY = window.innerHeight / 2;
-
-      if (evt && (evt.clientX || evt.clientY)) {
-        fxX = evt.clientX;
-        fxY = evt.clientY;
-      } else if (evt && evt.touches && evt.touches[0]) {
-        fxX = evt.touches[0].clientX;
-        fxY = evt.touches[0].clientY;
-      } else {
-        const card = document.querySelector(`.store-card[data-id="${id}"]`);
-        if (card) {
-          const rect = card.getBoundingClientRect();
-          fxX = rect.left + rect.width / 2;
-          fxY = rect.top + rect.height / 2;
-        }
-      }
-
-      if (isCurrentlyVisited) {
+      if (visitedBy.includes(myEmail)) {
         visitedBy = visitedBy.filter(e => e !== myEmail);
-        if (navigator.vibrate) navigator.vibrate([60, 40]);
-        triggerPulseFX(fxX, fxY, false);
+        isNowVisited = false;
       } else {
         visitedBy.push(myEmail);
-        if (navigator.vibrate) navigator.vibrate([40, 50, 60]);
-        triggerPulseFX(fxX, fxY, true);
+        isNowVisited = true;
       }
+
+      playStarMapAnimation(target.lat, target.lng, isNowVisited);
 
       await updateDoc(doc(db, "vegan_stores", id), { visitedBy });
     };
@@ -4480,6 +4475,7 @@
       document.getElementById('form-id').value = store.id;
       document.getElementById('form-name').value = store.name;
       document.getElementById('form-address').value = store.address || '';
+      document.getElementById('form-recommended').value = store.recommended || '';
       document.getElementById('form-category').value = store.category || '蛋奶素';
       document.getElementById('form-lat').value = store.lat;
       document.getElementById('form-lng').value = store.lng;
@@ -4495,6 +4491,7 @@
       const editId = document.getElementById('form-id').value;
       const name = document.getElementById('form-name').value.trim();
       let address = document.getElementById('form-address').value.trim();
+      const recommended = document.getElementById('form-recommended').value.trim();
       const category = document.getElementById('form-category').value.trim() || '蛋奶素';
       let lat = parseFloat(document.getElementById('form-lat').value) || 24.805;
       let lng = parseFloat(document.getElementById('form-lng').value) || 120.975;
@@ -4509,7 +4506,7 @@
         if (realAddr) address = realAddr;
       }
 
-      const payload = { name, address, category, lat, lng };
+      const payload = { name, address, category, recommended, lat, lng };
 
       if (editId) {
         await updateDoc(doc(db, "vegan_stores", editId), payload);
@@ -4550,6 +4547,7 @@
                 name: item.name || '未命名',
                 address: item.address || '',
                 category: item.category || '蛋奶素',
+                recommended: item.recommended || '',
                 visitedBy: Array.isArray(item.visitedBy) ? item.visitedBy : (item.visited ? [currentUser.email.toLowerCase()] : []),
                 lat: typeof item.lat === 'number' ? item.lat : parseFloat(item.lat) || 24.805,
                 lng: typeof item.lng === 'number' ? item.lng : parseFloat(item.lng) || 120.975,
