@@ -1093,13 +1093,13 @@
       border: 1px solid var(--app-border);
       box-shadow: 0 10px 36px rgba(0, 0, 0, 0.95);
       border-radius: 999px;
-      padding: 6px 8px 6px 12px;
+      padding: 6px 12px;
       display: none;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       animation: igDockPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.2);
     }
-    
+
     .route-mode-pill-group {
       display: flex;
       align-items: center;
@@ -1108,6 +1108,7 @@
       padding: 2px;
       border: 1px solid var(--app-border);
       gap: 2px;
+      flex-shrink: 0;
     }
     .btn-route-mode {
       background: transparent;
@@ -1128,6 +1129,34 @@
       background: var(--star-gradient);
       color: #ffffff;
       box-shadow: 0 0 12px var(--star-gradient-glow);
+    }
+
+    .route-summary-preview {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      padding: 0 4px;
+    }
+    .route-preview-time {
+      font-size: 14px;
+      font-weight: 800;
+      background: var(--star-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.2px;
+    }
+    .route-preview-meta {
+      font-size: 11.5px;
+      color: var(--app-text-sub);
+      font-weight: 600;
+    }
+
+    .route-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
     }
 
     .btn-start-nav-primary {
@@ -1898,9 +1927,21 @@
         transform: translateY(0) scale(1);
       }
 
+      /* 電腦版規劃列置頂置中、隱藏開始按鈕、增加預估資訊左側微隔線 */
       #route-indicator-bar {
         left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
         top: 24px;
+        flex-direction: row;
+        border-radius: 999px;
+      }
+
+      #route-indicator-bar .btn-start-nav-primary {
+        display: none !important;
+      }
+
+      .route-summary-preview {
+        border-left: 1px solid rgba(255, 255, 255, 0.12);
+        padding-left: 10px;
       }
 
       #nav-top-banner {
@@ -1975,7 +2016,7 @@
         transform: translateY(20px);
       }
 
-      /* ─── 手機版專屬：只要切換地圖方塊顯示，我的星圖一律暫時隱藏 ─── */
+      /* 手機版專屬：只要切換地圖方塊顯示，我的星圖一律暫時隱藏 */
       body:has(.layer-picker-horizontal.active) .ig-dock-capsule-container,
       body:has(.gmaps-layer-dock:hover) .ig-dock-capsule-container,
       body:has(#gmaps-layer-box:hover) .ig-dock-capsule-container,
@@ -2016,10 +2057,28 @@
         display: none !important;
       }
 
+      /* 手機版路徑條自適應雙層排版 */
       #route-indicator-bar {
         top: 125px;
         width: calc(100vw - 28px);
+        border-radius: 18px;
+        padding: 8px 12px;
+        flex-wrap: wrap;
         justify-content: space-between;
+        row-gap: 6px;
+      }
+      .route-mode-pill-group {
+        order: 1;
+      }
+      .route-bar-actions {
+        order: 2;
+      }
+      .route-summary-preview {
+        order: 3;
+        width: 100%;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 6px;
+        justify-content: flex-start;
       }
     }
   </style>
@@ -2079,7 +2138,14 @@
       <button class="btn-route-mode active" id="btn-mode-moto" onclick="switchRouteMode('moto')">🛵 機車</button>
       <button class="btn-route-mode" id="btn-mode-foot" onclick="switchRouteMode('foot')">🚶 行人</button>
     </div>
-    <div style="display:flex; align-items:center; gap:8px;">
+
+    <!-- 預計抵達時間與總里程預覽 -->
+    <div class="route-summary-preview" id="route-summary-preview">
+      <span class="route-preview-time" id="preview-nav-time">計算中...</span>
+      <span class="route-preview-meta" id="preview-nav-meta"></span>
+    </div>
+
+    <div class="route-bar-actions">
       <button class="btn-start-nav-primary" onclick="startActiveNavigation()">▶ 開始</button>
       <button class="btn-clear-route" onclick="clearRoute()">✕</button>
     </div>
@@ -2643,7 +2709,6 @@
             const userEmail = (user.email || "").toLowerCase().trim();
             let isAuthorized = false;
 
-            // 啟動過場動畫畫面，收起登入鎖定面板
             loadingScreen.classList.remove('fade-out');
             loadingScreen.classList.add('active');
             lockScreen.style.display = 'none';
@@ -2677,7 +2742,6 @@
               adminWhitelistBtn.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
             }
 
-            // 非同步並行等待：個人設定、成員名單、以及 Firestore 首次完整資料快照
             const profilePromise = loadUserProfile(userEmail);
             const membersPromise = loadAllMembers();
 
@@ -2715,7 +2779,6 @@
               });
             });
 
-            // 確保全部載入完畢
             await Promise.all([profilePromise, membersPromise, initialStoresPromise]);
 
             setTimeout(() => {
@@ -2724,7 +2787,6 @@
               invalidatePreviewMaps();
             }, 150);
 
-            // 資料已全部齊全，平滑淡出載入畫面
             setTimeout(() => {
               loadingScreen.classList.add('fade-out');
               setTimeout(() => {
@@ -3151,7 +3213,6 @@
       previewMaps.push(pMap);
     });
 
-    // 主地圖移動時同步所有微縮地圖
     function syncMiniMaps() {
       const center = map.getCenter();
       const zoom = map.getZoom();
@@ -3167,7 +3228,6 @@
       }, 50);
     }
 
-    // ─── 手機端圖層選單顯示/隱藏與「我的星圖」聯動核心 ───
     function checkDockVisibility() {
       const dock = document.getElementById('ig-dock-container');
       const picker = document.getElementById('layer-picker-horizontal');
@@ -3359,6 +3419,14 @@
         if (btn) btn.classList.toggle('active', m === mode);
       });
 
+      // 初始化路線資訊預覽
+      const previewEl = document.getElementById('route-summary-preview');
+      if (previewEl) {
+        previewEl.style.display = 'inline-flex';
+        document.getElementById('preview-nav-time').innerText = '計算路線中...';
+        document.getElementById('preview-nav-meta').innerText = '';
+      }
+
       const startCoord = userCurrentLocation || [24.805, 120.975];
       const waypoints = [
         L.latLng(startCoord[0], startCoord[1]),
@@ -3523,8 +3591,19 @@
       const mStr = etaDate.getMinutes().toString().padStart(2, '0');
       const etaFormatted = `${period} ${h12}:${mStr}`;
 
+      // 1. 同步更新實時導航 HUD 底卡
       document.getElementById('nav-summary-time').innerText = `${minutes} 分鐘`;
       document.getElementById('nav-summary-meta').innerText = `${distKm} 公里 · 預計 ${etaFormatted} 抵達`;
+
+      // 2. 同步更新路線規劃條上的預覽資訊
+      const previewEl = document.getElementById('route-summary-preview');
+      const previewTime = document.getElementById('preview-nav-time');
+      const previewMeta = document.getElementById('preview-nav-meta');
+      if (previewEl && previewTime && previewMeta) {
+        previewTime.innerText = `${minutes} 分鐘`;
+        previewMeta.innerText = `· ${distKm} 公里 · 預計 ${etaFormatted} 抵達`;
+        previewEl.style.display = 'inline-flex';
+      }
 
       const instructions = route.instructions || [];
       if (instructions.length > 0) {
@@ -3607,6 +3686,9 @@
       currentRouteData = null;
       const bar = document.getElementById('route-indicator-bar');
       if (bar) bar.style.display = 'none';
+
+      const previewEl = document.getElementById('route-summary-preview');
+      if (previewEl) previewEl.style.display = 'none';
 
       renderConstellation(getFilteredStores());
     };
