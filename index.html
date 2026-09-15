@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <style>
     :root {
@@ -589,7 +590,6 @@
       box-shadow: 0 0 12px var(--star-gradient-glow);
     }
 
-    /* 輕量美觀的靜態主題縮圖樣式，徹底避免啟動多個 Leaflet 實體造成記憶體爆炸 */
     .thumb-bg-taiwan { background: linear-gradient(135deg, #134e4a, #065f46); }
     .thumb-bg-satellite { background: radial-gradient(circle, #334155, #0f172a); }
     .thumb-bg-dark { background: linear-gradient(135deg, #18181b, #09090b); }
@@ -814,21 +814,6 @@
       background: rgba(56, 189, 248, 0.15) !important;
     }
 
-    .heart-burst {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      pointer-events: none;
-      z-index: 10;
-      animation: igHeartBurst 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-    @keyframes igHeartBurst {
-      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      45% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
-    }
-
     .card-top {
       display: flex;
       justify-content: space-between;
@@ -864,8 +849,21 @@
     .store-address {
       font-size: 11px;
       color: var(--app-text-sub);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       padding-left: 18px;
+    }
+
+    .store-recommended-chip {
+      font-size: 10px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border-radius: 6px;
+      padding: 1px 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-bottom: 6px;
+      margin-left: 18px;
     }
 
     .card-bottom {
@@ -897,7 +895,9 @@
       display: flex;
       align-items: center;
       padding: 2px;
+      transition: transform 0.15s ease;
     }
+    .btn-heart:active { transform: scale(1.3); }
     .card-edit-btn {
       background: transparent;
       border: 1px solid var(--app-border);
@@ -906,6 +906,12 @@
       padding: 3px 6px;
       border-radius: 6px;
       cursor: pointer;
+    }
+
+    /* ─── 💫 星點呼吸動效 ─── */
+    @keyframes starBreathe {
+      0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); transform: scale(1); }
+      50% { box-shadow: 0 0 18px rgba(16, 185, 129, 0.85); transform: scale(1.08); }
     }
 
     .custom-marker {
@@ -917,8 +923,8 @@
     }
     .marker-unlocked {
       background: var(--star-gradient);
-      box-shadow: 0 0 12px var(--star-gradient-glow);
       padding: 2px;
+      animation: starBreathe 3.5s ease-in-out infinite;
     }
     .marker-unlocked-inner {
       width: 100%;
@@ -940,11 +946,36 @@
       box-shadow: 0 0 8px var(--star-gradient-glow);
       border-radius: 50%;
       border: 1px solid #fff;
+      animation: starBreathe 3s ease-in-out infinite;
     }
     .marker-dot-locked {
       background: #71717a;
       border-radius: 50%;
       opacity: 0.55;
+    }
+
+    /* ─── 🌌 星座連線流動光波 ─── */
+    @keyframes rayFlow {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+    .constellation-ray {
+      stroke-dasharray: 6 12;
+      animation: rayFlow 1.1s linear infinite;
+    }
+
+    /* ─── 📡 導航雷達脈衝波紋 ─── */
+    @keyframes radarPulse {
+      0% { transform: scale(0.6); opacity: 0.85; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+    .radar-pulse-ring {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 2px solid var(--app-accent);
+      animation: radarPulse 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+      pointer-events: none;
     }
 
     #gmaps-detail-sheet {
@@ -1040,6 +1071,18 @@
       display: flex;
       align-items: center;
       gap: 4px;
+    }
+
+    .detail-recommended-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #38bdf8;
+      display: none;
+      align-items: center;
+      gap: 6px;
     }
 
     .detail-actions-row {
@@ -1415,6 +1458,7 @@
       border-radius: 50%;
       box-shadow: 0 0 16px var(--app-accent);
       position: relative;
+      z-index: 2;
     }
     .nav-user-heading-pointer {
       position: absolute;
@@ -1427,6 +1471,7 @@
       border-right: 6px solid transparent;
       border-bottom: 12px solid var(--app-accent);
       filter: drop-shadow(0 -2px 6px var(--app-accent));
+      z-index: 3;
     }
 
     /* ─── 右下角星圖視角膠囊 ─── */
@@ -1841,6 +1886,30 @@
       border-right: 1px solid #27272a;
     }
 
+    /* ─── 🌌 IG 成就限動海報彈窗 ─── */
+    .poster-modal-content {
+      background: #141416;
+      border: 1px solid var(--app-border);
+      padding: 18px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+    }
+
+    #poster-canvas {
+      width: 100%;
+      max-height: 460px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9);
+      object-fit: contain;
+      background: #09090b;
+    }
+
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -2033,7 +2102,7 @@
         border-radius: 24px 24px 0 0;
         box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.95);
         z-index: 2000;
-        transition: height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+        transition: height 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.15);
       }
 
       #sidebar.is-dragging {
@@ -2195,6 +2264,11 @@
         </div>
       </div>
       <div class="ig-user-sheet-actions">
+        <button class="ig-user-sheet-btn" onclick="generateSharePoster()">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          生成星圖成就限動海報
+        </button>
+
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
           編輯個人檔案
@@ -2325,6 +2399,9 @@
     <div class="sidebar-desktop-header">
       <div class="desktop-brand">🌱 蔬食探索星圖</div>
       <div class="ig-action-group">
+        <button class="ig-action-btn" onclick="generateSharePoster()" title="生成星圖成就海報">
+          ✨ 海報
+        </button>
         <button class="ig-action-btn" onclick="document.getElementById('import-file').click()" title="載入備份 JSON">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           匯入
@@ -2343,7 +2420,7 @@
     <div class="desktop-sidebar-content">
       <div class="search-pill-box">
         <span style="font-size: 15px;">🔍</span>
-        <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、標籤..." oninput="handleSearchSync(this.value)" autocomplete="off" />
+        <input type="text" class="search-input-field" placeholder="搜尋蔬食、地址、私房菜..." oninput="handleSearchSync(this.value)" autocomplete="off" />
         <button class="user-avatar-btn" onclick="openUserMenu()" title="查看帳號設定">
           <div class="user-avatar-img user-avatar-sync">🌱</div>
         </button>
@@ -2423,6 +2500,9 @@
     </div>
 
     <div class="actions-bar">
+      <button class="ig-action-btn" onclick="generateSharePoster()">
+        ✨ 限動卡
+      </button>
       <button class="ig-action-btn" onclick="document.getElementById('import-file').click()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         匯入 JSON
@@ -2487,6 +2567,8 @@
       <button class="detail-close-btn" onclick="closeDetailSheet()" title="關閉">✕</button>
     </div>
     <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
+    <div class="detail-recommended-box" id="sheet-store-recommended">✨ 私房必點：<span></span></div>
+    
     <div class="detail-actions-row">
       <button id="sheet-btn-route-here" class="btn-gmaps-action primary" title="規劃路線">🛣️</button>
       <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action secondary" title="Google App 導航">🧭</a>
@@ -2496,7 +2578,7 @@
     </div>
   </div>
 
-  <!-- 🗺️ 圖層切換底座 (已優化移除子地圖消耗) -->
+  <!-- 🗺️ 圖層切換底座 -->
   <div class="gmaps-layer-dock">
     <div id="gmaps-layer-box" onclick="handleLayerBoxClick()" title="點擊切換圖層">
       <div class="layer-box-icon-preview" id="layer-box-preview-icon">🛰️</div>
@@ -2543,6 +2625,11 @@
       </div>
 
       <div class="form-group">
+        <label>私房推薦菜色（選填）</label>
+        <input type="text" id="form-recommended" class="form-control" placeholder="例：招牌未來肉漢堡、松露野菇燉飯" />
+      </div>
+
+      <div class="form-group">
         <label>詳細地址或位置</label>
         <input type="text" id="form-address" class="form-control" placeholder="輸入中文地址" />
       </div>
@@ -2583,6 +2670,22 @@
         </button>
         <button id="btn-execute-delete" style="flex: 1; padding: 10px 0; font-weight: 800; background: linear-gradient(135deg, #ef4444 0%, #be123c 100%); color: #fff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);" onclick="executeDeleteStore()">
           確定刪除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🌌 IG 成就限動海報彈窗 -->
+  <div class="modal-overlay" id="poster-modal" onclick="closeSharePoster()">
+    <div class="poster-modal-content" onclick="event.stopPropagation()">
+      <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 15px; font-weight: 800; color: #fff;">✨ 星圖成就分享卡</span>
+        <button class="detail-close-btn" onclick="closeSharePoster()">✕</button>
+      </div>
+      <canvas id="poster-canvas" width="720" height="1280"></canvas>
+      <div style="display: flex; gap: 8px; width: 100%;">
+        <button class="btn-primary" style="flex: 1; padding: 10px 0; font-weight: 800; border-radius: 12px;" onclick="downloadPoster()">
+          💾 儲存限動圖片
         </button>
       </div>
     </div>
@@ -2654,7 +2757,6 @@
     let isNavMuted = false;
     let currentHeadingDeg = 0;
 
-    // 反向地理編碼快取，杜絕 OSM 被鎖定 IP
     const geocodeCache = new Map();
 
     if (navigator.geolocation) {
@@ -2968,7 +3070,6 @@
       document.getElementById('profile-edit-modal').classList.remove('active');
     };
 
-    // 高度優化頭像圖片尺寸 (限制至 96x96, 0.65 品質)，保護 Firestore 1MB 配額限制
     window.handleAvatarFileSelect = function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -3128,7 +3229,6 @@
       }
     };
 
-    // ─── 初始化主地圖 (已剔除其餘 5 個冗餘子 Leaflet 實體) ───
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
     const layers = {
@@ -3140,6 +3240,33 @@
 
     let currentBaseLayer = layers.taiwan;
     currentBaseLayer.addTo(map);
+
+    // ─── 📍 地圖長按插旗 (Long-press / ContextMenu) ───
+    map.on('contextmenu', async (e) => {
+      if (!currentUser) return alert('請先登入後再進行長按插旗！');
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      const addr = await reverseGeocode(lat, lng);
+      
+      const newName = prompt(`📍 在此座標插旗新蔬食店家：\n${addr}\n\n請輸入餐廳名稱：`);
+      if (newName && newName.trim()) {
+        const recommended = prompt('✨ （選填）私房推薦必點菜色：', '') || '';
+        await addDoc(storesCollection, {
+          name: newName.trim(),
+          address: addr || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+          category: '純素',
+          recommended: recommended.trim(),
+          visitedBy: [],
+          lat,
+          lng,
+          order: stores.length,
+          createdAt: serverTimestamp ? serverTimestamp() : Date.now()
+        });
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
+        }
+      }
+    });
 
     function updateLayerBoxState(mainType) {
       const labelText = document.getElementById('layer-box-text');
@@ -3275,7 +3402,7 @@
       currentRouteMode = mode;
       isNavigating = true;
 
-      constellationsClear();
+      constellationLayer.clearLayers();
       renderMarkers(getFilteredStores());
 
       if (routingControl) {
@@ -3370,6 +3497,7 @@
       if (!navUserMarker) {
         const iconHtml = `
           <div class="nav-user-heading-cone">
+            <div class="radar-pulse-ring"></div>
             <div class="nav-user-heading-pointer"></div>
             <div class="nav-user-circle"></div>
           </div>
@@ -3424,7 +3552,6 @@
       }
     }
 
-    // 陀螺儀防微幅抖動平滑演算法
     function handleOrientationEvent(e) {
       if (!isActiveNavigationMode) return;
       let heading = null;
@@ -3608,8 +3735,15 @@
 
       const count = Array.isArray(store.visitedBy) ? store.visitedBy.length : 0;
       document.getElementById('sheet-store-whovisited').innerText = `👥 ${count}人打卡`;
-
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
+
+      const recBox = document.getElementById('sheet-store-recommended');
+      if (store.recommended && store.recommended.trim()) {
+        recBox.style.display = 'flex';
+        recBox.querySelector('span').innerText = store.recommended;
+      } else {
+        recBox.style.display = 'none';
+      }
 
       document.getElementById('sheet-btn-route-here').onclick = () => planRouteToStore(store.id);
 
@@ -3640,13 +3774,16 @@
       selectedStoreId = null;
     };
 
+    // ─── 🏃 手勢慣性速度 (Velocity-Based) BottomSheet ───
     const sidebar = document.getElementById('sidebar');
     const headerTouchZone = document.getElementById('sheet-header-zone');
     let sheetState = 'collapsed';
     let isDragging = false;
     let startY = 0;
     let startHeight = 0;
-    let hasMoved = false;
+    let lastY = 0;
+    let lastTime = 0;
+    let dragVelocity = 0; // 向上為正，向下為負
 
     window.setMobileSheetState = function(state) {
       sidebar.classList.remove('is-dragging');
@@ -3660,8 +3797,10 @@
     headerTouchZone.addEventListener('touchstart', (e) => {
       if (window.innerWidth > 768) return;
       isDragging = true;
-      hasMoved = false;
       startY = e.touches[0].clientY;
+      lastY = startY;
+      lastTime = performance.now();
+      dragVelocity = 0;
       startHeight = sidebar.getBoundingClientRect().height;
       sidebar.classList.add('is-dragging');
     }, { passive: true });
@@ -3669,8 +3808,14 @@
     window.addEventListener('touchmove', (e) => {
       if (!isDragging || window.innerWidth > 768) return;
       const currentY = e.touches[0].clientY;
+      const now = performance.now();
+      const dt = now - lastTime;
+      if (dt > 12) {
+        dragVelocity = (lastY - currentY) / dt; // px / ms
+        lastY = currentY;
+        lastTime = now;
+      }
       const deltaY = startY - currentY;
-      if (Math.abs(deltaY) > 4) hasMoved = true;
       const targetH = Math.max(64, Math.min(window.innerHeight * 0.96, startHeight + deltaY));
       sidebar.style.height = `${targetH}px`;
     }, { passive: true });
@@ -3680,9 +3825,14 @@
       isDragging = false;
       sidebar.classList.remove('is-dragging');
 
-      if (!hasMoved) {
+      // 慣性快速彈射判斷
+      if (dragVelocity > 0.45) {
         if (sheetState === 'collapsed') setMobileSheetState('half');
-        else if (sheetState === 'half') setMobileSheetState('full');
+        else setMobileSheetState('full');
+        return;
+      }
+      if (dragVelocity < -0.45) {
+        if (sheetState === 'full') setMobileSheetState('half');
         else setMobileSheetState('collapsed');
         return;
       }
@@ -3690,8 +3840,8 @@
       const finalH = sidebar.getBoundingClientRect().height;
       const winH = window.innerHeight;
 
-      if (finalH < winH * 0.20) setMobileSheetState('collapsed');
-      else if (finalH < winH * 0.60) setMobileSheetState('half');
+      if (finalH < winH * 0.22) setMobileSheetState('collapsed');
+      else if (finalH < winH * 0.62) setMobileSheetState('half');
       else setMobileSheetState('full');
     });
 
@@ -3726,7 +3876,8 @@
       const matches = stores.filter(s => 
         s.name.toLowerCase().includes(kw) || 
         (s.address && s.address.toLowerCase().includes(kw)) ||
-        (s.category && s.category.toLowerCase().includes(kw))
+        (s.category && s.category.toLowerCase().includes(kw)) ||
+        (s.recommended && s.recommended.toLowerCase().includes(kw))
       );
 
       if (matches.length > 0) {
@@ -3734,7 +3885,7 @@
           <div class="suggestion-item" onclick="selectStoreFromSearch('${s.id}')">
             <div class="suggestion-info">
               <span class="suggestion-name">${s.name}</span>
-              <span class="suggestion-sub">📍 ${s.address || '地區店家'}</span>
+              <span class="suggestion-sub">📍 ${s.address || '地區店家'} ${s.recommended ? `· ✨${s.recommended}` : ''}</span>
             </div>
             <span class="suggestion-badge">${s.category || '蔬食'}</span>
           </div>
@@ -3855,7 +4006,6 @@
       });
     }
 
-    // 支援記憶體快取與逾時防禦的反向地理編碼
     async function reverseGeocode(lat, lng) {
       const cacheKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
       if (geocodeCache.has(cacheKey)) {
@@ -3943,6 +4093,7 @@
           name: finalName.trim(),
           address: address || '',
           category: '蛋奶素',
+          recommended: '',
           visitedBy: [],
           lat,
           lng,
@@ -3950,14 +4101,13 @@
           createdAt: serverTimestamp ? serverTimestamp() : Date.now()
         });
         document.getElementById('gmaps-input').value = '';
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 35, spread: 60, origin: { y: 0.6 } });
+        }
       }
     };
 
-    function constellationsClear() {
-      constellationLayer.clearLayers();
-    }
-
-    // 視窗裁切 (Viewport Culling) 優化演算法，避免星圖連線時的全量 N^2 運算
+    // ─── 🌌 視野裁切 + 光流動態星座連線 ───
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       if (isNavigating) return;
@@ -3996,8 +4146,13 @@
           if (!connectedPairs.has(pairKey)) {
             connectedPairs.add(pairKey);
             const latlngs = [[p1.lat, p1.lng], [p2.lat, p2.lng]];
-            L.polyline(latlngs, { color: '#06b6d4', weight: zoom >= 14 ? 3 : 1.8, opacity: 0.4, lineJoin: 'round' }).addTo(constellationLayer);
-            L.polyline(latlngs, { color: '#10b981', weight: zoom >= 14 ? 1.5 : 0.8, dashArray: '4, 5', opacity: 0.9 }).addTo(constellationLayer);
+            L.polyline(latlngs, { color: '#06b6d4', weight: zoom >= 14 ? 3 : 1.8, opacity: 0.45, lineJoin: 'round' }).addTo(constellationLayer);
+            L.polyline(latlngs, { 
+              color: '#10b981', 
+              weight: zoom >= 14 ? 1.8 : 1.0, 
+              className: 'constellation-ray',
+              opacity: 0.95 
+            }).addTo(constellationLayer);
           }
         });
       });
@@ -4103,11 +4258,6 @@
         card.addEventListener('dblclick', (e) => {
           e.stopPropagation();
           toggleVisited(s.id);
-          const burst = document.createElement('div');
-          burst.className = 'heart-burst';
-          burst.innerHTML = `<span style="font-size: 46px;">❤️</span>`;
-          card.appendChild(burst);
-          setTimeout(() => burst.remove(), 750);
         });
 
         card.innerHTML = `
@@ -4121,6 +4271,7 @@
             </span>
           </div>
           <div class="store-address">📍 ${s.address || `${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}`}</div>
+          ${s.recommended ? `<div class="store-recommended-chip">✨ ${s.recommended}</div>` : ''}
           <div class="card-bottom">
             <span class="tag-pill">${s.category || '蔬食'}</span>
             <div class="card-actions">
@@ -4165,6 +4316,7 @@
       openDetailSheet(id);
     };
 
+    // ─── 💖 觸覺震動 + 超新星粒子噴發打卡 ───
     window.toggleVisited = async function(id) {
       if (!currentUser) return alert('請先登入！');
       const target = stores.find(s => s.id === id);
@@ -4177,6 +4329,21 @@
         visitedBy = visitedBy.filter(e => e !== myEmail);
       } else {
         visitedBy.push(myEmail);
+        
+        // 觸覺微幅震動 (Web Haptics API)
+        if (navigator.vibrate) {
+          navigator.vibrate([40, 50, 60]);
+        }
+
+        // 噴灑超新星五彩粒子
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 55,
+            spread: 70,
+            origin: { y: 0.65 },
+            colors: ['#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#fef08a']
+          });
+        }
       }
 
       await updateDoc(doc(db, "vegan_stores", id), { visitedBy });
@@ -4240,6 +4407,7 @@
       document.getElementById('form-id').value = store.id;
       document.getElementById('form-name').value = store.name;
       document.getElementById('form-address').value = store.address || '';
+      document.getElementById('form-recommended').value = store.recommended || '';
       document.getElementById('form-category').value = store.category || '蛋奶素';
       document.getElementById('form-lat').value = store.lat;
       document.getElementById('form-lng').value = store.lng;
@@ -4255,6 +4423,7 @@
       const editId = document.getElementById('form-id').value;
       const name = document.getElementById('form-name').value.trim();
       let address = document.getElementById('form-address').value.trim();
+      const recommended = document.getElementById('form-recommended').value.trim();
       const category = document.getElementById('form-category').value.trim() || '蛋奶素';
       let lat = parseFloat(document.getElementById('form-lat').value) || 24.805;
       let lng = parseFloat(document.getElementById('form-lng').value) || 120.975;
@@ -4269,7 +4438,7 @@
         if (realAddr) address = realAddr;
       }
 
-      const payload = { name, address, category, lat, lng };
+      const payload = { name, address, category, recommended, lat, lng };
 
       if (editId) {
         await updateDoc(doc(db, "vegan_stores", editId), payload);
@@ -4310,6 +4479,7 @@
                 name: item.name || '未命名',
                 address: item.address || '',
                 category: item.category || '蛋奶素',
+                recommended: item.recommended || '',
                 visitedBy: Array.isArray(item.visitedBy) ? item.visitedBy : (item.visited ? [currentUser.email.toLowerCase()] : []),
                 lat: typeof item.lat === 'number' ? item.lat : parseFloat(item.lat) || 24.805,
                 lng: typeof item.lng === 'number' ? item.lng : parseFloat(item.lng) || 120.975,
@@ -4326,6 +4496,140 @@
         event.target.value = '';
       };
       reader.readAsText(file, 'UTF-8');
+    };
+
+    // ─── 🌌 IG 成就限動海報產生器 (Canvas 渲染 720x1280) ───
+    window.generateSharePoster = function() {
+      closeUserMenu();
+      const canvas = document.getElementById('poster-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      const myEmail = currentUser ? currentUser.email.toLowerCase() : "";
+      const profile = userProfilesMap[myEmail] || {};
+      const name = profile.displayName || currentUser?.displayName || '星圖探索者';
+      const total = stores.length;
+      const visitedCount = stores.filter(s => Array.isArray(s.visitedBy) && s.visitedBy.includes(myEmail)).length;
+      const pct = total > 0 ? Math.round((visitedCount / total) * 100) : 0;
+      const rank = calculateRank(visitedCount, total);
+
+      // 漸層深空背景
+      const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+      bgGrad.addColorStop(0, '#09090b');
+      bgGrad.addColorStop(0.4, '#0d1527');
+      bgGrad.addColorStop(0.8, '#141420');
+      bgGrad.addColorStop(1, '#09090b');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 極光光暈波浪
+      const auraGrad = ctx.createRadialGradient(W * 0.7, H * 0.35, 20, W * 0.7, H * 0.35, 450);
+      auraGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+      auraGrad.addColorStop(0.5, 'rgba(6, 182, 212, 0.2)');
+      auraGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = auraGrad;
+      ctx.beginPath();
+      ctx.arc(W * 0.7, H * 0.35, 450, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 隨機星光小點
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 70; i++) {
+        const sx = (Math.sin(i * 99) * 10000) % W;
+        const sy = (Math.cos(i * 33) * 10000) % H;
+        const r = (i % 3) + 1;
+        ctx.globalAlpha = (i % 5 + 3) / 10;
+        ctx.beginPath();
+        ctx.arc(Math.abs(sx), Math.abs(sy), r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+
+      // 標題字樣
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.letterSpacing = '2px';
+      ctx.fillText('VEGAN STAR MAP', 60, 110);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 48px sans-serif';
+      ctx.fillText('蔬食探索星圖', 60, 175);
+
+      // 個人玻璃擬態資訊卡
+      ctx.fillStyle = 'rgba(28, 28, 36, 0.75)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 2;
+      roundRect(ctx, 50, 240, W - 100, 360, 24, true, true);
+
+      // 稱號徽章
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 26px sans-serif';
+      ctx.fillText(rank, 85, 305);
+
+      // 探索者名稱
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px sans-serif';
+      ctx.fillText(name, 85, 360);
+
+      // 數據展示
+      ctx.fillStyle = '#a1a1aa';
+      ctx.font = '22px sans-serif';
+      ctx.fillText(`已點亮綠食聚落：${visitedCount} / ${total} 處`, 85, 430);
+
+      // 進度長條
+      ctx.fillStyle = '#1c1c20';
+      roundRect(ctx, 85, 460, W - 170, 16, 8, true, false);
+
+      const barGrad = ctx.createLinearGradient(85, 0, 85 + (W - 170) * (pct / 100), 0);
+      barGrad.addColorStop(0, '#10b981');
+      barGrad.addColorStop(1, '#06b6d4');
+      ctx.fillStyle = barGrad;
+      roundRect(ctx, 85, 460, Math.max(16, (W - 170) * (pct / 100)), 16, 8, true, false);
+
+      ctx.fillStyle = '#10b981';
+      ctx.font = '900 42px sans-serif';
+      ctx.fillText(`${pct}% 解鎖`, 85, 545);
+
+      // 經典座右銘
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.font = 'italic 24px sans-serif';
+      ctx.fillText('「每一顆點亮的星點，都是對地球最溫柔的探索。」', 60, 960);
+
+      // 頁尾標籤
+      ctx.fillStyle = '#52525b';
+      ctx.font = '20px sans-serif';
+      ctx.fillText('© 2026 Vegan Star Map Project', 60, 1190);
+
+      document.getElementById('poster-modal').classList.add('active');
+    };
+
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    window.closeSharePoster = function() {
+      document.getElementById('poster-modal').classList.remove('active');
+    };
+
+    window.downloadPoster = function() {
+      const canvas = document.getElementById('poster-canvas');
+      const link = document.createElement('a');
+      link.download = `vegan_star_map_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     };
 
     function refreshAll() {
