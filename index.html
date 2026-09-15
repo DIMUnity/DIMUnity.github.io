@@ -189,7 +189,7 @@
       margin-top: 24px;
     }
 
-    /* ─── 🌀 登入後資料同步載入動畫過場畫面 ─── */
+    /* ─── 🌀 登入後資料同步載入過場畫面 ─── */
     #app-loading-screen {
       position: fixed;
       inset: 0;
@@ -479,7 +479,7 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 圖層控制器與即時動態微縮視窗 ─── */
+    /* ─── 圖層控制器與微縮指示 ─── */
     .gmaps-layer-dock {
       position: absolute;
       display: flex;
@@ -490,11 +490,11 @@
     }
 
     #gmaps-layer-box {
-      width: 70px;
-      height: 70px;
+      width: 66px;
+      height: 66px;
       border-radius: 16px;
       overflow: hidden;
-      border: 2.5px solid rgba(255, 255, 255, 0.8);
+      border: 2px solid rgba(255, 255, 255, 0.8);
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
       cursor: pointer;
       background: #1c1c20;
@@ -505,31 +505,33 @@
     }
     #gmaps-layer-box:active { transform: scale(0.95); }
 
-    #mini-map {
+    .layer-box-icon-preview {
       width: 100%;
       height: 100%;
-      pointer-events: none;
-      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      background: linear-gradient(135deg, #1f2937, #111827);
     }
-    #mini-map .leaflet-control-attribution { display: none !important; }
 
     .gmaps-layer-label {
       position: absolute;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(18, 18, 20, 0.9);
+      background: rgba(18, 18, 20, 0.92);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       color: #fff;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 4px;
       padding: 3px 0;
-      z-index: 100 !important;
+      z-index: 10;
       pointer-events: none;
     }
 
@@ -576,6 +578,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 20px;
       background: #18181b;
       position: relative;
       transition: border-color 0.2s, transform 0.15s;
@@ -586,17 +589,11 @@
       box-shadow: 0 0 12px var(--star-gradient-glow);
     }
 
-    .mini-thumb-map {
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      background: #111;
-    }
-    .mini-thumb-map .leaflet-control-attribution,
-    .mini-thumb-map .leaflet-control-zoom {
-      display: none !important;
-    }
+    /* 輕量美觀的靜態主題縮圖樣式，徹底避免啟動多個 Leaflet 實體造成記憶體爆炸 */
+    .thumb-bg-taiwan { background: linear-gradient(135deg, #134e4a, #065f46); }
+    .thumb-bg-satellite { background: radial-gradient(circle, #334155, #0f172a); }
+    .thumb-bg-dark { background: linear-gradient(135deg, #18181b, #09090b); }
+    .thumb-bg-osm { background: linear-gradient(135deg, #78350f, #451a03); }
 
     .layer-thumb-name {
       font-size: 11px;
@@ -633,7 +630,7 @@
       height: 160vmax !important;
       left: calc(50% - 80vmax) !important;
       top: calc(50% - 80vmax) !important;
-      transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     #sidebar {
@@ -794,12 +791,10 @@
       scrollbar-color: #3f3f46 transparent;
     }
     .list-container::-webkit-scrollbar { width: 6px; }
-    .list-container::-webkit-scrollbar-track { background: transparent; }
     .list-container::-webkit-scrollbar-thumb {
       background: #3f3f46;
       border-radius: 999px;
     }
-    .list-container::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
     .store-card {
       background: var(--app-card);
@@ -2064,12 +2059,8 @@
         justify-content: space-between;
         row-gap: 6px;
       }
-      .route-mode-pill-group {
-        order: 1;
-      }
-      .route-bar-actions {
-        order: 2;
-      }
+      .route-mode-pill-group { order: 1; }
+      .route-bar-actions { order: 2; }
       .route-summary-preview {
         order: 3;
         width: 100%;
@@ -2136,7 +2127,6 @@
       <button class="btn-route-mode" id="btn-mode-foot" onclick="switchRouteMode('foot')">🚶 行人</button>
     </div>
 
-    <!-- 預計抵達時間與總里程預覽 -->
     <div class="route-summary-preview" id="route-summary-preview">
       <span class="route-preview-time" id="preview-nav-time">計算中...</span>
       <span class="route-preview-meta" id="preview-nav-meta"></span>
@@ -2165,7 +2155,6 @@
     </div>
   </div>
 
-  <!-- 右側控制鈕群 -->
   <div id="nav-right-controls">
     <button class="nav-floating-circle-btn" onclick="recenterNavCamera()" id="btn-nav-compass" title="指北針與視角置中">
       🧭
@@ -2175,7 +2164,6 @@
     </button>
   </div>
 
-  <!-- 底部時間、里程與結束按鈕面板 -->
   <div id="nav-bottom-card">
     <div class="nav-bottom-drag-pill"></div>
     <div class="nav-bottom-row">
@@ -2401,11 +2389,11 @@
         <div class="ig-stats-row">
           <div class="ig-stat-box">
             <span class="ig-stat-num" id="desktop-stat-total">0</span>
-            <span class="ig-stat-label">貼文 (收錄)</span>
+            <span class="ig-stat-label">收錄店家</span>
           </div>
           <div class="ig-stat-box">
             <span class="ig-stat-num" id="desktop-stat-visited" style="color:#ff3040;">0</span>
-            <span class="ig-stat-label">打卡 (點亮)</span>
+            <span class="ig-stat-label">已點亮</span>
           </div>
           <div class="ig-stat-box">
             <span class="ig-stat-num" id="desktop-stat-pct">0%</span>
@@ -2465,7 +2453,7 @@
     <div class="ig-dock-popover" id="dock-popover-list">
       <div class="dock-popover-header">
         <span>👥 星圖視角排行榜</span>
-        <span style="font-size: 10px; color:#a1a1aa;">移至上方切換</span>
+        <span style="font-size: 10px; color:#a1a1aa;">點擊切換</span>
       </div>
       <div id="dock-friend-list-items" style="display:flex; flex-direction:column; gap:4px;"></div>
     </div>
@@ -2508,43 +2496,30 @@
     </div>
   </div>
 
-  <!-- 🗺️ 圖層切換底座與動態即時微縮地圖 -->
+  <!-- 🗺️ 圖層切換底座 (已優化移除子地圖消耗) -->
   <div class="gmaps-layer-dock">
-    <div id="gmaps-layer-box" onclick="handleLayerBoxClick()" title="點擊切換衛星/街景">
-      <div id="mini-map"></div>
+    <div id="gmaps-layer-box" onclick="handleLayerBoxClick()" title="點擊切換圖層">
+      <div class="layer-box-icon-preview" id="layer-box-preview-icon">🛰️</div>
       <div class="gmaps-layer-label">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-          <polyline points="2 17 12 22 22 17"></polyline>
-          <polyline points="2 12 12 17 22 12"></polyline>
-        </svg>
         <span id="layer-box-text">衛星</span>
       </div>
     </div>
 
     <div class="layer-picker-horizontal" id="layer-picker-horizontal">
       <div class="layer-thumb-item active" onclick="switchBaseLayer('taiwan', this, true)">
-        <div class="layer-thumb-box">
-          <div id="mini-thumb-taiwan" class="mini-thumb-map"></div>
-        </div>
+        <div class="layer-thumb-box thumb-bg-taiwan">🗺️</div>
         <span class="layer-thumb-name">臺灣通用</span>
       </div>
       <div class="layer-thumb-item" onclick="switchBaseLayer('satellite', this, true)">
-        <div class="layer-thumb-box">
-          <div id="mini-thumb-satellite" class="mini-thumb-map"></div>
-        </div>
+        <div class="layer-thumb-box thumb-bg-satellite">🛰️</div>
         <span class="layer-thumb-name">衛星空照</span>
       </div>
       <div class="layer-thumb-item" onclick="switchBaseLayer('dark', this, true)">
-        <div class="layer-thumb-box">
-          <div id="mini-thumb-dark" class="mini-thumb-map"></div>
-        </div>
+        <div class="layer-thumb-box thumb-bg-dark">🌑</div>
         <span class="layer-thumb-name">極簡暗黑</span>
       </div>
       <div class="layer-thumb-item" onclick="switchBaseLayer('osm', this, true)">
-        <div class="layer-thumb-box">
-          <div id="mini-thumb-osm" class="mini-thumb-map"></div>
-        </div>
+        <div class="layer-thumb-box thumb-bg-osm">🌐</div>
         <span class="layer-thumb-name">開源街景</span>
       </div>
     </div>
@@ -2554,7 +2529,7 @@
     <div id="map"></div>
   </div>
 
-  <!-- ✏️ 編輯蔬食店家彈窗 -->
+  <!-- ✏️ 編輯店家彈窗 -->
   <div class="modal-overlay" id="modal">
     <div class="modal-content">
       <div id="modal-title" style="font-size: 15px; font-weight: 800; color: #fff;">📍 編輯蔬食店家</div>
@@ -2679,6 +2654,9 @@
     let isNavMuted = false;
     let currentHeadingDeg = 0;
 
+    // 反向地理編碼快取，杜絕 OSM 被鎖定 IP
+    const geocodeCache = new Map();
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -2780,8 +2758,6 @@
 
             setTimeout(() => {
               map.invalidateSize();
-              syncMiniMaps();
-              invalidatePreviewMaps();
             }, 150);
 
             setTimeout(() => {
@@ -2992,6 +2968,7 @@
       document.getElementById('profile-edit-modal').classList.remove('active');
     };
 
+    // 高度優化頭像圖片尺寸 (限制至 96x96, 0.65 品質)，保護 Firestore 1MB 配額限制
     window.handleAvatarFileSelect = function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -3001,7 +2978,7 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const maxDim = 200;
+          const maxDim = 96;
           let w = img.width, h = img.height;
           if (w > h) {
             if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
@@ -3013,7 +2990,7 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
 
-          pendingAvatarBase64 = canvas.toDataURL('image/webp', 0.82);
+          pendingAvatarBase64 = canvas.toDataURL('image/webp', 0.65);
           updateAvatarElements(pendingAvatarBase64);
         };
         img.src = event.target.result;
@@ -3151,6 +3128,7 @@
       }
     };
 
+    // ─── 初始化主地圖 (已剔除其餘 5 個冗餘子 Leaflet 實體) ───
     const map = L.map('map', { center: [24.805, 120.975], zoom: 13, zoomControl: false });
 
     const layers = {
@@ -3163,117 +3141,15 @@
     let currentBaseLayer = layers.taiwan;
     currentBaseLayer.addTo(map);
 
-    // ─── 左側快捷主切換鈕微縮地圖 ───
-    const miniMap = L.map('mini-map', {
-      center: map.getCenter(),
-      zoom: map.getZoom(),
-      zoomControl: false,
-      attributionControl: false,
-      dragging: false,
-      touchZoom: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false
-    });
-
-    const miniLayers = {
-      satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }),
-      street: L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', { maxZoom: 19 })
-    };
-
-    let currentMiniLayer = miniLayers.satellite;
-    currentMiniLayer.addTo(miniMap);
-
-    // ─── 展開選單 4 款即時動態微縮地圖實體 ───
-    const previewConfigs = [
-      { id: 'mini-thumb-taiwan', url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', maxZoom: 19 },
-      { id: 'mini-thumb-satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', maxZoom: 18 },
-      { id: 'mini-thumb-dark', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', maxZoom: 16 },
-      { id: 'mini-thumb-osm', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom: 19 }
-    ];
-
-    const previewMaps = [];
-    previewConfigs.forEach(cfg => {
-      const pMap = L.map(cfg.id, {
-        center: map.getCenter(),
-        zoom: map.getZoom(),
-        zoomControl: false,
-        attributionControl: false,
-        dragging: false,
-        touchZoom: false,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        keyboard: false
-      });
-      L.tileLayer(cfg.url, { maxZoom: cfg.maxZoom }).addTo(pMap);
-      previewMaps.push(pMap);
-    });
-
-    function syncMiniMaps() {
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-      miniMap.setView(center, zoom, { animate: false });
-      previewMaps.forEach(pm => pm.setView(center, zoom, { animate: false }));
-    }
-    map.on('move', syncMiniMaps);
-
-    function invalidatePreviewMaps() {
-      setTimeout(() => {
-        previewMaps.forEach(pm => pm.invalidateSize());
-        syncMiniMaps();
-      }, 50);
-    }
-
-    function checkDockVisibility() {
-      const dock = document.getElementById('ig-dock-container');
-      const picker = document.getElementById('layer-picker-horizontal');
-      const box = document.getElementById('gmaps-layer-box');
-      if (!dock || !picker) return;
-
-      if (window.innerWidth <= 768) {
-        const isPickerVisible = picker.classList.contains('active') ||
-                                picker.matches(':hover') ||
-                                (box && box.matches(':hover'));
-
-        if (isPickerVisible) {
-          dock.classList.add('layer-picker-open');
-        } else {
-          dock.classList.remove('layer-picker-open');
-        }
-      } else {
-        dock.classList.remove('layer-picker-open');
-      }
-    }
-
-    window.addEventListener('resize', checkDockVisibility);
-
-    const layerDockContainer = document.querySelector('.gmaps-layer-dock');
-    if (layerDockContainer) {
-      layerDockContainer.addEventListener('mouseenter', () => {
-        invalidatePreviewMaps();
-        checkDockVisibility();
-      });
-      layerDockContainer.addEventListener('mouseleave', () => {
-        setTimeout(checkDockVisibility, 50);
-      });
-      layerDockContainer.addEventListener('touchstart', () => {
-        setTimeout(checkDockVisibility, 50);
-      }, { passive: true });
-    }
-
     function updateLayerBoxState(mainType) {
       const labelText = document.getElementById('layer-box-text');
+      const iconPreview = document.getElementById('layer-box-preview-icon');
       if (mainType === 'satellite') {
-        miniMap.removeLayer(currentMiniLayer);
-        currentMiniLayer = miniLayers.street;
-        currentMiniLayer.addTo(miniMap);
         if (labelText) labelText.innerText = '地圖';
+        if (iconPreview) iconPreview.innerText = '🗺️';
       } else {
-        miniMap.removeLayer(currentMiniLayer);
-        currentMiniLayer = miniLayers.satellite;
-        currentMiniLayer.addTo(miniMap);
         if (labelText) labelText.innerText = '衛星';
+        if (iconPreview) iconPreview.innerText = '🛰️';
       }
     }
 
@@ -3291,7 +3167,6 @@
         if (isDirectClick && window.innerWidth <= 768) {
           const picker = document.getElementById('layer-picker-horizontal');
           if (picker) picker.classList.remove('active');
-          setTimeout(checkDockVisibility, 50);
         }
       }
     };
@@ -3300,9 +3175,7 @@
       const picker = document.getElementById('layer-picker-horizontal');
       if (window.innerWidth <= 768 && picker) {
         picker.classList.toggle('active');
-        checkDockVisibility();
       }
-      invalidatePreviewMaps();
 
       if (currentBaseLayer === layers.satellite) {
         const defaultItem = document.querySelector('.layer-thumb-item:nth-child(1)');
@@ -3402,8 +3275,7 @@
       currentRouteMode = mode;
       isNavigating = true;
 
-      // 清除星群連線並隱藏其他非目標星點
-      constellationLayer.clearLayers();
+      constellationsClear();
       renderMarkers(getFilteredStores());
 
       if (routingControl) {
@@ -3456,6 +3328,13 @@
       routingControl.on('routeselected', function(e) {
         currentRouteData = e.route;
         updateNavDataDisplay(currentRouteData);
+      });
+
+      routingControl.on('routingerror', function() {
+        if (previewEl) {
+          document.getElementById('preview-nav-time').innerText = '導航伺服器忙碌';
+          document.getElementById('preview-nav-meta').innerText = '請稍候重試';
+        }
       });
 
       const bar = document.getElementById('route-indicator-bar');
@@ -3545,6 +3424,7 @@
       }
     }
 
+    // 陀螺儀防微幅抖動平滑演算法
     function handleOrientationEvent(e) {
       if (!isActiveNavigationMode) return;
       let heading = null;
@@ -3556,7 +3436,9 @@
       }
 
       if (heading !== null && !isNaN(heading)) {
-        applyMapRotation(heading);
+        if (Math.abs(heading - currentHeadingDeg) > 1.5) {
+          applyMapRotation(heading);
+        }
       }
     }
 
@@ -3686,7 +3568,6 @@
       const previewEl = document.getElementById('route-summary-preview');
       if (previewEl) previewEl.style.display = 'none';
 
-      // 恢復完整星點與連線
       const filtered = getFilteredStores();
       renderConstellation(filtered);
       renderMarkers(filtered);
@@ -3818,7 +3699,6 @@
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       const picker = document.getElementById('layer-picker-horizontal');
       if (picker) picker.classList.remove('active');
-      checkDockVisibility();
       document.getElementById('ig-dock-container')?.classList.remove('active');
       closeDetailSheet();
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
@@ -3975,9 +3855,22 @@
       });
     }
 
+    // 支援記憶體快取與逾時防禦的反向地理編碼
     async function reverseGeocode(lat, lng) {
+      const cacheKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+      if (geocodeCache.has(cacheKey)) {
+        return geocodeCache.get(cacheKey);
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+          signal: controller.signal,
+          headers: { 'Accept-Language': 'zh-TW,zh;q=0.9' }
+        });
+        clearTimeout(timeoutId);
         const data = await res.json();
         if (data && data.address) {
           const addr = data.address;
@@ -3985,9 +3878,13 @@
           if (houseNum && !houseNum.endsWith('號')) {
             houseNum += '號';
           }
-          return `${addr.city || addr.county || ''}${addr.suburb || addr.district || ''}${addr.road || ''}${houseNum}`;
+          const formatted = `${addr.city || addr.county || ''}${addr.suburb || addr.district || ''}${addr.road || ''}${houseNum}`;
+          geocodeCache.set(cacheKey, formatted);
+          return formatted;
         }
-      } catch (e) {}
+      } catch (e) {
+        clearTimeout(timeoutId);
+      }
       return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     }
 
@@ -4056,12 +3953,21 @@
       }
     };
 
+    function constellationsClear() {
+      constellationLayer.clearLayers();
+    }
+
+    // 視窗裁切 (Viewport Culling) 優化演算法，避免星圖連線時的全量 N^2 運算
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       if (isNavigating) return;
 
       const visited = filteredStores.filter(s => isStoreUnlockedForCurrentView(s));
       if (visited.length < 2) return;
+
+      const bounds = map.getBounds().pad(0.25);
+      const visibleVisited = visited.filter(s => bounds.contains([s.lat, s.lng]));
+      if (visibleVisited.length < 2) return;
 
       const zoom = map.getZoom();
       let maxDist = 1200;
@@ -4071,9 +3977,9 @@
 
       const connectedPairs = new Set();
 
-      visited.forEach((p1, i) => {
+      visibleVisited.forEach((p1, i) => {
         const neighbors = [];
-        visited.forEach((p2, j) => {
+        visibleVisited.forEach((p2, j) => {
           if (i !== j) {
             const dist = L.latLng(p1.lat, p1.lng).distanceTo(L.latLng(p2.lat, p2.lng));
             if (dist <= maxDist) {
@@ -4104,7 +4010,6 @@
       const zoom = map.getZoom();
       const isDense = zoom < 14;
 
-      // 路線規劃中時，僅顯示目標店家，其餘所有星點標記均隱藏
       const targetStores = (isNavigating && activeNavStoreId) 
         ? filteredStores.filter(s => s.id === activeNavStoreId) 
         : filteredStores;
@@ -4148,11 +4053,10 @@
       });
     }
 
-    map.on('zoomend', () => {
+    map.on('zoomend moveend', () => {
       const filtered = getFilteredStores();
       renderConstellation(filtered);
       renderMarkers(filtered);
-      syncMiniMaps();
     });
 
     function updateSidebar(filteredStores) {
@@ -4278,7 +4182,6 @@
       await updateDoc(doc(db, "vegan_stores", id), { visitedBy });
     };
 
-    // ─── 🗑️ 自訂刪除確認邏輯 ───
     window.deleteStore = function(id) {
       if (!currentUser) return alert('請先登入！');
       const store = stores.find(s => s.id === id);
