@@ -1927,7 +1927,6 @@
         transform: translateY(0) scale(1);
       }
 
-      /* 電腦版規劃列置頂置中、隱藏開始按鈕、增加預估資訊左側微隔線 */
       #route-indicator-bar {
         left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
         top: 24px;
@@ -2016,7 +2015,6 @@
         transform: translateY(20px);
       }
 
-      /* 手機版專屬：只要切換地圖方塊顯示，我的星圖一律暫時隱藏 */
       body:has(.layer-picker-horizontal.active) .ig-dock-capsule-container,
       body:has(.gmaps-layer-dock:hover) .ig-dock-capsule-container,
       body:has(#gmaps-layer-box:hover) .ig-dock-capsule-container,
@@ -2057,7 +2055,6 @@
         display: none !important;
       }
 
-      /* 手機版路徑條自適應雙層排版 */
       #route-indicator-bar {
         top: 125px;
         width: calc(100vw - 28px);
@@ -3405,7 +3402,9 @@
       currentRouteMode = mode;
       isNavigating = true;
 
+      // 清除星群連線並隱藏其他非目標星點
       constellationLayer.clearLayers();
+      renderMarkers(getFilteredStores());
 
       if (routingControl) {
         try { map.removeControl(routingControl); } catch (e) {}
@@ -3419,7 +3418,6 @@
         if (btn) btn.classList.toggle('active', m === mode);
       });
 
-      // 初始化路線資訊預覽
       const previewEl = document.getElementById('route-summary-preview');
       if (previewEl) {
         previewEl.style.display = 'inline-flex';
@@ -3591,11 +3589,9 @@
       const mStr = etaDate.getMinutes().toString().padStart(2, '0');
       const etaFormatted = `${period} ${h12}:${mStr}`;
 
-      // 1. 同步更新實時導航 HUD 底卡
       document.getElementById('nav-summary-time').innerText = `${minutes} 分鐘`;
       document.getElementById('nav-summary-meta').innerText = `${distKm} 公里 · 預計 ${etaFormatted} 抵達`;
 
-      // 2. 同步更新路線規劃條上的預覽資訊
       const previewEl = document.getElementById('route-summary-preview');
       const previewTime = document.getElementById('preview-nav-time');
       const previewMeta = document.getElementById('preview-nav-meta');
@@ -3690,7 +3686,10 @@
       const previewEl = document.getElementById('route-summary-preview');
       if (previewEl) previewEl.style.display = 'none';
 
-      renderConstellation(getFilteredStores());
+      // 恢復完整星點與連線
+      const filtered = getFilteredStores();
+      renderConstellation(filtered);
+      renderMarkers(filtered);
     };
 
     window.recenterNavCamera = function() {
@@ -4105,7 +4104,12 @@
       const zoom = map.getZoom();
       const isDense = zoom < 14;
 
-      filteredStores.forEach(s => {
+      // 路線規劃中時，僅顯示目標店家，其餘所有星點標記均隱藏
+      const targetStores = (isNavigating && activeNavStoreId) 
+        ? filteredStores.filter(s => s.id === activeNavStoreId) 
+        : filteredStores;
+
+      targetStores.forEach(s => {
         let size, iconHtml;
         const isUnlocked = isStoreUnlockedForCurrentView(s);
 
