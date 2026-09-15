@@ -1897,6 +1897,14 @@
         transform: translateY(20px);
       }
 
+      /* ─── 手機版專屬：當切換地圖方塊彈出時，右下角「我的星圖」暫時隱藏 ─── */
+      body:has(#layer-picker-horizontal.active) .ig-dock-capsule-container,
+      .ig-dock-capsule-container.layer-picker-open {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transform: translateY(20px) !important;
+      }
+
       #sidebar {
         position: fixed;
         left: 0;
@@ -2359,25 +2367,25 @@
     </div>
 
     <div class="layer-picker-horizontal" id="layer-picker-horizontal">
-      <div class="layer-thumb-item active" onclick="switchBaseLayer('taiwan', this)">
+      <div class="layer-thumb-item active" onclick="switchBaseLayer('taiwan', this, true)">
         <div class="layer-thumb-box">
           <div id="mini-thumb-taiwan" class="mini-thumb-map"></div>
         </div>
         <span class="layer-thumb-name">臺灣通用</span>
       </div>
-      <div class="layer-thumb-item" onclick="switchBaseLayer('satellite', this)">
+      <div class="layer-thumb-item" onclick="switchBaseLayer('satellite', this, true)">
         <div class="layer-thumb-box">
           <div id="mini-thumb-satellite" class="mini-thumb-map"></div>
         </div>
         <span class="layer-thumb-name">衛星空照</span>
       </div>
-      <div class="layer-thumb-item" onclick="switchBaseLayer('dark', this)">
+      <div class="layer-thumb-item" onclick="switchBaseLayer('dark', this, true)">
         <div class="layer-thumb-box">
           <div id="mini-thumb-dark" class="mini-thumb-map"></div>
         </div>
         <span class="layer-thumb-name">極簡暗黑</span>
       </div>
-      <div class="layer-thumb-item" onclick="switchBaseLayer('osm', this)">
+      <div class="layer-thumb-item" onclick="switchBaseLayer('osm', this, true)">
         <div class="layer-thumb-box">
           <div id="mini-thumb-osm" class="mini-thumb-map"></div>
         </div>
@@ -3033,6 +3041,19 @@
       }, 50);
     }
 
+    // 手機端切換圖層方塊彈出時控制「我的星圖」顯示/隱藏
+    function updateDockVisibilityOnMobile() {
+      const dock = document.getElementById('ig-dock-container');
+      const picker = document.getElementById('layer-picker-horizontal');
+      if (!dock || !picker) return;
+      if (window.innerWidth <= 768 && picker.classList.contains('active')) {
+        dock.classList.add('layer-picker-open');
+      } else {
+        dock.classList.remove('layer-picker-open');
+      }
+    }
+    window.addEventListener('resize', updateDockVisibilityOnMobile);
+
     const layerBoxEl = document.getElementById('gmaps-layer-box');
     const layerPickerEl = document.getElementById('layer-picker-horizontal');
     if (layerBoxEl) layerBoxEl.addEventListener('mouseenter', invalidatePreviewMaps);
@@ -3053,7 +3074,7 @@
       }
     }
 
-    window.switchBaseLayer = function(type, el) {
+    window.switchBaseLayer = function(type, el, isDirectClick = false) {
       if (layers[type]) {
         map.removeLayer(currentBaseLayer);
         currentBaseLayer = layers[type];
@@ -3063,6 +3084,13 @@
         if (el) el.classList.add('active');
 
         updateLayerBoxState(type);
+
+        // 手機版點擊具體圖層後，自動收起彈出方塊並恢復星圖膠囊
+        if (isDirectClick && window.innerWidth <= 768) {
+          const picker = document.getElementById('layer-picker-horizontal');
+          if (picker) picker.classList.remove('active');
+          updateDockVisibilityOnMobile();
+        }
       }
     };
 
@@ -3070,6 +3098,7 @@
       const picker = document.getElementById('layer-picker-horizontal');
       if (window.innerWidth <= 768) {
         picker.classList.toggle('active');
+        updateDockVisibilityOnMobile();
       }
       invalidatePreviewMaps();
 
@@ -3563,6 +3592,7 @@
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       const picker = document.getElementById('layer-picker-horizontal');
       if (picker) picker.classList.remove('active');
+      updateDockVisibilityOnMobile();
       document.getElementById('ig-dock-container')?.classList.remove('active');
       closeDetailSheet();
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
@@ -3605,7 +3635,7 @@
         `).join('');
         dropdowns.forEach(d => { if (d) { d.innerHTML = html; d.classList.add('active'); } });
       } else {
-        dropdowns.forEach(d => { if (d) { d.classList.remove('active'); d.innerHTML = ''; } });
+        dropdowns.forEach(d => { if (d) { d.innerHTML = html; d.classList.remove('active'); d.innerHTML = ''; } });
       }
     };
 
