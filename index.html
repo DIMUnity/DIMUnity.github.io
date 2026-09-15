@@ -507,7 +507,6 @@
       box-shadow: 0 0 12px var(--star-gradient-glow);
     }
 
-    /* 4 個微縮地圖共用樣式 */
     .mini-thumb-map {
       width: 100%;
       height: 100%;
@@ -1897,8 +1896,11 @@
         transform: translateY(20px);
       }
 
-      /* ─── 手機版專屬：當切換地圖方塊彈出時，右下角「我的星圖」暫時隱藏 ─── */
-      body:has(#layer-picker-horizontal.active) .ig-dock-capsule-container,
+      /* ─── 手機版專屬：只要切換地圖方塊顯示（無論 active 或 hover），我的星圖一律暫時隱藏 ─── */
+      body:has(.layer-picker-horizontal.active) .ig-dock-capsule-container,
+      body:has(.gmaps-layer-dock:hover) .ig-dock-capsule-container,
+      body:has(#gmaps-layer-box:hover) .ig-dock-capsule-container,
+      body:has(.layer-picker-horizontal:hover) .ig-dock-capsule-container,
       .ig-dock-capsule-container.layer-picker-open {
         opacity: 0 !important;
         pointer-events: none !important;
@@ -3041,23 +3043,43 @@
       }, 50);
     }
 
-    // 手機端切換圖層方塊彈出時控制「我的星圖」顯示/隱藏
-    function updateDockVisibilityOnMobile() {
+    // ─── 手機端圖層選單顯示/隱藏與「我的星圖」聯動核心 ───
+    function checkDockVisibility() {
       const dock = document.getElementById('ig-dock-container');
       const picker = document.getElementById('layer-picker-horizontal');
+      const box = document.getElementById('gmaps-layer-box');
       if (!dock || !picker) return;
-      if (window.innerWidth <= 768 && picker.classList.contains('active')) {
-        dock.classList.add('layer-picker-open');
+
+      if (window.innerWidth <= 768) {
+        const isPickerVisible = picker.classList.contains('active') ||
+                                picker.matches(':hover') ||
+                                (box && box.matches(':hover'));
+
+        if (isPickerVisible) {
+          dock.classList.add('layer-picker-open');
+        } else {
+          dock.classList.remove('layer-picker-open');
+        }
       } else {
         dock.classList.remove('layer-picker-open');
       }
     }
-    window.addEventListener('resize', updateDockVisibilityOnMobile);
 
-    const layerBoxEl = document.getElementById('gmaps-layer-box');
-    const layerPickerEl = document.getElementById('layer-picker-horizontal');
-    if (layerBoxEl) layerBoxEl.addEventListener('mouseenter', invalidatePreviewMaps);
-    if (layerPickerEl) layerPickerEl.addEventListener('mouseenter', invalidatePreviewMaps);
+    window.addEventListener('resize', checkDockVisibility);
+
+    const layerDockContainer = document.querySelector('.gmaps-layer-dock');
+    if (layerDockContainer) {
+      layerDockContainer.addEventListener('mouseenter', () => {
+        invalidatePreviewMaps();
+        checkDockVisibility();
+      });
+      layerDockContainer.addEventListener('mouseleave', () => {
+        setTimeout(checkDockVisibility, 50);
+      });
+      layerDockContainer.addEventListener('touchstart', () => {
+        setTimeout(checkDockVisibility, 50);
+      }, { passive: true });
+    }
 
     function updateLayerBoxState(mainType) {
       const labelText = document.getElementById('layer-box-text');
@@ -3085,20 +3107,20 @@
 
         updateLayerBoxState(type);
 
-        // 手機版點擊具體圖層後，自動收起彈出方塊並恢復星圖膠囊
+        // 手機版點選圖層後收起選單並復原「我的星圖」
         if (isDirectClick && window.innerWidth <= 768) {
           const picker = document.getElementById('layer-picker-horizontal');
           if (picker) picker.classList.remove('active');
-          updateDockVisibilityOnMobile();
+          setTimeout(checkDockVisibility, 50);
         }
       }
     };
 
     window.handleLayerBoxClick = function() {
       const picker = document.getElementById('layer-picker-horizontal');
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth <= 768 && picker) {
         picker.classList.toggle('active');
-        updateDockVisibilityOnMobile();
+        checkDockVisibility();
       }
       invalidatePreviewMaps();
 
@@ -3592,7 +3614,7 @@
       document.querySelectorAll('.search-suggestions-dropdown').forEach(d => d.classList.remove('active'));
       const picker = document.getElementById('layer-picker-horizontal');
       if (picker) picker.classList.remove('active');
-      updateDockVisibilityOnMobile();
+      checkDockVisibility();
       document.getElementById('ig-dock-container')?.classList.remove('active');
       closeDetailSheet();
       if (window.innerWidth <= 768 && sheetState !== 'collapsed') {
@@ -3635,7 +3657,7 @@
         `).join('');
         dropdowns.forEach(d => { if (d) { d.innerHTML = html; d.classList.add('active'); } });
       } else {
-        dropdowns.forEach(d => { if (d) { d.innerHTML = html; d.classList.remove('active'); d.innerHTML = ''; } });
+        dropdowns.forEach(d => { if (d) { d.classList.remove('active'); d.innerHTML = ''; } });
       }
     };
 
