@@ -986,7 +986,6 @@
       pointer-events: none;
     }
     
-    /* 1. 外向內收束環 */
     .fx-converge-ring {
       position: absolute;
       top: -70px;
@@ -1014,7 +1013,6 @@
       100% { transform: scale(0.06); opacity: 1; }
     }
 
-    /* 2. 核心引爆閃爍 */
     .fx-burst-core {
       position: absolute;
       top: -30px;
@@ -1027,7 +1025,6 @@
       animation: burstCore 0.85s cubic-bezier(0.15, 0.9, 0.3, 1) 0.5s forwards;
     }
 
-    /* 3. 瞬間向外脈衝衝擊波 */
     .fx-burst-shockwave {
       position: absolute;
       top: -60px;
@@ -2891,16 +2888,18 @@
               unsubscribeFirestore = onSnapshot(storesCollection, (snapshot) => {
                 stores = snapshot.docs.map(d => {
                   const data = d.data();
-                  let visitedBy = Array.isArray(data.visitedBy) ? data.visitedBy : [];
-                  if (data.visited === true && !visitedBy.includes(SUPER_ADMIN_EMAIL.toLowerCase())) {
-                    visitedBy.push(SUPER_ADMIN_EMAIL.toLowerCase());
-                  }
+                  // 徹底根除 visited: true 的死循環衝突
+                  let visitedBy = Array.isArray(data.visitedBy) 
+                    ? [...data.visitedBy] 
+                    : (data.visited ? [SUPER_ADMIN_EMAIL.toLowerCase()] : []);
+
                   return {
                     id: d.id,
                     ...data,
                     visitedBy
                   };
                 }).sort((a, b) => (a.order ?? 999999) - (b.order ?? 999999));
+                
                 refreshAll();
 
                 if (!resolved) {
@@ -3786,9 +3785,10 @@
       const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
       toggleBtn.innerText = isMyVisited ? '❤️' : '🤍';
       toggleBtn.title = isMyVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
+      
+      // 修復：不再於回呼內重複叫用 openDetailSheet，由 toggleVisited 內部即時精準刷新狀態
       toggleBtn.onclick = () => {
         toggleVisited(store.id);
-        openDetailSheet(store.id);
       };
 
       document.getElementById('sheet-btn-edit').onclick = () => openEditModal(store.id);
@@ -4395,6 +4395,7 @@
       }, 1400);
     }
 
+    // ─── 修正版：徹底修復無法取消打卡與狀態時間差問題 ───
     window.toggleVisited = async function(id) {
       if (!currentUser) return alert('請先登入！');
       const target = stores.find(s => s.id === id);
@@ -4412,9 +4413,51 @@
         isNowVisited = true;
       }
 
+      // 1. 立即更新本機快取與狀態，消除時間差回彈
+      target.visitedBy = visitedBy;
+      target.visited = visitedBy.length > 0;
+
+      // 2. 播放對應的星點收束/寂滅動畫
       playStarMapAnimation(target.lat, target.lng, isNowVisited);
 
-      await updateDoc(doc(db, "vegan_stores", id), { visitedBy });
+      // 3. 立即重繪所有介面（列表與星圖標記）
+      refreshAll();
+
+      // 4. 若當前卡片正在展示此店家，立即同步更新卡片狀態
+      if (selectedStoreId === id) {
+        const statusBadge = document.getElementById('sheet-store-status');
+        const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
+        const countEl = document.getElementById('sheet-store-whovisited');
+
+        const isCurrentViewUnlocked = isStoreUnlockedForCurrentView(target);
+        if (statusBadge) {
+          if (isCurrentViewUnlocked) {
+            statusBadge.innerText = '❤️ 已打卡';
+            statusBadge.className = 'detail-badge-pill detail-badge-visited';
+          } else {
+            statusBadge.innerText = '🔖 待造訪';
+            statusBadge.className = 'detail-badge-pill';
+          }
+        }
+        if (toggleBtn) {
+          toggleBtn.innerText = isNowVisited ? '❤️' : '🤍';
+          toggleBtn.title = isNowVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
+        }
+        if (countEl) {
+          countEl.innerText = `👥 ${visitedBy.length}人打卡`;
+        }
+      }
+
+      // 5. 同時寫入 visitedBy 與 visited，根除舊版布林值導致的死循環覆寫
+      try {
+        await updateDoc(doc(db, "vegan_stores", id), { 
+          visitedBy: visitedBy,
+          visited: visitedBy.length > 0
+        });
+      } catch (err) {
+        console.error("更新打卡狀態失敗:", err);
+        alert("更新狀態失敗，請檢查網路連線");
+      }
     };
 
     window.deleteStore = function(id) {
