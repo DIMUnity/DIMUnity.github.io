@@ -189,6 +189,85 @@
       margin-top: 24px;
     }
 
+    /* ─── 🌀 登入後資料同步載入動畫過場畫面 ─── */
+    #app-loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #09090b;
+      z-index: 99990;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.3, 1), visibility 0.4s;
+    }
+    #app-loading-screen.active {
+      display: flex;
+    }
+    #app-loading-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .loading-content-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+    .loading-ring-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .loading-orbit-spinner {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: #10b981;
+      border-right-color: #06b6d4;
+      border-bottom-color: #8b5cf6;
+      border-left-color: #ec4899;
+      animation: loadingOrbitSpin 1.15s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+      box-shadow: 0 0 24px var(--star-gradient-glow);
+    }
+    .loading-avatar-center {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #141416;
+      border: 1.5px solid var(--app-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      animation: loadingPulseCenter 1.8s ease-in-out infinite;
+    }
+    @keyframes loadingOrbitSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes loadingPulseCenter {
+      0%, 100% { transform: scale(0.94); opacity: 0.85; }
+      50% { transform: scale(1.06); opacity: 1; filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.6)); }
+    }
+    .loading-main-text {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+    }
+    .loading-sub-text {
+      font-size: 12px;
+      color: var(--app-text-sub);
+    }
+
     /* ─── 搜尋列 ─── */
     .search-pill-box {
       background: rgba(28, 28, 32, 0.95);
@@ -1896,7 +1975,7 @@
         transform: translateY(20px);
       }
 
-      /* ─── 手機版專屬：只要切換地圖方塊顯示（無論 active 或 hover），我的星圖一律暫時隱藏 ─── */
+      /* ─── 手機版專屬：只要切換地圖方塊顯示，我的星圖一律暫時隱藏 ─── */
       body:has(.layer-picker-horizontal.active) .ig-dock-capsule-container,
       body:has(.gmaps-layer-dock:hover) .ig-dock-capsule-container,
       body:has(#gmaps-layer-box:hover) .ig-dock-capsule-container,
@@ -1978,6 +2057,18 @@
     <div class="auth-footer-clean">
       <div>蔬食探索星圖專案 · 專屬社群地圖平台</div>
       <div>© 2026 Vegan Star Map Project. All Rights Reserved.</div>
+    </div>
+  </div>
+
+  <!-- 🌀 登入後資料載入過場動畫畫面 -->
+  <div id="app-loading-screen">
+    <div class="loading-content-box">
+      <div class="loading-ring-wrapper">
+        <div class="loading-orbit-spinner"></div>
+        <div class="loading-avatar-center">🌱</div>
+      </div>
+      <div class="loading-main-text">正在點亮蔬食探索星圖...</div>
+      <div class="loading-sub-text" id="loading-status-text">同步地點清單與成員資料中</div>
     </div>
   </div>
 
@@ -2546,10 +2637,16 @@
 
         onAuthStateChanged(auth, async (user) => {
           const lockScreen = document.getElementById('auth-lock-screen');
+          const loadingScreen = document.getElementById('app-loading-screen');
 
           if (user) {
             const userEmail = (user.email || "").toLowerCase().trim();
             let isAuthorized = false;
+
+            // 啟動過場動畫畫面，收起登入鎖定面板
+            loadingScreen.classList.remove('fade-out');
+            loadingScreen.classList.add('active');
+            lockScreen.style.display = 'none';
 
             if (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) {
               isAuthorized = true;
@@ -2565,6 +2662,7 @@
             }
 
             if (!isAuthorized) {
+              loadingScreen.classList.remove('active');
               alert(`⛔ 存取被拒絕！\n\n帳號【${user.email}】尚未取得訪問授權。\n請聯繫管理員為您開啟權限。`);
               currentUser = null;
               await signOut(auth);
@@ -2573,17 +2671,22 @@
             }
 
             currentUser = user;
-            lockScreen.style.display = 'none';
 
             const adminWhitelistBtn = document.getElementById('btn-open-whitelist');
             if (adminWhitelistBtn) {
               adminWhitelistBtn.style.display = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) ? 'flex' : 'none';
             }
 
-            await loadUserProfile(userEmail);
-            await loadAllMembers();
+            // 非同步並行等待：個人設定、成員名單、以及 Firestore 首次完整資料快照
+            const profilePromise = loadUserProfile(userEmail);
+            const membersPromise = loadAllMembers();
 
-            if (!unsubscribeFirestore) {
+            const initialStoresPromise = new Promise((resolve) => {
+              let resolved = false;
+              if (unsubscribeFirestore) {
+                unsubscribeFirestore();
+                unsubscribeFirestore = null;
+              }
               unsubscribeFirestore = onSnapshot(storesCollection, (snapshot) => {
                 stores = snapshot.docs.map(d => {
                   const data = d.data();
@@ -2598,19 +2701,40 @@
                   };
                 }).sort((a, b) => (a.order ?? 999999) - (b.order ?? 999999));
                 refreshAll();
+
+                if (!resolved) {
+                  resolved = true;
+                  resolve();
+                }
               }, (err) => {
                 console.error("Firestore 錯誤:", err);
+                if (!resolved) {
+                  resolved = true;
+                  resolve();
+                }
               });
-            }
+            });
+
+            // 確保全部載入完畢
+            await Promise.all([profilePromise, membersPromise, initialStoresPromise]);
 
             setTimeout(() => {
               map.invalidateSize();
               syncMiniMaps();
               invalidatePreviewMaps();
-            }, 200);
+            }, 150);
+
+            // 資料已全部齊全，平滑淡出載入畫面
+            setTimeout(() => {
+              loadingScreen.classList.add('fade-out');
+              setTimeout(() => {
+                loadingScreen.classList.remove('active');
+              }, 400);
+            }, 350);
 
           } else {
             currentUser = null;
+            loadingScreen.classList.remove('active');
             lockScreen.style.display = 'flex';
             stores = [];
             if (unsubscribeFirestore) {
@@ -3107,7 +3231,6 @@
 
         updateLayerBoxState(type);
 
-        // 手機版點選圖層後收起選單並復原「我的星圖」
         if (isDirectClick && window.innerWidth <= 768) {
           const picker = document.getElementById('layer-picker-horizontal');
           if (picker) picker.classList.remove('active');
