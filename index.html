@@ -66,7 +66,7 @@
       position: relative;
     }
 
-    /* ─── 原創全螢幕授權登入畫面 ─── */
+    /* ─── 全螢幕授權登入畫面 ─── */
     #auth-lock-screen {
       position: fixed;
       inset: 0;
@@ -400,7 +400,7 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 圖層控制器 ─── */
+    /* ─── 圖層控制器與即時動態微縮視窗 ─── */
     .gmaps-layer-dock {
       position: absolute;
       display: flex;
@@ -489,16 +489,16 @@
       user-select: none;
     }
     .layer-thumb-box {
-      width: 46px;
-      height: 46px;
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       overflow: hidden;
       border: 2px solid transparent;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #000;
-      font-size: 20px;
+      background: #18181b;
+      position: relative;
       transition: border-color 0.2s, transform 0.15s;
     }
     .layer-thumb-item:active .layer-thumb-box { transform: scale(0.92); }
@@ -506,6 +506,20 @@
       border-color: var(--app-accent);
       box-shadow: 0 0 12px var(--star-gradient-glow);
     }
+
+    /* 4 個微縮地圖共用樣式 */
+    .mini-thumb-map {
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      background: #111;
+    }
+    .mini-thumb-map .leaflet-control-attribution,
+    .mini-thumb-map .leaflet-control-zoom {
+      display: none !important;
+    }
+
     .layer-thumb-name {
       font-size: 11px;
       color: var(--app-text-sub);
@@ -1923,7 +1937,7 @@
 </head>
 <body>
 
-  <!-- 🌟 原創授權認證全螢幕登入畫面 -->
+  <!-- 🌟 全螢幕授權登入畫面 -->
   <div id="auth-lock-screen">
     <div class="auth-center-panel">
       <div class="auth-glass-box">
@@ -2330,6 +2344,7 @@
     </div>
   </div>
 
+  <!-- 🗺️ 圖層切換底座與動態即時微縮地圖 -->
   <div class="gmaps-layer-dock">
     <div id="gmaps-layer-box" onclick="handleLayerBoxClick()" title="點擊切換衛星/街景">
       <div id="mini-map"></div>
@@ -2345,19 +2360,27 @@
 
     <div class="layer-picker-horizontal" id="layer-picker-horizontal">
       <div class="layer-thumb-item active" onclick="switchBaseLayer('taiwan', this)">
-        <div class="layer-thumb-box">🇹🇼</div>
+        <div class="layer-thumb-box">
+          <div id="mini-thumb-taiwan" class="mini-thumb-map"></div>
+        </div>
         <span class="layer-thumb-name">臺灣通用</span>
       </div>
       <div class="layer-thumb-item" onclick="switchBaseLayer('satellite', this)">
-        <div class="layer-thumb-box">🛰️</div>
+        <div class="layer-thumb-box">
+          <div id="mini-thumb-satellite" class="mini-thumb-map"></div>
+        </div>
         <span class="layer-thumb-name">衛星空照</span>
       </div>
       <div class="layer-thumb-item" onclick="switchBaseLayer('dark', this)">
-        <div class="layer-thumb-box">🌑</div>
+        <div class="layer-thumb-box">
+          <div id="mini-thumb-dark" class="mini-thumb-map"></div>
+        </div>
         <span class="layer-thumb-name">極簡暗黑</span>
       </div>
       <div class="layer-thumb-item" onclick="switchBaseLayer('osm', this)">
-        <div class="layer-thumb-box">🗺️</div>
+        <div class="layer-thumb-box">
+          <div id="mini-thumb-osm" class="mini-thumb-map"></div>
+        </div>
         <span class="layer-thumb-name">開源街景</span>
       </div>
     </div>
@@ -2403,7 +2426,7 @@
     </div>
   </div>
 
-  <!-- 🗑️ 原創居中刪除確認自訂彈窗 -->
+  <!-- 🗑️ 刪除確認彈窗 -->
   <div class="modal-overlay" id="delete-confirm-modal" onclick="closeDeleteConfirmModal()">
     <div class="modal-content" style="max-width: 320px; text-align: center; align-items: center; padding: 26px 22px; gap: 14px;" onclick="event.stopPropagation()">
       <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.35); color: #f43f5e; display: flex; align-items: center; justify-content: center; font-size: 24px;">
@@ -2570,7 +2593,11 @@
               });
             }
 
-            setTimeout(() => map.invalidateSize(), 200);
+            setTimeout(() => {
+              map.invalidateSize();
+              syncMiniMaps();
+              invalidatePreviewMaps();
+            }, 200);
 
           } else {
             currentUser = null;
@@ -2943,6 +2970,7 @@
     let currentBaseLayer = layers.taiwan;
     currentBaseLayer.addTo(map);
 
+    // ─── 左側快捷主切換鈕微縮地圖 ───
     const miniMap = L.map('mini-map', {
       center: map.getCenter(),
       zoom: map.getZoom(),
@@ -2963,9 +2991,52 @@
     let currentMiniLayer = miniLayers.satellite;
     currentMiniLayer.addTo(miniMap);
 
-    map.on('move', () => {
-      miniMap.setView(map.getCenter(), map.getZoom(), { animate: false });
+    // ─── 展開選單 4 款即時動態微縮地圖實體 ───
+    const previewConfigs = [
+      { id: 'mini-thumb-taiwan', url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', maxZoom: 19 },
+      { id: 'mini-thumb-satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', maxZoom: 18 },
+      { id: 'mini-thumb-dark', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', maxZoom: 16 },
+      { id: 'mini-thumb-osm', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom: 19 }
+    ];
+
+    const previewMaps = [];
+    previewConfigs.forEach(cfg => {
+      const pMap = L.map(cfg.id, {
+        center: map.getCenter(),
+        zoom: map.getZoom(),
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        touchZoom: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false
+      });
+      L.tileLayer(cfg.url, { maxZoom: cfg.maxZoom }).addTo(pMap);
+      previewMaps.push(pMap);
     });
+
+    // 主地圖移動時同步所有微縮地圖
+    function syncMiniMaps() {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      miniMap.setView(center, zoom, { animate: false });
+      previewMaps.forEach(pm => pm.setView(center, zoom, { animate: false }));
+    }
+    map.on('move', syncMiniMaps);
+
+    function invalidatePreviewMaps() {
+      setTimeout(() => {
+        previewMaps.forEach(pm => pm.invalidateSize());
+        syncMiniMaps();
+      }, 50);
+    }
+
+    const layerBoxEl = document.getElementById('gmaps-layer-box');
+    const layerPickerEl = document.getElementById('layer-picker-horizontal');
+    if (layerBoxEl) layerBoxEl.addEventListener('mouseenter', invalidatePreviewMaps);
+    if (layerPickerEl) layerPickerEl.addEventListener('mouseenter', invalidatePreviewMaps);
 
     function updateLayerBoxState(mainType) {
       const labelText = document.getElementById('layer-box-text');
@@ -3000,6 +3071,7 @@
       if (window.innerWidth <= 768) {
         picker.classList.toggle('active');
       }
+      invalidatePreviewMaps();
 
       if (currentBaseLayer === layers.satellite) {
         const defaultItem = document.querySelector('.layer-thumb-item:nth-child(1)');
@@ -3819,6 +3891,7 @@
       const filtered = getFilteredStores();
       renderConstellation(filtered);
       renderMarkers(filtered);
+      syncMiniMaps();
     });
 
     function updateSidebar(filteredStores) {
@@ -3944,7 +4017,7 @@
       await updateDoc(doc(db, "vegan_stores", id), { visitedBy });
     };
 
-    // ─── 🗑️ 自訂置中刪除確認邏輯 ───
+    // ─── 🗑️ 自訂刪除確認邏輯 ───
     window.deleteStore = function(id) {
       if (!currentUser) return alert('請先登入！');
       const store = stores.find(s => s.id === id);
