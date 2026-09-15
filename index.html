@@ -965,16 +965,16 @@
     }
     .detail-actions-row::-webkit-scrollbar { display: none; }
 
+    /* 純圖示調整：font-size 放大為 16px */
     .btn-gmaps-action {
       flex: 1;
       padding: 9px 12px;
       border-radius: 12px;
-      font-size: 12.5px;
+      font-size: 16px;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
       cursor: pointer;
       border: none;
       white-space: nowrap;
@@ -1165,7 +1165,6 @@
       font-size: 14px;
     }
 
-    /* 右側懸浮控制按鈕群 (指北針與音量) */
     #nav-right-controls {
       position: fixed;
       right: 16px;
@@ -1195,7 +1194,6 @@
     }
     .nav-floating-circle-btn:active { transform: scale(0.92); }
 
-    /* 底部時間、里程與結束按鈕面板 (星空暗黑卡片風格) */
     #nav-bottom-card {
       position: fixed;
       left: 0;
@@ -1284,10 +1282,8 @@
     }
     .nav-btn-end-pill:active { transform: scale(0.95); }
 
-    /* 隱藏原生文字指引面板，由原創星域 HUD 接管 */
     .leaflet-routing-container { display: none !important; }
 
-    /* 原創導航方向定位光錐標記 */
     .nav-user-heading-cone {
       width: 48px;
       height: 48px;
@@ -1976,7 +1972,7 @@
     </div>
   </div>
 
-  <!-- 🧭 原創星域極光風格實時導航 HUD (對標暗黑極光美學) -->
+  <!-- 🧭 原創星域極光風格實時導航 HUD -->
   <div id="nav-top-banner">
     <div class="nav-top-main-card">
       <div class="nav-top-left-info">
@@ -1993,7 +1989,7 @@
     </div>
   </div>
 
-  <!-- 右側控制鈕群 (指北針、聲音) -->
+  <!-- 右側控制鈕群 -->
   <div id="nav-right-controls">
     <button class="nav-floating-circle-btn" onclick="recenterNavCamera()" id="btn-nav-compass" title="指北針與視角置中">
       🧭
@@ -2312,6 +2308,7 @@
     </div>
   </div>
 
+  <!-- 📍 店家詳細資訊卡片（按鈕文字已移除，僅保留圖標） -->
   <div id="gmaps-detail-sheet">
     <div class="detail-sheet-pill"></div>
     <div class="detail-header-row">
@@ -2327,11 +2324,11 @@
     </div>
     <div class="detail-address-text" id="sheet-store-address">📍 地址載入中...</div>
     <div class="detail-actions-row">
-      <button id="sheet-btn-route-here" class="btn-gmaps-action primary">🛣️ 規劃路線</button>
-      <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action secondary">🧭 Google App</a>
-      <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary">❤️ 我的打卡</button>
-      <button id="sheet-btn-edit" class="btn-gmaps-action secondary">✏️ 編輯</button>
-      <button id="sheet-btn-delete" class="btn-gmaps-action secondary" style="color:#ff453a;">🗑️</button>
+      <button id="sheet-btn-route-here" class="btn-gmaps-action primary" title="規劃路線">🛣️</button>
+      <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action secondary" title="Google App 導航">🧭</a>
+      <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary" title="打卡狀態">❤️</button>
+      <button id="sheet-btn-edit" class="btn-gmaps-action secondary" title="編輯店家">✏️</button>
+      <button id="sheet-btn-delete" class="btn-gmaps-action secondary" style="color:#ff453a;" title="刪除店家">🗑️</button>
     </div>
   </div>
 
@@ -2460,7 +2457,6 @@
     let viewingTargetEmail = "mine";
     let pendingAvatarBase64 = null;
 
-    // ─── 🧭 路線規劃與手機角度旋轉狀態 ───
     let routingControl = null;
     let isNavigating = false;
     let isActiveNavigationMode = false;
@@ -3035,7 +3031,6 @@
 
     let selectedStoreId = null;
 
-    // ─── 🛣️ 站內多模式真實道路規劃引擎 ───
     function getRouterConfig(mode) {
       if (mode === 'foot') {
         return {
@@ -3073,7 +3068,6 @@
       }
     }
 
-    // 1. 觸發「規劃路線」
     window.planRouteToStore = function(storeId, mode = currentRouteMode) {
       const store = stores.find(s => s.id === storeId);
       if (!store) return;
@@ -3082,7 +3076,6 @@
       currentRouteMode = mode;
       isNavigating = true;
 
-      // 規劃與導航期間隱藏所有星圖連線
       constellationLayer.clearLayers();
 
       if (routingControl) {
@@ -3105,31 +3098,30 @@
 
       const cfg = getRouterConfig(mode);
 
-    routingControl = L.Routing.control({
-      waypoints: waypoints,
-      router: cfg.router,
-      lineOptions: { 
-        styles: cfg.styles,        // 主要選中路線（亮色）
-        extendToWaypoints: true,
-        missingRouteStyles: [{ color: '#71717a', opacity: 0.5, weight: 4 }]
-      },
-      altLineOptions: {            // 備選路線（暗灰色，點擊可切換）
-        styles: [
-          { color: '#52525b', opacity: 0.6, weight: 6 },
-          { color: '#a1a1aa', opacity: 0.8, weight: 3, dashArray: '4, 6' }
-        ]
-      },
-      showAlternatives: true,      // 啟用多路徑計算
-      createMarker: function() { return null; },
-      addWaypoints: false,
-      fitSelectedRoutes: true
-    }).addTo(map);
-    
-    // 當使用者點擊替代路線切換時，自動同步更新 HUD 上的時間與指引
-    routingControl.on('routeselected', function(e) {
-      currentRouteData = e.route;
-      updateNavDataDisplay(currentRouteData);
-    });
+      routingControl = L.Routing.control({
+        waypoints: waypoints,
+        router: cfg.router,
+        lineOptions: { 
+          styles: cfg.styles,
+          extendToWaypoints: true,
+          missingRouteStyles: [{ color: '#71717a', opacity: 0.5, weight: 4 }]
+        },
+        altLineOptions: { 
+          styles: [
+            { color: '#52525b', opacity: 0.6, weight: 6 },
+            { color: '#a1a1aa', opacity: 0.8, weight: 3, dashArray: '4, 6' }
+          ]
+        },
+        showAlternatives: true,
+        createMarker: function() { return null; },
+        addWaypoints: false,
+        fitSelectedRoutes: true
+      }).addTo(map);
+      
+      routingControl.on('routeselected', function(e) {
+        currentRouteData = e.route;
+        updateNavDataDisplay(currentRouteData);
+      });
 
       const bar = document.getElementById('route-indicator-bar');
       if (bar) bar.style.display = 'flex';
@@ -3140,33 +3132,26 @@
       planRouteToStore(activeNavStoreId, mode);
     };
 
-    // 2. 按下「▶ 開始」進入實時旋轉導航
     window.startActiveNavigation = async function() {
       if (!activeNavStoreId || !currentRouteData) return;
 
       isActiveNavigationMode = true;
-
-      // 請求並綁定手機陀螺儀/電子羅盤角度權限
       setupOrientationSensors();
 
-      // 隱藏日常一般介面
       document.getElementById('route-indicator-bar').style.display = 'none';
       document.getElementById('mobile-floating-top').style.display = 'none';
       document.getElementById('sidebar').style.display = 'none';
       document.getElementById('ig-dock-container').style.display = 'none';
       document.querySelector('.gmaps-layer-dock').style.display = 'none';
 
-      // 顯示原創暗黑星域導航 HUD
       document.getElementById('nav-top-banner').style.display = 'flex';
       document.getElementById('nav-right-controls').style.display = 'flex';
       document.getElementById('nav-bottom-card').style.display = 'flex';
 
-      // 為地圖掛載超大尺寸旋轉容器樣式
       const mapEl = document.getElementById('map');
       mapEl.classList.add('nav-rotator-mode');
       map.invalidateSize();
 
-      // 建立導航用光錐定位標記
       const startCoord = userCurrentLocation || [24.805, 120.975];
       if (!navUserMarker) {
         const iconHtml = `
@@ -3183,10 +3168,8 @@
         navUserMarker.setLatLng(startCoord);
       }
 
-      // 置中並放大至實時跟隨視角
       map.setView(startCoord, 18, { animate: true });
 
-      // 實時 GPS 追蹤跟隨
       if (navigator.geolocation) {
         navGeoWatcherId = navigator.geolocation.watchPosition(
           (pos) => {
@@ -3212,7 +3195,6 @@
       }
     };
 
-    // ─── 🧭 手機旋轉角度與陀螺儀監聽核心 ───
     function setupOrientationSensors() {
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
@@ -3232,11 +3214,9 @@
       if (!isActiveNavigationMode) return;
       let heading = null;
 
-      // iOS Safari 專屬 compass heading
       if (e.webkitCompassHeading !== undefined && e.webkitCompassHeading !== null) {
         heading = e.webkitCompassHeading;
       } else if (e.alpha !== null && e.alpha !== undefined) {
-        // Android 羅盤補正
         heading = 360 - e.alpha;
       }
 
@@ -3245,7 +3225,6 @@
       }
     }
 
-    // 將地圖實體與指北針旋轉指定角度
     function applyMapRotation(headingDeg) {
       currentHeadingDeg = headingDeg;
       const mapEl = document.getElementById('map');
@@ -3259,7 +3238,6 @@
       }
     }
 
-    // 更新導航 HUD 數據
     function updateNavDataDisplay(route) {
       if (!route) return;
 
@@ -3313,7 +3291,6 @@
       return '↑';
     }
 
-    // 退出沉浸式導航
     window.exitActiveNavigation = function() {
       isActiveNavigationMode = false;
 
@@ -3329,7 +3306,6 @@
         navUserMarker = null;
       }
 
-      // 重置地圖角度與旋轉尺寸
       const mapEl = document.getElementById('map');
       mapEl.classList.remove('nav-rotator-mode');
       mapEl.style.transform = '';
@@ -3338,12 +3314,10 @@
 
       map.invalidateSize();
 
-      // 關閉導航 HUD
       document.getElementById('nav-top-banner').style.display = 'none';
       document.getElementById('nav-right-controls').style.display = 'none';
       document.getElementById('nav-bottom-card').style.display = 'none';
 
-      // 恢復原本頁面元素
       document.getElementById('sidebar').style.display = 'flex';
       document.getElementById('ig-dock-container').style.display = 'flex';
       document.querySelector('.gmaps-layer-dock').style.display = 'flex';
@@ -3365,7 +3339,6 @@
       const bar = document.getElementById('route-indicator-bar');
       if (bar) bar.style.display = 'none';
 
-      // 恢復星鏈連線
       renderConstellation(getFilteredStores());
     };
 
@@ -3407,14 +3380,15 @@
 
       document.getElementById('sheet-store-address').innerText = `📍 ${store.address || `${store.lat.toFixed(4)}, ${store.lng.toFixed(4)}`}`;
 
-      // 觸發路線規劃模式
       document.getElementById('sheet-btn-route-here').onclick = () => planRouteToStore(store.id);
 
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
       document.getElementById('sheet-btn-navigate').href = navUrl;
 
+      // 打卡按鈕更新：僅更新圖示，並設置 title 屬性
       const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
-      toggleBtn.innerText = isMyVisited ? '🤍 取消我的打卡' : '❤️ 點亮我的打卡';
+      toggleBtn.innerText = isMyVisited ? '❤️' : '🤍';
+      toggleBtn.title = isMyVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
       toggleBtn.onclick = () => {
         toggleVisited(store.id);
         openDetailSheet(store.id);
@@ -3733,7 +3707,6 @@
       }
     };
 
-    // ─── 繪製星鏈連線 (導航狀態自動隱藏) ───
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
       if (isNavigating) return;
