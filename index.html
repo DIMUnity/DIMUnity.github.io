@@ -269,6 +269,196 @@
       color: var(--app-text-sub);
     }
 
+    /* ─── 🚀 登入後模式選擇 Portal ─── */
+    #mode-select-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 9, 11, 0.94);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      z-index: 99995;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .mode-select-box {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: igSheetPop 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.15);
+    }
+
+    .mode-cards-grid {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .mode-select-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(28, 28, 34, 0.9);
+      border: 1.5px solid var(--app-border);
+      border-radius: 20px;
+      padding: 16px 18px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s, background 0.2s;
+    }
+
+    .mode-select-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--app-accent);
+      background: rgba(36, 36, 44, 0.98);
+    }
+    .mode-select-card:active { transform: scale(0.98); }
+
+    .mode-select-card.pogo:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25);
+    }
+
+    .mode-card-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: #141416;
+      border: 1px solid var(--app-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .mode-card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .mode-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mode-card-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .mode-card-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--app-accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .mode-card-tag.tag-pogo {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    .mode-card-desc {
+      font-size: 11.5px;
+      color: var(--app-text-sub);
+      line-height: 1.4;
+    }
+
+    /* 🎮 寶可夢 GO 模式 3D 傾角與補給站樣式 */
+    #map.pogo-mode-active {
+      transform: perspective(900px) rotateX(46deg) scale(1.15) !important;
+      transform-origin: center 80% !important;
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .pokestop-marker {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.25s ease;
+    }
+    .pokestop-base {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #38bdf8 30%, #0284c7 100%);
+      border: 3px solid #fff;
+      box-shadow: 0 0 14px #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      animation: pokestopFloat 2s ease-in-out infinite alternate;
+    }
+    .pokestop-marker.visited .pokestop-base {
+      background: radial-gradient(circle, #c084fc 30%, #7e22ce 100%);
+      box-shadow: 0 0 14px #c084fc;
+    }
+    .pokestop-marker.in-range .pokestop-base {
+      transform: scale(1.22);
+      border-color: #facc15;
+      box-shadow: 0 0 20px #facc15;
+    }
+
+    @keyframes pokestopFloat {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-7px) rotate(12deg); }
+    }
+
+    /* 補給站大轉盤 Modal */
+    #pokestop-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 99998;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #pokestop-modal.active { display: flex; }
+    .pokestop-disc {
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      border: 8px solid #ffffff;
+      background: #18181b;
+      overflow: hidden;
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.85);
+      transition: transform 0.85s cubic-bezier(0.15, 0.9, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+      margin: 16px 0;
+    }
+    .pokestop-disc.spinning {
+      transform: rotate(1080deg);
+    }
+
     /* ─── 搜尋列 ─── */
     .search-pill-box {
       background: rgba(28, 28, 32, 0.95);
@@ -360,7 +550,7 @@
     .suggestion-sub { font-size: 11px; color: var(--app-text-sub); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .suggestion-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #000; color: #a1a1aa; border: 1px solid #333; flex-shrink: 0; }
 
-    /* ─── 圓圈分類導航 ─── */
+    /* ─── 限時動態風格分類導航 ─── */
     .ig-stories-container {
       display: flex;
       gap: 12px;
@@ -480,7 +670,7 @@
       transition: width 0.4s ease;
     }
 
-    /* ─── 圖層控制器與微縮指示 ─── */
+    /* ─── 圖層控制器 ─── */
     .gmaps-layer-dock {
       position: absolute;
       display: flex;
@@ -605,7 +795,7 @@
       font-weight: 800;
     }
 
-    /* ─── 地圖容器與旋轉層 ─── */
+    /* ─── 地圖容器 ─── */
     #map-viewport {
       flex: 1;
       height: 100%;
@@ -978,7 +1168,7 @@
       pointer-events: none;
     }
 
-    /* ─── 🌟 超新星點亮星脈衝特效 (引力收束 ➔ 核心爆發) ─── */
+    /* ─── 🌟 超新星點亮星脈衝特效 ─── */
     .star-fx-container {
       position: relative;
       width: 0;
@@ -1050,7 +1240,6 @@
       100% { transform: scale(2.8); opacity: 0; border-width: 1px; }
     }
 
-    /* ─── 🌑 星象寂滅 / 取消打卡特效 (解體擴散 ➔ 黑洞收縮) ─── */
     .fx-extinguish-pulse {
       position: absolute;
       top: -35px;
@@ -1086,6 +1275,7 @@
       100% { transform: scale(0.04) rotate(220deg); opacity: 0; }
     }
 
+    /* ─── 詳細資訊卡片 ─── */
     #gmaps-detail-sheet {
       position: fixed;
       left: 0;
@@ -1099,7 +1289,6 @@
       padding: 12px 18px 24px;
       z-index: 2500;
       box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.95);
-      
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -1339,7 +1528,7 @@
       color: #fff;
     }
 
-    /* ─── 🧭 原創星域極光風格實時導航 HUD ─── */
+    /* ─── 🧭 實時導航 HUD ─── */
     #nav-top-banner {
       position: fixed;
       top: 14px;
@@ -1910,7 +2099,7 @@
       font-weight: 700;
     }
 
-    /* ─── 📸 編輯個人檔案 Card 彈窗 ─── */
+    /* ─── 📸 編輯個人檔案 ─── */
     .ig-edit-card {
       background: #18181b;
       border: 1px solid var(--app-border);
@@ -2272,6 +2461,64 @@
     </div>
   </div>
 
+  <!-- 🚀 登入驗證成功後的探索模式選擇畫面 -->
+  <div id="mode-select-screen">
+    <div class="mode-select-box">
+      <div class="brand-glow-ring" style="width: 76px; height: 76px; margin-bottom: 16px;">
+        <div class="brand-glow-inner" style="font-size: 34px;">✨</div>
+      </div>
+      <h2 class="brand-title" style="font-size: 21px;">選擇探索形態</h2>
+      <p class="brand-subtitle" style="margin-bottom: 22px;">歡迎歸隊！請選擇本次進入星圖的體驗模式</p>
+
+      <div class="mode-cards-grid">
+        <!-- 模式一：星圖導航模式 -->
+        <div class="mode-select-card" onclick="launchMode('classic')">
+          <div class="mode-card-icon">🌌</div>
+          <div class="mode-card-content">
+            <div class="mode-card-header">
+              <span class="mode-card-name">星圖導航模式</span>
+              <span class="mode-card-tag">經典完整</span>
+            </div>
+            <p class="mode-card-desc">完整清單瀏覽、星軌連線流動光波、私房必點推薦與多運具精準導航。</p>
+          </div>
+        </div>
+
+        <!-- 模式二：寶可夢 GO 實境模式 -->
+        <div class="mode-select-card pogo" onclick="launchMode('pogo')">
+          <div class="mode-card-icon">🎮</div>
+          <div class="mode-card-content">
+            <div class="mode-card-header">
+              <span class="mode-card-name">寶可夢 GO 模式</span>
+              <span class="mode-card-tag tag-pogo">實境遊戲</span>
+            </div>
+            <p class="mode-card-desc">3D 透視俯角、玩家 80m 互動光圈，走近店家轉動專屬補給站轉盤打卡！</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎮 寶可夢模式 補給站旋轉盤 Modal -->
+  <div id="pokestop-modal">
+    <div style="font-size: 20px; font-weight: 900; color: #fff; text-align: center;" id="pokestop-modal-title">
+      補給站名稱
+    </div>
+    <div style="font-size: 12px; color: var(--app-accent-blue); margin-top: 4px;" id="pokestop-modal-dist">
+      距離 0 公尺 · 補給站啟動中
+    </div>
+    <div class="pokestop-disc" id="pokestop-disc">🌱</div>
+    <div style="font-size: 13px; color: var(--app-text-sub); font-weight: 600;">點擊按鈕轉動圓盤解鎖並獲得能量</div>
+    
+    <div style="display: flex; gap: 12px; margin-top: 22px;">
+      <button id="btn-spin-disc" style="padding: 11px 26px; border-radius: 999px; background: var(--star-gradient); color: #fff; font-weight: 800; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 16px var(--star-gradient-glow);">
+        🔄 轉動補給站
+      </button>
+      <button onclick="closePokestopModal()" style="padding: 11px 20px; border-radius: 999px; background: #27272a; color: #fff; font-size: 13px; border: none; cursor: pointer;">
+        關閉
+      </button>
+    </div>
+  </div>
+
   <!-- 🛣️ 路線規劃模式控制條 -->
   <div id="route-indicator-bar">
     <div class="route-mode-pill-group">
@@ -2291,7 +2538,7 @@
     </div>
   </div>
 
-  <!-- 🧭 原創星域極光風格實時導航 HUD -->
+  <!-- 🧭 實時導航 HUD -->
   <div id="nav-top-banner">
     <div class="nav-top-main-card">
       <div class="nav-top-left-info">
@@ -2348,6 +2595,12 @@
         </div>
       </div>
       <div class="ig-user-sheet-actions">
+        <!-- 模式切換按鈕 -->
+        <button class="ig-user-sheet-btn" onclick="closeUserMenu(); reopenModeSelect();">
+          <span style="font-size:16px;">🔄</span>
+          切換探索模式 (星圖 / 寶可夢GO)
+        </button>
+
         <button class="ig-user-sheet-btn" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
           編輯個人檔案
@@ -2802,6 +3055,14 @@
     let pendingAvatarBase64 = null;
     let pendingDeleteStoreId = null;
 
+    // 🎮 遊戲與體驗模式狀態
+    let currentAppSessionMode = 'classic'; // 'classic' | 'pogo'
+    let pogoRangeCircle = null;
+    let activePokestopStoreId = null;
+    const POGO_CONFIG = {
+      INTERACTION_RADIUS: 80 // 寶可夢模式有效打卡距離 (80 公尺)
+    };
+
     let routingControl = null;
     let isNavigating = false;
     let isActiveNavigationMode = false;
@@ -2809,6 +3070,7 @@
     let currentRouteMode = 'moto';
     let userCurrentLocation = null;
     let navGeoWatcherId = null;
+    let pogoGeoWatcherId = null;
     let navUserMarker = null;
     let currentRouteData = null;
     let isNavMuted = false;
@@ -2816,6 +3078,7 @@
 
     const geocodeCache = new Map();
 
+    // 初始位置獲取
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -2888,7 +3151,6 @@
               unsubscribeFirestore = onSnapshot(storesCollection, (snapshot) => {
                 stores = snapshot.docs.map(d => {
                   const data = d.data();
-                  // 徹底根除 visited: true 的死循環衝突
                   let visitedBy = Array.isArray(data.visitedBy) 
                     ? [...data.visitedBy] 
                     : (data.visited ? [SUPER_ADMIN_EMAIL.toLowerCase()] : []);
@@ -2921,16 +3183,19 @@
               map.invalidateSize();
             }, 150);
 
+            // 🌀 載入完成後淡出過場，彈出「探索形態選擇畫面」
             setTimeout(() => {
               loadingScreen.classList.add('fade-out');
               setTimeout(() => {
                 loadingScreen.classList.remove('active');
-              }, 400);
-            }, 350);
+                document.getElementById('mode-select-screen').style.display = 'flex';
+              }, 350);
+            }, 300);
 
           } else {
             currentUser = null;
             loadingScreen.classList.remove('active');
+            document.getElementById('mode-select-screen').style.display = 'none';
             lockScreen.style.display = 'flex';
             stores = [];
             if (unsubscribeFirestore) {
@@ -2947,6 +3212,137 @@
     }
 
     let stores = [];
+
+    // ─── 🚀 模式啟動與切換核心 ───
+    window.launchMode = function(mode) {
+      currentAppSessionMode = mode;
+      document.getElementById('mode-select-screen').style.display = 'none';
+
+      const mapEl = document.getElementById('map');
+      
+      if (mode === 'pogo') {
+        mapEl.classList.add('pogo-mode-active');
+        initPogoMode();
+      } else {
+        mapEl.classList.remove('pogo-mode-active');
+        exitPogoMode();
+      }
+
+      setTimeout(() => {
+        map.invalidateSize();
+        refreshAll();
+      }, 200);
+    };
+
+    window.reopenModeSelect = function() {
+      document.getElementById('mode-select-screen').style.display = 'flex';
+    };
+
+    function initPogoMode() {
+      if (navigator.geolocation) {
+        pogoGeoWatcherId = navigator.geolocation.watchPosition(
+          (pos) => {
+            userCurrentLocation = [pos.coords.latitude, pos.coords.longitude];
+            updatePogoPlayerCircle();
+            renderMarkers(getFilteredStores());
+          },
+          () => {},
+          { enableHighAccuracy: true, timeout: 6000 }
+        );
+      }
+      updatePogoPlayerCircle();
+      if (userCurrentLocation) {
+        map.setView(userCurrentLocation, 17.5, { animate: true });
+      }
+      if (window.innerWidth <= 768) {
+        setMobileSheetState('collapsed');
+      }
+    }
+
+    function exitPogoMode() {
+      if (pogoGeoWatcherId !== null) {
+        navigator.geolocation.clearWatch(pogoGeoWatcherId);
+        pogoGeoWatcherId = null;
+      }
+      if (pogoRangeCircle) {
+        map.removeLayer(pogoRangeCircle);
+        pogoRangeCircle = null;
+      }
+    }
+
+    function updatePogoPlayerCircle() {
+      if (!userCurrentLocation) return;
+      if (!pogoRangeCircle) {
+        pogoRangeCircle = L.circle(userCurrentLocation, {
+          radius: POGO_CONFIG.INTERACTION_RADIUS,
+          color: '#38bdf8',
+          fillColor: '#38bdf8',
+          fillOpacity: 0.14,
+          weight: 1.5,
+          dashArray: '5, 8'
+        }).addTo(map);
+      } else {
+        pogoRangeCircle.setLatLng(userCurrentLocation);
+      }
+    }
+
+    function getDistanceToStore(lat, lng) {
+      if (!userCurrentLocation) return 999999;
+      return L.latLng(userCurrentLocation[0], userCurrentLocation[1]).distanceTo(L.latLng(lat, lng));
+    }
+
+    // ─── 補給站互動邏輯 ───
+    window.interactPokestop = function(storeId) {
+      const store = stores.find(s => s.id === storeId);
+      if (!store) return;
+
+      const dist = Math.round(getDistanceToStore(store.lat, store.lng));
+      const inRange = dist <= POGO_CONFIG.INTERACTION_RADIUS;
+
+      if (!inRange) {
+        alert(`📡 距離太遠了！（目前距離：${dist} 公尺）\n請靠近至 ${POGO_CONFIG.INTERACTION_RADIUS} 公尺內再試一次！`);
+        return;
+      }
+
+      openPokestopModal(store, dist);
+    };
+
+    function openPokestopModal(store, dist) {
+      activePokestopStoreId = store.id;
+      const modal = document.getElementById('pokestop-modal');
+      const title = document.getElementById('pokestop-modal-title');
+      const distEl = document.getElementById('pokestop-modal-dist');
+      const disc = document.getElementById('pokestop-disc');
+      const spinBtn = document.getElementById('btn-spin-disc');
+
+      title.innerText = store.name;
+      distEl.innerText = `距離 ${dist} 公尺 · 補給站已鎖定！`;
+      disc.innerText = getCategoryIcon(store.category);
+      disc.classList.remove('spinning');
+
+      modal.classList.add('active');
+
+      spinBtn.onclick = async () => {
+        disc.classList.add('spinning');
+        if (navigator.vibrate) navigator.vibrate([60, 40, 80]);
+
+        setTimeout(async () => {
+          await toggleVisited(store.id);
+          confetti({
+            particleCount: 50,
+            spread: 90,
+            origin: { y: 0.6 },
+            colors: ['#38bdf8', '#10b981', '#fbbf24']
+          });
+          closePokestopModal();
+        }, 850);
+      };
+    }
+
+    window.closePokestopModal = function() {
+      document.getElementById('pokestop-modal').classList.remove('active');
+      activePokestopStoreId = null;
+    };
 
     async function loadUserProfile(userEmail) {
       try {
@@ -3786,7 +4182,6 @@
       toggleBtn.innerText = isMyVisited ? '❤️' : '🤍';
       toggleBtn.title = isMyVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
       
-      // 修復：不再於回呼內重複叫用 openDetailSheet，由 toggleVisited 內部即時精準刷新狀態
       toggleBtn.onclick = () => {
         toggleVisited(store.id);
       };
@@ -4137,7 +4532,7 @@
 
     function renderConstellation(filteredStores) {
       constellationLayer.clearLayers();
-      if (isNavigating) return;
+      if (isNavigating || currentAppSessionMode === 'pogo') return;
 
       const visited = filteredStores.filter(s => isStoreUnlockedForCurrentView(s));
       if (visited.length < 2) return;
@@ -4177,7 +4572,7 @@
             L.polyline(latlngs, { 
               color: '#10b981', 
               weight: zoom >= 14 ? 1.8 : 1.0, 
-              className: 'constellation-ray',
+              className: 'constellation-ray', 
               opacity: 0.95 
             }).addTo(constellationLayer);
           }
@@ -4197,9 +4592,36 @@
         : filteredStores;
 
       targetStores.forEach(s => {
-        let size, iconHtml;
         const isUnlocked = isStoreUnlockedForCurrentView(s);
 
+        // 🎮 寶可夢 GO 模式：渲染為旋轉補給站
+        if (currentAppSessionMode === 'pogo') {
+          const dist = getDistanceToStore(s.lat, s.lng);
+          const inRange = dist <= POGO_CONFIG.INTERACTION_RADIUS;
+
+          const pogoHtml = `
+            <div class="pokestop-marker ${isUnlocked ? 'visited' : ''} ${inRange ? 'in-range' : ''}">
+              <div class="pokestop-base">
+                ${getCategoryIcon(s.category)}
+              </div>
+            </div>
+          `;
+
+          const marker = L.marker([s.lat, s.lng], {
+            icon: L.divIcon({ html: pogoHtml, className: '', iconSize: [44, 44], iconAnchor: [22, 22] })
+          }).addTo(markersLayer);
+
+          markersRef[s.id] = marker;
+
+          marker.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            interactPokestop(s.id);
+          });
+          return;
+        }
+
+        // 經典星圖模式
+        let size, iconHtml;
         if (isDense) {
           if (isUnlocked) {
             size = 12;
@@ -4343,7 +4765,6 @@
       openDetailSheet(id);
     };
 
-    // ─── 🌟 超新星引力收束爆發 & 黑洞寂滅特效 ───
     function playStarMapAnimation(lat, lng, isIgniting) {
       if (!map.getBounds().contains([lat, lng])) {
         map.panTo([lat, lng], { animate: true, duration: 0.35 });
@@ -4395,7 +4816,6 @@
       }, 1400);
     }
 
-    // ─── 修正版：徹底修復無法取消打卡與狀態時間差問題 ───
     window.toggleVisited = async function(id) {
       if (!currentUser) return alert('請先登入！');
       const target = stores.find(s => s.id === id);
@@ -4413,17 +4833,12 @@
         isNowVisited = true;
       }
 
-      // 1. 立即更新本機快取與狀態，消除時間差回彈
       target.visitedBy = visitedBy;
       target.visited = visitedBy.length > 0;
 
-      // 2. 播放對應的星點收束/寂滅動畫
       playStarMapAnimation(target.lat, target.lng, isNowVisited);
-
-      // 3. 立即重繪所有介面（列表與星圖標記）
       refreshAll();
 
-      // 4. 若當前卡片正在展示此店家，立即同步更新卡片狀態
       if (selectedStoreId === id) {
         const statusBadge = document.getElementById('sheet-store-status');
         const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
@@ -4448,7 +4863,6 @@
         }
       }
 
-      // 5. 同時寫入 visitedBy 與 visited，根除舊版布林值導致的死循環覆寫
       try {
         await updateDoc(doc(db, "vegan_stores", id), { 
           visitedBy: visitedBy,
