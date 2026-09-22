@@ -1043,7 +1043,7 @@ window.openDetailSheet = function(id) {
   // 🎯 按鈕代表「點擊後的動作」：沒吃過顯示💖，已吃過顯示🤍
   const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
   toggleBtn.innerText = isMyVisited ? '🤍' : '💖';
-  toggleBtn.title = isMyVisited ? '已打卡（點擊取消打卡）' : '待造訪（點擊點亮打卡）';
+  toggleBtn.title = isMyVisited ? '點擊取消打卡' : '點擊點亮打卡';
   
   toggleBtn.onclick = () => {
     toggleVisited(store.id);
@@ -1914,10 +1914,13 @@ window.runAiParsing = async function() {
   const rawText = document.getElementById('ai-raw-text').value.trim();
   if (!rawText) return alert('請貼上貼文內容、短訊或地址介紹！');
 
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) {
+  const rawKey = getGeminiApiKey();
+  const apiKey = rawKey ? rawKey.trim() : "";
+  
+  if (!apiKey || apiKey.length < 20) {
+    alert("⚠️ 尚未偵測到有效的 API Key，請先設定金鑰！");
     window.promptSetGeminiKey();
-    if (!getGeminiApiKey()) return;
+    return;
   }
 
   const btn = document.getElementById('btn-run-ai');
@@ -1925,7 +1928,7 @@ window.runAiParsing = async function() {
   btn.disabled = true;
 
   const prompt = `
-你是一位精通台灣美食與素食地圖的整理秘書。請從以下這段雜亂的文字（可能是 IG 貼文、Threads、FB 短文或聊天室推薦）中，萃取店家關鍵資訊。
+你是一位精通台灣美食與素食地圖的整理秘書。請從以下這段雜亂的文字中，萃取店家關鍵資訊。
 文字內容：
 """${rawText}"""
 
@@ -1937,10 +1940,15 @@ window.runAiParsing = async function() {
 `;
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${getGeminiApiKey()}`;
+    // 使用官方標準端點並透過 Header 傳遞 API Key
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+    
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey 
+      },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
@@ -1950,7 +1958,10 @@ window.runAiParsing = async function() {
     });
 
     if (!response.ok) {
-      throw new Error(`API 請求失敗 (${response.status})，請確認 API Key 是否有效。`);
+      const errorJson = await response.json().catch(() => null);
+      const errorMsg = errorJson?.error?.message || `HTTP ${response.status}`;
+      console.error("Google API 原始錯誤回應：", errorJson);
+      throw new Error(`Google 回傳錯誤：${errorMsg}`);
     }
 
     const data = await response.json();
