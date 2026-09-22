@@ -1560,8 +1560,8 @@ function updateSidebar(filteredStores) {
       <div class="card-bottom">
         <span class="tag-pill">${s.category || '蔬食'}</span>
         <div class="card-actions">
-          <button class="btn-heart" title="${isMyVisited ? '取消我的打卡' : '點亮我的打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
-            ${isMyVisited ? '❤️' : '🤍'}
+          <button class="btn-heart" title="${isMyVisited ? '點擊取消打卡' : '點擊點亮打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
+            ${isMyVisited ? '🤍' : '❤️'}
           </button>
           <button class="card-edit-btn" onclick="event.stopPropagation(); openEditModal('${s.id}')">✏️ 編輯</button>
         </div>
@@ -1693,8 +1693,8 @@ window.toggleVisited = async function(id) {
       }
     }
     if (toggleBtn) {
-      toggleBtn.innerText = isNowVisited ? '❤️' : '🤍';
-      toggleBtn.title = isNowVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
+      toggleBtn.innerText = isNowVisited ? '🤍' : '❤️';
+      toggleBtn.title = isNowVisited ? '點擊取消打卡' : '點擊點亮打卡';
     }
     if (countEl) {
       countEl.innerText = `👥 ${visitedBy.length}人打卡`;
