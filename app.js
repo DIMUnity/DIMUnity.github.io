@@ -1040,9 +1040,10 @@ window.openDetailSheet = function(id) {
   const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
   document.getElementById('sheet-btn-navigate').href = navUrl;
 
+  // 🎯 按鈕代表「點擊後的動作」：沒吃過顯示💖，已吃過顯示🤍
   const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
-  toggleBtn.innerText = isMyVisited ? '🤍' : '❤️';
-  toggleBtn.title = isMyVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
+  toggleBtn.innerText = isMyVisited ? '🤍' : '💖';
+  toggleBtn.title = isMyVisited ? '已打卡（點擊取消打卡）' : '待造訪（點擊點亮打卡）';
   
   toggleBtn.onclick = () => {
     toggleVisited(store.id);
@@ -1545,6 +1546,7 @@ function updateSidebar(filteredStores) {
       toggleVisited(s.id);
     });
 
+    // 🎯 按鈕代表「點擊後的動作」：沒吃過顯示💖，已吃過顯示🤍
     card.innerHTML = `
       <div class="card-top">
         <div class="store-title-group">
@@ -1561,7 +1563,7 @@ function updateSidebar(filteredStores) {
         <span class="tag-pill">${s.category || '蔬食'}</span>
         <div class="card-actions">
           <button class="btn-heart" title="${isMyVisited ? '點擊取消打卡' : '點擊點亮打卡'}" onclick="event.stopPropagation(); toggleVisited('${s.id}')">
-            ${isMyVisited ? '🤍' : '❤️'}
+            ${isMyVisited ? '🤍' : '💖'}
           </button>
           <button class="card-edit-btn" onclick="event.stopPropagation(); openEditModal('${s.id}')">✏️ 編輯</button>
         </div>
@@ -1692,9 +1694,10 @@ window.toggleVisited = async function(id) {
         statusBadge.className = 'detail-badge-pill';
       }
     }
+    // 🎯 按鈕代表「點擊後的動作」：沒吃過顯示💖，已吃過顯示🤍
     if (toggleBtn) {
-      toggleBtn.innerText = isNowVisited ? '🤍' : '❤️';
-      toggleBtn.title = isNowVisited ? '點擊取消打卡' : '點擊點亮打卡';
+      toggleBtn.innerText = isNowVisited ? '🤍' : '💖';
+      toggleBtn.title = isNowVisited ? '已打卡（點擊取消打卡）' : '待造訪（點擊點亮打卡）';
     }
     if (countEl) {
       countEl.innerText = `👥 ${visitedBy.length}人打卡`;
@@ -1859,6 +1862,182 @@ window.importData = async function(event) {
     event.target.value = '';
   };
   reader.readAsText(file, 'UTF-8');
+};
+
+// ─── ✨ AI 貼文 / 短文智慧辨識與地理編碼模組 ───
+const DEFAULT_GEMINI_API_KEY = "";
+
+function getGeminiApiKey() {
+  return localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_API_KEY;
+}
+
+window.promptSetGeminiKey = function() {
+  const currentKey = getGeminiApiKey();
+  const newKey = prompt("請輸入 Google Gemini API Key（免費申請即可使用）：", currentKey);
+  if (newKey !== null) {
+    localStorage.setItem('gemini_api_key', newKey.trim());
+    alert("✅ Gemini API Key 已成功儲存於瀏覽器！");
+  }
+};
+
+window.openAiImportModal = function() {
+  if (!currentUser) return alert('請先登入帳號！');
+  document.getElementById('ai-raw-text').value = '';
+  document.getElementById('ai-result-preview').style.display = 'none';
+  document.getElementById('ai-import-modal').classList.add('active');
+};
+
+window.closeAiImportModal = function() {
+  document.getElementById('ai-import-modal').classList.remove('active');
+};
+
+async function forwardGeocode(address) {
+  if (!address) return null;
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`, {
+      headers: { 'Accept-Language': 'zh-TW,zh;q=0.9' }
+    });
+    const data = await res.json();
+    if (data && data.length > 0) {
+      return {
+        lat: parseFloat(data[0].lat),
+        lng: parseFloat(data[0].lon)
+      };
+    }
+  } catch (e) {
+    console.warn("地理編碼失敗:", e);
+  }
+  return null;
+}
+
+window.runAiParsing = async function() {
+  const rawText = document.getElementById('ai-raw-text').value.trim();
+  if (!rawText) return alert('請貼上貼文內容、短訊或地址介紹！');
+
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    window.promptSetGeminiKey();
+    if (!getGeminiApiKey()) return;
+  }
+
+  const btn = document.getElementById('btn-run-ai');
+  btn.innerText = '✨ AI 分析中...';
+  btn.disabled = true;
+
+  const prompt = `
+你是一位精通台灣美食與素食地圖的整理秘書。請從以下這段雜亂的文字（可能是 IG 貼文、Threads、FB 短文或聊天室推薦）中，萃取店家關鍵資訊。
+文字內容：
+"""${rawText}"""
+
+請務必遵守以下規格輸出標準 JSON：
+1. "name": 店家名稱（去掉多餘形容詞或 hashtag，只留乾淨店名）
+2. "address": 實體地址（若文中只有路名或地標，請儘量推估或保留關鍵路名，若完全無地址請給空字串）
+3. "category": 必須嚴格是這 5 種之一：["純素", "蛋奶素", "早午餐", "甜點", "異國"]。若無法判斷請給 "蛋奶素"。
+4. "recommended": 推薦必點菜色（提取文中提到的招牌菜，以逗號分隔，簡短即可）
+`;
+
+  try {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${getGeminiApiKey()}`;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          response_mime_type: "application/json"
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API 請求失敗 (${response.status})，請確認 API Key 是否有效。`);
+    }
+
+    const data = await response.json();
+    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const parsed = JSON.parse(resultText);
+
+    document.getElementById('ai-parsed-name').value = parsed.name || '';
+    document.getElementById('ai-parsed-address').value = parsed.address || '';
+    document.getElementById('ai-parsed-category').value = parsed.category || '蛋奶素';
+    document.getElementById('ai-parsed-recommended').value = parsed.recommended || '';
+
+    const previewBox = document.getElementById('ai-result-preview');
+    const geoStatus = document.getElementById('ai-geo-status');
+    previewBox.style.display = 'flex';
+    geoStatus.innerText = '🔍 定位經緯度中...';
+
+    let lat = 24.805, lng = 120.975;
+    if (parsed.address) {
+      const geoResult = await forwardGeocode(parsed.address);
+      if (geoResult) {
+        lat = geoResult.lat;
+        lng = geoResult.lng;
+        geoStatus.innerText = '📍 座標定位成功';
+        geoStatus.style.color = '#10b981';
+      } else {
+        geoStatus.innerText = '⚠️ 無法精確定位，使用地圖預設點';
+        geoStatus.style.color = '#f59e0b';
+      }
+    } else {
+      geoStatus.innerText = '⚠️ 未提供地址，使用地圖預設點';
+      geoStatus.style.color = '#f59e0b';
+    }
+
+    document.getElementById('ai-parsed-lat').value = lat;
+    document.getElementById('ai-parsed-lng').value = lng;
+
+  } catch (err) {
+    alert(`AI 辨識發生錯誤：${err.message}`);
+  } finally {
+    btn.innerText = '🚀 開始 AI 分析';
+    btn.disabled = false;
+  }
+};
+
+window.saveAiParsedStore = async function() {
+  if (!currentUser) return alert('請先登入！');
+
+  const name = document.getElementById('ai-parsed-name').value.trim();
+  const address = document.getElementById('ai-parsed-address').value.trim();
+  const category = document.getElementById('ai-parsed-category').value;
+  const recommended = document.getElementById('ai-parsed-recommended').value.trim();
+  const lat = parseFloat(document.getElementById('ai-parsed-lat').value) || 24.805;
+  const lng = parseFloat(document.getElementById('ai-parsed-lng').value) || 120.975;
+
+  if (!name) return alert('請填寫店名！');
+
+  const btn = document.getElementById('btn-confirm-ai-save');
+  btn.innerText = '儲存中...';
+  btn.disabled = true;
+
+  try {
+    const docRef = await addDoc(storesCollection, {
+      name,
+      address,
+      category,
+      recommended,
+      lat,
+      lng,
+      visitedBy: [],
+      order: stores.length,
+      createdAt: serverTimestamp ? serverTimestamp() : Date.now()
+    });
+
+    closeAiImportModal();
+    alert(`🎉 成功新增「${name}」！`);
+    
+    setTimeout(() => {
+      focusStore(docRef.id);
+      playStarMapAnimation(lat, lng, true);
+    }, 400);
+
+  } catch (err) {
+    alert(`儲存失敗：${err.message}`);
+  } finally {
+    btn.innerText = '✅ 確認無誤，加入星圖';
+    btn.disabled = false;
+  }
 };
 
 function refreshAll() {
