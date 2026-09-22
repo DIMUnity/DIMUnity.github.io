@@ -1910,31 +1910,6 @@ async function forwardGeocode(address) {
   return null;
 }
 
-// 自動查詢當前帳號可用的最新 Flash 模型
-async function detectAvailableModel(apiKey) {
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models`, {
-      headers: { "x-goog-api-key": apiKey }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const models = data.models || [];
-      const candidates = models.filter(m => 
-        m.supportedGenerationMethods?.includes("generateContent") &&
-        m.name.includes("flash") &&
-        !m.name.includes("tts") &&
-        !m.name.includes("image")
-      );
-      if (candidates.length > 0) {
-        return candidates[0].name.replace(/^models\//, "");
-      }
-    }
-  } catch (e) {
-    console.warn("查詢可用模型失敗，改用預設模型", e);
-  }
-  return "gemini-2.5-flash";
-}
-
 window.runAiParsing = async function() {
   const rawText = document.getElementById('ai-raw-text').value.trim();
   if (!rawText) return alert('請貼上貼文內容、短訊或地址介紹！');
@@ -1965,8 +1940,8 @@ window.runAiParsing = async function() {
 `;
 
   try {
-    const modelName = await detectAvailableModel(apiKey);
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+    // 採用 Google 官方推薦的 gemini-3.6-flash
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent`;
     
     const response = await fetch(endpoint, {
       method: "POST",
