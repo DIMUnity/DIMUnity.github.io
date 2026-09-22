@@ -1041,7 +1041,7 @@ window.openDetailSheet = function(id) {
   document.getElementById('sheet-btn-navigate').href = navUrl;
 
   const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
-  toggleBtn.innerText = isMyVisited ? '❤️' : '🤍';
+  toggleBtn.innerText = isMyVisited ? '🤍' : '❤️';
   toggleBtn.title = isMyVisited ? '已打卡（點擊取消）' : '未打卡（點擊點亮）';
   
   toggleBtn.onclick = () => {
