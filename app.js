@@ -1040,10 +1040,10 @@ window.openDetailSheet = function(id) {
   const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}&destination_place_id=${encodeURIComponent(store.name)}`;
   document.getElementById('sheet-btn-navigate').href = navUrl;
 
-  // 🎯 按鈕代表「點擊後的動作」：沒吃過顯示💖，已吃過顯示🤍
+  // 🎯 按鈕代表點擊後的目標：沒吃過顯示 💖，已吃過顯示 🤍
   const toggleBtn = document.getElementById('sheet-btn-toggle-visited');
   toggleBtn.innerText = isMyVisited ? '🤍' : '💖';
-  toggleBtn.title = isMyVisited ? '點擊取消打卡' : '點擊點亮打卡';
+  toggleBtn.title = isMyVisited ? '已打卡（點擊取消打卡）' : '待造訪（點擊點亮打卡）';
   
   toggleBtn.onclick = () => {
     toggleVisited(store.id);
@@ -1546,7 +1546,7 @@ function updateSidebar(filteredStores) {
       toggleVisited(s.id);
     });
 
-    // 🎯 按鈕代表「點擊後的動作」：沒吃過顯示💖，已吃過顯示🤍
+    // 🎯 按鈕代表點擊後的目標：沒吃過顯示 💖，已吃過顯示 🤍
     card.innerHTML = `
       <div class="card-top">
         <div class="store-title-group">
@@ -1694,7 +1694,7 @@ window.toggleVisited = async function(id) {
         statusBadge.className = 'detail-badge-pill';
       }
     }
-    // 🎯 按鈕代表「點擊後的動作」：沒吃過顯示💖，已吃過顯示🤍
+    // 🎯 按鈕代表點擊後的目標：沒吃過顯示 💖，已吃過顯示 🤍
     if (toggleBtn) {
       toggleBtn.innerText = isNowVisited ? '🤍' : '💖';
       toggleBtn.title = isNowVisited ? '已打卡（點擊取消打卡）' : '待造訪（點擊點亮打卡）';
@@ -1910,6 +1910,31 @@ async function forwardGeocode(address) {
   return null;
 }
 
+// 自動查詢當前帳號可用的最新 Flash 模型
+async function detectAvailableModel(apiKey) {
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models`, {
+      headers: { "x-goog-api-key": apiKey }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const models = data.models || [];
+      const candidates = models.filter(m => 
+        m.supportedGenerationMethods?.includes("generateContent") &&
+        m.name.includes("flash") &&
+        !m.name.includes("tts") &&
+        !m.name.includes("image")
+      );
+      if (candidates.length > 0) {
+        return candidates[0].name.replace(/^models\//, "");
+      }
+    }
+  } catch (e) {
+    console.warn("查詢可用模型失敗，改用預設模型", e);
+  }
+  return "gemini-2.5-flash";
+}
+
 window.runAiParsing = async function() {
   const rawText = document.getElementById('ai-raw-text').value.trim();
   if (!rawText) return alert('請貼上貼文內容、短訊或地址介紹！');
@@ -1940,8 +1965,8 @@ window.runAiParsing = async function() {
 `;
 
   try {
-    // 使用官方標準端點並透過 Header 傳遞 API Key
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+    const modelName = await detectAvailableModel(apiKey);
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
     
     const response = await fetch(endpoint, {
       method: "POST",
