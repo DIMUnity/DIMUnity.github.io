@@ -13,14 +13,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="蔬食星圖" />
 
-  <!-- 外部套件樣式表 -->
+  <!-- 外部套件樣式 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
   
   <!-- 自訂主樣式表 -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- 外部相依函式庫 -->
+  <!-- 外部套件 JavaScript 依賴 -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
@@ -28,7 +28,7 @@
 </head>
 <body>
 
-  <!-- 全螢幕授權登入畫面 -->
+  <!-- 🌟 全螢幕授權登入畫面 -->
   <div id="auth-lock-screen">
     <div class="auth-center-panel">
       <div class="auth-glass-box">
@@ -62,7 +62,7 @@
     </div>
   </div>
 
-  <!-- 登入後資料載入過場動畫畫面 -->
+  <!-- 🌀 登入後資料載入過場動畫畫面 -->
   <div id="app-loading-screen">
     <div class="loading-content-box">
       <div class="loading-ring-wrapper">
@@ -74,7 +74,7 @@
     </div>
   </div>
 
-  <!-- 路線規劃模式控制條 -->
+  <!-- 🛣️ 路線規劃模式控制條 -->
   <div id="route-indicator-bar">
     <div class="route-mode-pill-group">
       <button class="btn-route-mode" id="btn-mode-car" onclick="switchRouteMode('car')">🚗 汽車</button>
@@ -93,7 +93,7 @@
     </div>
   </div>
 
-  <!-- 原創星域極光風格實時導航 HUD -->
+  <!-- 🧭 原創星域極光風格實時導航 HUD -->
   <div id="nav-top-banner">
     <div class="nav-top-main-card">
       <div class="nav-top-left-info">
@@ -135,7 +135,7 @@
     </div>
   </div>
 
-  <!-- 原創社群風格個人選單 -->
+  <!-- 👤 原創社群風格個人選單 -->
   <div class="modal-overlay" id="user-menu-modal" onclick="closeUserMenu()">
     <div class="ig-user-sheet" onclick="event.stopPropagation()">
       <div class="ig-user-sheet-header">
@@ -169,7 +169,7 @@
     </div>
   </div>
 
-  <!-- 編輯個人檔案 Card 彈窗 -->
+  <!-- 📸 編輯個人檔案 Card 彈窗 -->
   <div class="modal-overlay" id="profile-edit-modal" onclick="closeProfileEditModal()">
     <div class="ig-edit-card" onclick="event.stopPropagation()">
       <div class="ig-edit-card-header">
@@ -204,7 +204,7 @@
     </div>
   </div>
 
-  <!-- 授權成員名單維護彈窗 -->
+  <!-- 🛡️ 授權成員名單維護彈窗 -->
   <div class="modal-overlay" id="whitelist-modal" onclick="closeWhitelistModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div style="font-size: 16px; font-weight: 800; color: #fff; display:flex; justify-content:space-between; align-items:center;">
@@ -226,7 +226,7 @@
     </div>
   </div>
 
-  <!-- 手機端懸浮頂部搜尋與限動 -->
+  <!-- 📱 手機端懸浮頂部搜尋與限動 -->
   <div id="mobile-floating-top">
     <div class="search-pill-box">
       <span style="font-size: 15px;">🔍</span>
@@ -263,7 +263,7 @@
         <span class="story-label">異國</span>
       </div>
       <div class="story-item" onclick="toggleStatusFilter('visited')">
-        <div class="story-ring" id="mobile-status-ring-visited"><div class="story-avatar">❤️</div></div>
+        <div class="story-ring" id="mobile-status-ring-visited"><div class="story-avatar">💖</div></div>
         <span class="story-label">已打卡</span>
       </div>
       <div class="story-item" onclick="toggleStatusFilter('unvisited')">
@@ -331,7 +331,7 @@
           <span class="story-label">異國</span>
         </div>
         <div class="story-item" onclick="toggleStatusFilter('visited')">
-          <div class="story-ring" id="desktop-status-ring-visited"><div class="story-avatar">❤️</div></div>
+          <div class="story-ring" id="desktop-status-ring-visited"><div class="story-avatar">💖</div></div>
           <span class="story-label">已打卡</span>
         </div>
         <div class="story-item" onclick="toggleStatusFilter('unvisited')">
@@ -404,7 +404,7 @@
     <div class="list-container" id="restaurant-list"></div>
   </div>
 
-  <!-- 右下角星圖視角膠囊 -->
+  <!-- 🪐 右下角星圖視角膠囊 -->
   <div class="ig-dock-capsule-container" id="ig-dock-container">
     <div class="ig-dock-popover" id="dock-popover-list">
       <div class="dock-popover-header">
@@ -428,7 +428,7 @@
     </div>
   </div>
 
-  <!-- 店家詳細資訊卡片 -->
+  <!-- 📍 店家詳細資訊卡片 -->
   <div id="gmaps-detail-sheet">
     <div class="detail-sheet-pill"></div>
     <div class="detail-header-row">
@@ -448,13 +448,13 @@
     <div class="detail-actions-row">
       <button id="sheet-btn-route-here" class="btn-gmaps-action primary" title="規劃路線">🛣️</button>
       <a href="#" id="sheet-btn-navigate" target="_blank" class="btn-gmaps-action secondary" title="Google App 導航">🧭</a>
-      <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary" title="打卡狀態">❤️</button>
+      <button id="sheet-btn-toggle-visited" class="btn-gmaps-action secondary" title="打卡狀態">💖</button>
       <button id="sheet-btn-edit" class="btn-gmaps-action secondary" title="編輯店家">✏️</button>
       <button id="sheet-btn-delete" class="btn-gmaps-action secondary" style="color:#ff453a;" title="刪除店家">🗑️</button>
     </div>
   </div>
 
-  <!-- 圖層切換底座 -->
+  <!-- 🗺️ 圖層切換底座 -->
   <div class="gmaps-layer-dock">
     <div id="gmaps-layer-box" onclick="handleLayerBoxClick()" title="點擊切換圖層">
       <div class="layer-box-icon-preview" id="layer-box-preview-icon">🛰️</div>
@@ -487,7 +487,7 @@
     <div id="map"></div>
   </div>
 
-  <!-- 編輯店家彈窗 -->
+  <!-- ✏️ 編輯店家彈窗 -->
   <div class="modal-overlay" id="modal">
     <div class="modal-content">
       <div id="modal-title" style="font-size: 15px; font-weight: 800; color: #fff;">📍 編輯蔬食店家</div>
@@ -528,7 +528,7 @@
     </div>
   </div>
 
-  <!-- 刪除確認彈窗 -->
+  <!-- 🗑️ 刪除確認彈窗 -->
   <div class="modal-overlay" id="delete-confirm-modal" onclick="closeDeleteConfirmModal()">
     <div class="modal-content" style="max-width: 320px; text-align: center; align-items: center; padding: 26px 22px; gap: 14px;" onclick="event.stopPropagation()">
       <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.35); color: #f43f5e; display: flex; align-items: center; justify-content: center; font-size: 24px;">
@@ -547,6 +547,79 @@
         <button id="btn-execute-delete" style="flex: 1; padding: 10px 0; font-weight: 800; background: linear-gradient(135deg, #ef4444 0%, #be123c 100%); color: #fff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);" onclick="executeDeleteStore()">
           確定刪除
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✨ AI 貼文 / 食記智慧辨識彈窗 -->
+  <div class="modal-overlay" id="ai-import-modal" onclick="closeAiImportModal()">
+    <div class="modal-content" style="max-width: 480px;" onclick="event.stopPropagation()">
+      <div style="font-size: 16px; font-weight: 800; color: #fff; display: flex; justify-content: space-between; align-items: center;">
+        <span style="background: var(--star-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          ✨ AI 智慧萃取店家資訊
+        </span>
+        <button class="detail-close-btn" onclick="closeAiImportModal()">✕</button>
+      </div>
+
+      <div style="font-size: 11.5px; color: var(--app-text-sub); line-height: 1.4;">
+        直接貼上 IG / FB 貼文、食記短文或好友推薦訊息，AI 將自動辨識店名、地址、分類與必吃菜色。
+      </div>
+
+      <div class="form-group">
+        <textarea id="ai-raw-text" class="form-control" rows="4" placeholder="在此貼上整篇 IG 貼文、LINE 推薦訊息或地址介紹..." style="resize: vertical; line-height: 1.5;"></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" onclick="promptSetGeminiKey()" style="background: transparent; border: none; color: #71717a; font-size: 11px; cursor: pointer; text-decoration: underline;">
+          ⚙️ 設定 Gemini API Key
+        </button>
+        <button class="btn-primary" id="btn-run-ai" onclick="runAiParsing()" style="padding: 7px 18px;">
+          🚀 開始 AI 分析
+        </button>
+      </div>
+
+      <!-- AI 預覽區塊 -->
+      <div id="ai-result-preview" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--app-border-light); border-radius: 12px; padding: 12px; margin-top: 4px;">
+        <div style="font-size: 12px; font-weight: 800; color: var(--app-accent); display: flex; justify-content: space-between;">
+          <span>🎯 AI 擷取結果確認</span>
+          <span id="ai-geo-status" style="color: var(--app-text-sub); font-size: 11px;">定位座標取得中...</span>
+        </div>
+        
+        <div class="form-group">
+          <label>店家名稱</label>
+          <input type="text" id="ai-parsed-name" class="form-control" />
+        </div>
+        
+        <div class="form-group">
+          <label>地址</label>
+          <input type="text" id="ai-parsed-address" class="form-control" />
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <div class="form-group" style="flex: 1;">
+            <label>分類</label>
+            <select id="ai-parsed-category" class="form-control">
+              <option value="純素">🌱 純素</option>
+              <option value="蛋奶素">🍳 蛋奶素</option>
+              <option value="早午餐">🥪 早午餐</option>
+              <option value="甜點">🍰 甜點</option>
+              <option value="異國">🍕 異國</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>必點推薦</label>
+            <input type="text" id="ai-parsed-recommended" class="form-control" />
+          </div>
+        </div>
+
+        <input type="hidden" id="ai-parsed-lat" />
+        <input type="hidden" id="ai-parsed-lng" />
+
+        <div class="modal-actions" style="margin-top: 6px;">
+          <button class="btn-primary" id="btn-confirm-ai-save" onclick="saveAiParsedStore()" style="width: 100%; padding: 9px 0;">
+            ✅ 確認無誤，加入星圖
+          </button>
+        </div>
       </div>
     </div>
   </div>
