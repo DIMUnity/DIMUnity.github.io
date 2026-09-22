@@ -723,6 +723,7 @@ body {
   border: 1px solid var(--app-border);
   display: flex;
   gap: 6px;
+  align-items: center;
 }
 .quick-input {
   flex: 1;
@@ -743,6 +744,32 @@ body {
   padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ─── ✨ AI 辨識按鈕樣式 ─── */
+.btn-quick-ai {
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #06b6d4 100%);
+  color: #fff;
+  font-weight: 800;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+  transition: transform 0.15s, opacity 0.2s;
+  flex-shrink: 0;
+}
+.btn-quick-ai:hover {
+  opacity: 0.92;
+  box-shadow: 0 0 16px rgba(236, 72, 153, 0.7);
+}
+.btn-quick-ai:active {
+  transform: scale(0.96);
 }
 
 .list-container {
@@ -945,7 +972,7 @@ body {
   pointer-events: none;
 }
 
-/* ─── 🌟 超新星點亮星脈衝特效 (引力收束 ➔ 核心爆發) ─── */
+/* ─── 🌟 超新星點亮星脈衝特效 ─── */
 .star-fx-container {
   position: relative;
   width: 0;
@@ -1017,7 +1044,7 @@ body {
   100% { transform: scale(2.8); opacity: 0; border-width: 1px; }
 }
 
-/* ─── 🌑 星象寂滅 / 取消打卡特效 (解體擴散 ➔ 黑洞收縮) ─── */
+/* ─── 🌑 星象寂滅 / 取消打卡特效 ─── */
 .fx-extinguish-pulse {
   position: absolute;
   top: -35px;
